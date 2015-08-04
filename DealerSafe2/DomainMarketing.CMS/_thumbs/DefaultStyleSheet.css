@@ -1,0 +1,40 @@
+﻿li.active a {
+    color: orange !important;
+    font-weight: bold !important;
+}
+
+:focus {
+    outline: none;
+}
+
+a {
+    cursor:pointer;
+}
+
+
+textarea:hover, input[type="text"]:hover, input[type="password"]:hover, input[type="datetime"]:hover, input[type="datetime-local"]:hover, input[type="date"]:hover, input[type="month"]:hover, input[type="time"]:hover, input[type="week"]:hover, input[type="number"]:hover, input[type="email"]:hover, input[type="url"]:hover, input[type="search"]:hover, input[type="tel"]:hover, input[type="color"]:hover {
+  border-color: #dd4814;
+}
+select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
+  border-radius: 3px !important;
+  color: #858585;
+  background-color: #ffffff;
+  border: 1px solid #d5d5d5;
+  padding: 5px 4px;
+  line-height: 1.2;
+  font-size: 14px;
+  font-family: inherit;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-transition-duration: 0.1s;
+  transition-duration: 0.1s;
+}
+
+.modal-dialog{z-index: 10000;}
+
+form.ng-invalid.ng-submitted select.ng-invalid, form.ng-invalid.ng-submitted input.ng-invalid, form.ng-invalid.ng-submitted textarea.ng-invalid {
+    border: 1px solid red;
+}
+.width100{
+    width: 100%;
+}
