@@ -63,7 +63,7 @@ namespace DealerSafe2.API
 
         #endregion
 
-        #region Expertise
+        #region Expertise & Brokerage
 
         public bool AskForExpertise(string id)
         {
@@ -222,16 +222,16 @@ namespace DealerSafe2.API
             return auc.ToEntityInfo<DMAuctionSearchInfo>();
         }
 
-        public ResOpenAucsListWithRowCount GetOpenAuctionsList(ReqPager req)
+        public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewDMSearch 
                         where DMItemId in 
 	                        (select DMItemId from DMAuction) 
                         order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
 
-            ResOpenAucsListWithRowCount res =new ResOpenAucsListWithRowCount();
-            res.Auctions = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMAuctionSearchInfo>();
-            res.rowCount = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMSearch ");
+            PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMAuctionSearchInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMSearch ");
             return res;
         }
 
@@ -340,6 +340,14 @@ namespace DealerSafe2.API
 
         #region Biddings&Offers
 
+        public DMBidderMemberInfo GetBid(string id)
+        {
+
+            var sql = "SELECT * FROM ListViewDMBidderMember WHERE BidId= {0}";
+            var res = Provider.Database.Read<ListViewDMBidderMember>(sql, id).ToEntityInfo<DMBidderMemberInfo>();
+            return res;
+        }
+
         public bool SaveBid(ReqBid req) {
 
             DMBid bid = new DMBid();
@@ -362,26 +370,26 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(bid.BidderMemberId);
         }
 
-        public ResBidderMemberListWithRows GetBidsWithAuctionId(ReqBidderMemberList req)
+        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
         {
-            ResBidderMemberListWithRows res = new ResBidderMemberListWithRows(); 
+            PagerResponse<DMBidderMemberInfo> res = new PagerResponse<DMBidderMemberInfo>(); 
             var sql = "select * from ListViewDMBidderMember where DMAuctionId = {0} order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            res.Bids = Provider.Database.ReadList<ListViewDMBidderMember>(sql, req.id, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMBidderMemberInfo>();
-            res.rowCount = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMSearch ");
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMBidderMember>(sql, req.RelativeId, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMBidderMemberInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMSearch ");
             return res;
         }
 
 
-        public ResDMAuctionMember BidsForMyItems(ReqPager req)
+        public PagerResponse<DMAuctionMemberInfo> BidsForMyItems(ReqPager req)
         {
             var sql = @"select * from ListViewDMAuctionMember 
                         where
                         MemberId = {2}
                         order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
 
-            ResDMAuctionMember res = new ResDMAuctionMember();
-            res.Auctions = Provider.Database.ReadList<ListViewDMAuctionMember>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionMemberInfo>();
-            res.rowCount = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMAuctionMember");
+            PagerResponse<DMAuctionMemberInfo> res = new PagerResponse<DMAuctionMemberInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMAuctionMember>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionMemberInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMAuctionMember");
             return res;
         }
 
@@ -398,16 +406,16 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(offer.OffererMemberId);
         }
 
-        public ResDMOfferItemMember OffersForMyItems(ReqPager req)
+        public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
             var sql = @"select * from ListViewOfferItemMember
                         where
                         MemberId = {2}
                         order by OfferValue desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
 
-            ResDMOfferItemMember res = new ResDMOfferItemMember();
-            res.Items = Provider.Database.ReadList<ListViewOfferItemMember>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMOfferItemMemberInfo>();
-            res.rowCount = Provider.Database.GetInt("SELECT count(*) FROM ListViewOfferItemMember");
+            PagerResponse<DMOfferItemMemberInfo> res = new PagerResponse<DMOfferItemMemberInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewOfferItemMember>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMOfferItemMemberInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewOfferItemMember");
             return res;
         }
         

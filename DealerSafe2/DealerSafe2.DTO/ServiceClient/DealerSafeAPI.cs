@@ -598,6 +598,8 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Auctions
 
+        
+
         public DMAuctionSearchInfo GetAuction(string req)
         {
             return Call<DMAuctionSearchInfo, string>(req, MethodBase.GetCurrentMethod().Name);
@@ -608,9 +610,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMAuctionSearchInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ResOpenAucsListWithRowCount GetOpenAuctionsList(ReqPager req)
+        public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
         {
-            return Call<ResOpenAucsListWithRowCount, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<DMItemInfo> GetMyItemsOnAuction(ReqEmpty req)
@@ -681,19 +683,29 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Biddings&offerings
 
+        //public PagerResponse<DMBidderMemberInfo> GetMyExpertiseRequests(ReqPager req)
+        //{
+        //    return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        //}
+
+        public DMBidderMemberInfo GetBid(string id)
+        {
+            return Call<DMBidderMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
         public bool SaveBid(ReqBid req)
         {
             return Call<bool, ReqBid>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ResBidderMemberListWithRows GetBidsWithAuctionId(ReqBidderMemberList req)
+        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
         {
-            return Call<ResBidderMemberListWithRows, ReqBidderMemberList>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ResDMAuctionMember BidsForMyItems(ReqPager req)
+        public PagerResponse<DMAuctionMemberInfo> BidsForMyItems(ReqPager req)
         {
-            return Call<ResDMAuctionMember, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMAuctionMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         
@@ -703,9 +715,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqOffer>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ResDMOfferItemMember OffersForMyItems(ReqPager req)
+        public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
-            return Call<ResDMOfferItemMember, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMOfferItemMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
