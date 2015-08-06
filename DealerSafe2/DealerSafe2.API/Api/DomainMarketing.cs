@@ -70,24 +70,34 @@ namespace DealerSafe2.API
             var expertise = new DMExpertise();
             expertise.RequesterMemberId = Provider.CurrentMember.Id;
             expertise.Status = DMExpertiseStates.Open;
+            expertise.DMItemId = id;
             expertise.Insert();
 
             return !String.IsNullOrEmpty(expertise.Id);
         }
 
-        public List<DMExpertiseInfo> GetMyExpertiseRequests(ReqEmpty req)
+        public bool ToggleExpertisePublic(string id)
         {
-            var sql = "select * from DMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
-            var res = Provider.Database.ReadList<DMExpertise>(sql, Provider.CurrentMember.Id, DMExpertiseStates.Open)
-                .ToList().ToEntityInfo<DMExpertiseInfo>();
+            var expertise = Provider.Database.Read<DMExpertise>("select Id, IsPublic from DMExpertise where Id = {0}", id);
+            return expertise.IsPublic = !expertise.IsPublic;
+        }
+
+        public PagerResponse<ListViewDMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
+        {
+            var sql = "select * from ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var res = new PagerResponse<ListViewDMExpertiseInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMExpertise>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
+                .ToList().ToEntityInfo<ListViewDMExpertiseInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
             return res;
         }
 
-        public List<DMExpertiseInfo> GetExpertiseReports(string id)
+        // There might be more than 1 report for an item
+        public List<ListViewDMExpertiseInfo> GetExpertiseReports(string id)
         {
-            var sql = "select * from DMExpertise where DMItemId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
-            var res = Provider.Database.ReadList<DMExpertise>(sql, id, DMExpertiseStates.Processed)
-                .ToList().ToEntityInfo<DMExpertiseInfo>();
+            var sql = "select * from ListViewDMExpertise where RequesterMemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0) and Status = {2}";
+            var res = Provider.Database.ReadList<ListViewDMExpertise>(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Processed.ToString())
+                .ToList().ToEntityInfo<ListViewDMExpertiseInfo>();
             return res;
         }
 
@@ -97,24 +107,27 @@ namespace DealerSafe2.API
             var brokerage = new DMBrokerage();
             brokerage.RequesterMemberId = Provider.CurrentMember.Id;
             brokerage.Status = DMBrokerageStates.Open;
+            brokerage.DMItemId = id;
             brokerage.Insert();
 
             return !String.IsNullOrEmpty(brokerage.Id);
         }
 
-        public List<DMBrokerageInfo> GetMyBrokerageRequests(ReqEmpty req)
+        public PagerResponse<ListViewDMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
         {
-            var sql = "select * from DMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
-            var res = Provider.Database.ReadList<DMBrokerage>(sql, Provider.CurrentMember.Id, DMBrokerageStates.Open.ToString())
-                .ToList().ToEntityInfo<DMBrokerageInfo>();
+            var sql = "select * from ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var res = new PagerResponse<ListViewDMBrokerageInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMBrokerage>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
+                .ToList().ToEntityInfo<ListViewDMBrokerageInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
             return res;
         }
 
-        public List<DMBrokerageInfo> GetBrokerageReports(string id)
+        public ListViewDMBrokerageInfo GetBrokerageReports(string id)
         {
-            var sql = "select * from DMExpertise where DMItemId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
-            var res = Provider.Database.ReadList<DMExpertise>(sql, id, DMBrokerageStates.Processed.ToString())
-                .ToList().ToEntityInfo<DMBrokerageInfo>();
+            var sql = "select * from ListViewDMBrokerage where RequesterMemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0) and Status = {2}";
+            var res = Provider.Database.Read<ListViewDMBrokerage>(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Processed.ToString())
+                .ToEntityInfo<ListViewDMBrokerageInfo>();
             return res;
         }
 

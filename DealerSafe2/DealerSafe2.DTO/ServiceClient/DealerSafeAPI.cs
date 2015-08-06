@@ -536,21 +536,39 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #endregion
 
-        #region Expertise
+        #region Expertise & Brokerage
 
         public bool AskForExpertise(string id)
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-
-        public List<DMExpertiseInfo> GetMyExpertiseRequests(ReqEmpty req)
+        public bool ToggleExpertisePublic(string id)
         {
-            return Call<List<DMExpertiseInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ListViewDMBrokerageInfo> GetMyExpertiseRequests(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public List<DMExpertiseInfo> GetExpertiseReports(string id)
+        public List<ListViewDMExpertiseInfo> GetExpertiseReports(string id)
         {
-            return Call<List<DMExpertiseInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<List<ListViewDMExpertiseInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool AskForBrokerage(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewDMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public ListViewDMBrokerageInfo GetBrokerageReports(string id)
+        {
+            return Call<ListViewDMBrokerageInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion

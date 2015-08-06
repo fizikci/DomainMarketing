@@ -980,8 +980,10 @@
     <Compile Include="Entity\CommunicationChannel\CCSmsSocket.cs" />
     <Compile Include="Entity\DomainMarketing\DMBrowse.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewDMBrokerage.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMAuctionMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBidderMember.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewDMExpertise.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewOfferItemMember.cs" />
     <Compile Include="Entity\DomainMarketing\DMItemWithLangAndCategory.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewComment.cs" />

@@ -6,13 +6,15 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class DMBrokerageInfo : BaseEntityInfo
+    public class ListViewDMExpertiseInfo : BaseEntityInfo
     {
         public string RequesterMemberId { get; set; }
-        public string BrokerMemberId { get; set; }
+        public string ExpertMemberId { get; set; }
         public string DMItemId { get; set; }
-        public DMBrokerageStates Status { get; set; }
+        public string DomainName { get; set; }
+        public string Status { get; set; }
         public string ReportContent { get; set; }
+        public DateTime InsertDate { get; set; }
         public bool IsPublic { get; set; }
     }
 }
