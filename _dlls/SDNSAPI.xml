@@ -1,0 +1,323 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+SDNSAPI
+</name>
+</assembly>
+<members>
+<member name="P:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Item(System.Int32)">
+	<summary>Retrieves a DNS record from the zone</summary>
+	<param name="index">The zero-based index of the DNS record to get</param>
+	<value>A <c>DNSRecord</c> object</value>
+	<remarks>The record with index number zero (0) is always the SOA-record</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Add(System.String,System.String,System.String[])">
+	<summary>Adds a new DNS record to the zone.</summary>
+	<param name="name">Domain name (FQDN) of the new record. This name must either be the same as the zone's name or a sub-name.
+ The name may contain non-english characters in which case it will automatically be punycode encoded.</param>
+	<param name="type">The type of the new record. For example "A" or "MX".</param>
+	<param name="data">One or more string values (depending on the record type) containing the data of the new record.
+IMPORTANT: The number of data parameters must match exactly the number of data fields for the record type (see "Record types and data fields").</param>
+	<returns>A <c>DNSRecord</c> object representing the new DNS record</returns>
+	<remarks>The new DNS record's TTL value will be the zone object's <c>DefaultTTL</c> value.
+To use a different value, set the new record's <c>TTL</c> property.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.IndexOf(System.String,System.String,System.String[])">
+	<summary>Determines the index of a DNS record in the collection</summary>
+	<param name="name">Domain name (FQDN) of the record</param>
+	<param name="type">The type of the record. For example "A" or "MX".</param>
+	<param name="data">One or more string values (depending on the record type) containing the data of the record.
+IMPORTANT: The number of data parameters must match exactly the number of data fields for the record type (see "Record types and data fields").</param>
+	<returns>The index of item if found in the collection; otherwise, -1.</returns>
+	<remarks>If a value occurs multiple times in the collection, the IndexOf method always returns the first instance found.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Contains(System.String,System.String,System.String[])">
+	<summary>Determines whether the collection contains a specific DNS record</summary>
+	<param name="name">Domain name (FQDN) of the record</param>
+	<param name="type">The type of the record. For example "A" or "MX".</param>
+	<param name="data">One or more string values (depending on the record type) containing the data of the record.
+IMPORTANT: The number of data parameters must match exactly the number of data fields for the record type (see "Record types and data fields").</param>
+	<returns><c>True</c> if item is found in the collection; otherwise, <c>false</c></returns>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Count">
+	<summary>Returns the number of DNS records in the zone</summary>
+	<value>Number of DNS records in the zone</value>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Remove(System.String,System.String,System.String[])">
+	<summary>Removes the DNS record with the specified name, type, and data</summary>
+	<param name="name">Domain name (FQDN) of the record to remove</param>
+	<param name="type">The type of the record to remove. For example "A" or "MX".</param>
+	<param name="data">One or more string values (depending on the record type) containing the data of the record.
+IMPORTANT: The number of data parameters must match exactly the number of data fields for the record type (see "Record types and data fields").</param>
+	<returns>The number of DNS records that were removed</returns>
+	<remarks>SOA-records cannot be removed</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Remove(System.String,System.String)">
+	<summary>Removes all DNS records with the specified name and type</summary>
+	<param name="name">Domain name (FQDN) of the record to remove</param>
+	<param name="type">The type of the record to remove. For example "A" or "MX".</param>
+	<returns>The number of DNS records that were removed</returns>
+	<remarks>SOA-records cannot be removed</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.Remove(System.String)">
+	<summary>Removes all DNS records with the specified name</summary>
+	<param name="name">Domain name (FQDN) of the record to remove</param>
+	<returns>The number of DNS records that were removed</returns>
+	<remarks>The zone's SOA-records will not be removed</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.RemoveAt(System.Int32)">
+	<summary>Removes the DNS record at the specified index from the zone</summary>
+	<param name="index">The zero-based index of the DNS record to remove</param>
+	<remarks>The record with index number zero (0), which is always the SOA-record, cannot be removed</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.GetEnumeratorOfDNSRecord">
+	<summary>Returns an enumerator that iterates through the DNS records in the zone</summary>
+	<returns>An object that implements the IEnumerator interface and iterates through the DNS records in the zone</returns>
+	<remarks>The foreach statement of the C# language (for each in Visual C++, For Each in Visual Basic) hides the complexity of the enumerators. Therefore, using foreach is recommended, instead of directly manipulating the enumerator.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSRecordCollection.GetEnumerator">
+	<summary>Returns an enumerator that iterates through the DNS records in the zone</summary>
+	<returns>An object that implements the IEnumerator interface and iterates through the DNS records in the zone</returns>
+	<remarks>The foreach statement of the C# language (for each in Visual C++, For Each in Visual Basic) hides the complexity of the enumerators. Therefore, using foreach is recommended, instead of directly manipulating the enumerator.</remarks>
+</member><member name="T:JHSoftware.SimpleDNSPlus.DNSRecordCollection">
+	<summary>A collection representing all the DNS records in a DNS zone</summary>
+	<remarks>Get this collection using the <c>DNSZone.Records</c> field</remarks>
+</member><member name="T:JHSoftware.SimpleDNSPlus.ZoneList">
+	<summary>A list of DNS zones on the Simple DNS Plus server</summary>
+	<remarks>Get this list using the <c>Connection.GetZoneList</c> method</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.ZoneListItem.ZoneName">
+	<summary>The name of the zone</summary>
+	<value>A domain name (FQDN)</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.ZoneListItem.Secondary">
+	<summary>Indicates if this zone is secondary or not (primary)</summary>
+	<value><c>True</c> for secondary zones. <c>False</c> for primary zones</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.ZoneListItem.PrimaryIP">
+	<summary>The IP address of the primary DNS server for a secondary zone</summary>
+	<value>Contains an IP address if this is a secondary zone. Otherwise zero length string</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.ZoneListItem.GroupID">
+	<summary>Specifies a numeric ID for the Zone Group that this zone belongs to in Simple DNS Plus (DNS Records Window / View menu / Arrange Zones / by Zone Group).
+The group IDs and associated labels can be found and configured in the "editrecs.ini" file.
+Specify zero for the default group.</summary>
+	<value>Zone group ID</value>
+</member><member name="T:JHSoftware.SimpleDNSPlus.ZoneListItem">
+	<summary>Represents an item in a <c>ZoneList</c></summary>
+	<remarks>To retrieve the <c>DNSZone</c> object corresponding to this item, use <c>Connection.GetZone(ZoneListItem.ZoneName)</c>.</remarks>
+</member><member name="P:My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="M:DomName.TryParseMFString(System.String,DomName,DomName@)">
+	<summary>**** Not thread safe ****</summary>
+</member><member name="M:DomName.TryParse(System.String,DomName@,System.Boolean)">
+	<summary>**** Not thread safe ****</summary>
+</member><member name="F:JHSoftware.SimpleDNSPlus.DNSRecord.DataFields">
+	<summary>A collection of data fields in the record</summary>
+	<remarks>For the number and type of data fields for each record type, see Record types and data fields</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSRecord.Name">
+	<summary>Returns a string containing the name (FQDN) of the DNS record</summary>
+	<value>Name (FQDN) of the DNS record</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSRecord.Type">
+	<summary>Retrieves the record type - for example "A"</summary>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSRecord.TTL">
+	<summary>Retrieves or sets the DNS record TTL (time to live) value in seconds</summary>
+	<value>Number between 0 and 2,147,483,647 representing the number of seconds other DNS servers may cache this record.</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSRecord.Comments">
+	<summary>Retrieves or sets a string of comments/remarks associated with this DNS record.</summary>
+	<value>String containing comments</value>
+	<remarks>This property is not transferred to secondary DNS servers through zone transfers</remarks>
+</member><member name="T:JHSoftware.SimpleDNSPlus.DNSRecord">
+	<summary>Represents a single DNS record</summary>
+	<remarks>To create a new <c>DNSRecord</c> object, use the <c>AddRecord</c> method of the <c>DNSZone</c> object.</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DataFieldCollection.Item(System.Int32)">
+	<summary>Gets or sets the value of the data field at the specified index</summary>
+	<param name="index">The zero-based index of the data field to get or set (see Record types and data fields)</param>
+	<value>Value of the data fieldt at the specified index</value>
+	<remarks>To update data fields for record types with multiple data fields, consider using the more efficient <c>SetAll</c> method</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.SetAll(System.String[])">
+	<summary>Updates all the data fields of a DNS record in one operation</summary>
+	<param name="values">One or more string values depending on the type of DNS record.
+IMPORTANT: The number of parameters must match exactly the number of data fields for the record type (see "Record types and data fields").</param>
+	<remarks>For record types with multiple data fields (for example MX-records), you must provide a value all the data fields or an error will be thrown.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.Add(System.String)">
+	<summary>Adds a data field value to the collection</summary>
+	<param name="item">The string value to add</param>
+	<remarks>This method is only valid with TXT-records.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.Clear">
+	<summary>Non-implemented IList method. Will throw an error if called.</summary>
+	<remarks>DNS record data fields must have valid values and cannot be cleared</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.Contains(System.String)">
+	<summary>Determines whether the collection contains a specific value</summary>
+	<param name="item">The value to locate in the collection</param>
+	<returns><c>True</c> if item is found in the collection; otherwise, <c>false</c></returns>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.CopyTo(System.String[],System.Int32)">
+	<summary>Copies the elements of the collection to an <c>Array</c>, starting at a particular Array index</summary>
+	<param name="array">The one-dimensional Array that is the destination of the elements copied from the collection. The Array must have zero-based indexing</param>
+	<param name="arrayIndex">The zero-based index in array at which copying begins</param>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DataFieldCollection.Count">
+	<summary>The number of data fields for this DNS record</summary>
+	<value>The number of data fields for this DNS record</value>
+	<remarks>For all record types except TXT, the number of data fields is always the same for each record type.
+ For example it always returns 1 (one) for A-record and 2 for MX-records.
+ TXT-records may have one or multiple data fields.</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DataFieldCollection.IsReadOnly">
+	<summary>Gets a value indicating whether the collection is read-only</summary>
+	<value>False for TXT-records; otherwise, True</value>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.Remove(System.String)">
+	<summary>Removes the first occurrence of a specific value from the collection</summary>
+	<param name="item">The value to remove from the collection.</param>
+	<returns>True if item was successfully removed from the collection; otherwise, false.
+This method also returns false if item is not found in the original collection</returns>
+	<remarks>This method is only valid with TXT-records, and only when the record has two or more data fields (cannot remove last field)</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.IndexOf(System.String)">
+	<summary>Determines the index of a specific value in the collection</summary>
+	<param name="item">The value to locate in the collection</param>
+	<returns>The index of item if found in the collection; otherwise, -1.</returns>
+	<remarks>If a value occurs multiple times in the collection, the IndexOf method always returns the first instance found.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.Insert(System.Int32,System.String)">
+	<summary>Inserts a data field to the collection at the specified index</summary>
+	<param name="index">The zero-based index at which item should be inserted</param>
+	<param name="item">The data field value to insert into the collection</param>
+	<remarks>This method is only valid with TXT-records.
+If index equals the number of data fields in the collection, then item is appended to the end.
+Data fields that follow the insertion point move down to accommodate the new element. The indexes of the data fields that are moved are also updated.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.RemoveAt(System.Int32)">
+	<summary>Removes the data field at the specified index</summary>
+	<param name="index">The zero-based index of the data field to remove</param>
+	<remarks>This method is only valid with TXT-records</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.GetEnumerator">
+	<summary>Returns an enumerator that iterates through the data fields in the record</summary>
+	<returns>An object that implements the IEnumerator interface and iterates through the data fields in the record</returns>
+	<remarks>The foreach statement of the C# language (for each in Visual C++, For Each in Visual Basic) hides the complexity of the enumerators. Therefore, using foreach is recommended, instead of directly manipulating the enumerator.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DataFieldCollection.GetEnumeratorOfString">
+	<summary>Returns an enumerator that iterates through the data fields in the record</summary>
+	<returns>An object that implements the IEnumerator interface and iterates through the data fields in the record</returns>
+	<remarks>The foreach statement of the C# language (for each in Visual C++, For Each in Visual Basic) hides the complexity of the enumerators. Therefore, using foreach is recommended, instead of directly manipulating the enumerator.</remarks>
+</member><member name="T:JHSoftware.SimpleDNSPlus.DataFieldCollection">
+	<summary>A collection representing that data fields of DNS record</summary>
+	<remarks>Get this collection using the <c>DNSRecord.DataFields</c> field</remarks>
+</member><member name="F:JHSoftware.SimpleDNSPlus.DNSZone.Records">
+	<summary>A collection of DNS records in the zone</summary>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.Name">
+	<summary>The domain name (FQDN) of the zone</summary>
+	<value>A domain name (FQDN)</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.AllowUpdate">
+	<summary>Specifies which IP addresses may send standard dynamic updates for this zone.</summary>
+	<value>String containing list of IP addresses and/or subnets separated by spaces. To specify all, use "*".
+Subnets are specified in CIDR notation (&lt;IP address&gt;/&lt;bit size of subnet mask&gt;).</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.AllowZoneTransfer">
+	<summary>Specifies which IP addresses may request zone transfers of this zone.</summary>
+	<value>String containing list of IP addresses and/or subnets separated by spaces. To specify all, use "*".
+Subnets are specified in CIDR notation (&lt;IP address&gt;/&lt;bit size of subnet mask&gt;).</value>
+	<remarks>This property is not transferred to secondary DNS servers through zone transfers.</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.DefaultTTL">
+	<summary>The default TTL (Time To Live) value in seconds for new records added to the zone</summary>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.MinimumTTL">
+	<summary>Retrieves or sets a minimum TTL (Time To Live) value in seconds for all records in this zone.
+This overrides any lower TTL specified in individual records and global options.
+A negative value indicates that this option is disabled - as oposed to a zero value which would override global options.</summary>
+	<remarks>This is not the same as the SOA record "minimum" data field.
+This property is not transferred to secondary DNS servers via zone transfers.</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.GroupID">
+	<summary>Specifies a numeric ID for the Zone Group that this zone belongs to in Simple DNS Plus (DNS Records Window / View menu / Arrange Zones / by Zone Group).
+The group IDs and associated labels can be found and configured in the "editrecs.ini" file.
+Specify zero for the default group.</summary>
+	<value>Zone group ID</value>
+	<remarks>This property is not transferred to secondary DNS servers through zone transfers</remarks>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.PrimaryIP">
+	<summary>For a secondary zone, this value specifies the IP address of the primary DNS server for the zone</summary>
+	<value>For secondary zone an IP address. For primary zone an empty/zero length string.</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.ReverseSN">
+	<summary>Specifies the IP sub-net covered by a reverse zone</summary>
+	<value>String containing IP and subnet in CIDR notation (&lt;IP address&gt;/&lt;bit size of subnet mask&gt;).</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.Comments">
+	<summary>Any comments and remarks for this zone</summary>
+	<value>Any string value</value>
+</member><member name="P:JHSoftware.SimpleDNSPlus.DNSZone.SendNotify">
+	<summary>Specifies if Simple DNS Plus will send NOTIFY requests to secondary DNS servers to alert them when this zone is updated</summary>
+	<value>When <c>True</c>, Simple DNS Plus will notify secondary servers</value>
+</member><member name="M:JHSoftware.SimpleDNSPlus.DNSZone.WebEncode">
+	<summary>Encodes the current zone data into a string which can be persisted in a
+ hidden input field on a web-page, and then later decoded using the <c>WebDecodeZone</c> method of the <c>Connection</c> object.</summary>
+	<returns>A string value with the encoded zone data</returns>
+	<remarks>The returned string is Mime64 encoded and therefore no additional encoding is necessary when using this value in web-page form fields.
+The encoded string includes an MD5 hash-code, so any alteration to the string will cause an error when the string is decoded.
+The encoding algorithm used makes it difficult to decipher and alter the underlying data, but it is not strongly encrypted.</remarks>
+</member><member name="T:JHSoftware.SimpleDNSPlus.DNSZone">
+	<summary>Represent a DNS zone on Simple DNS Plus</summary>
+	<remarks>To create a new <c>DNSZone</c> object, use the <c>CreateZone</c> method of the <c>Connection</c> object.
+ And to retrieve an exisiting zone from Simple DNS Plus, use the <c>GetZone</c> method of the <c>Connection</c> object.</remarks>
+</member><member name="M:DNSCharStr.TryParseMFString(System.String,DNSCharStr@)">
+	<summary>**** Not thread safe ****</summary>
+</member><member name="F:JHSoftware.SimpleDNSPlus.Connection.AutoDecodeIDNs">
+	<summary>When this value is set to true, IDN domain names are automatically decoded and returned in native characters.
+ When false, IDN domain names are returned punycode encoded.</summary>
+</member><member name="P:JHSoftware.SimpleDNSPlus.Connection.LastMessage">
+	<summary>The last error or status message from Simple DNS Plus</summary>
+	<remarks>If the <c>Connection</c> object throws an error, you can use this property to get more details on the problem.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.ClearCache">
+	<summary>Clears the DNS cache on Simple DNS Plus</summary>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.#ctor(System.String,System.Int32)">
+	<summary>Initializes a connection to the Simple DNS Plus server using the specified host and port, and a blank password for the Simple DNS Plus HTTP API</summary>
+	<param name="host">The host name or IP address of the computer running Simple DNS Plus.
+See Simple DNS Plus Options dialog / HTTP API section</param>
+	<param name="port">The TCP port number which Simple DNS Plus listens for HTTP API requests on.
+See Simple DNS Plus Options dialog / HTTP API section</param>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.#ctor(System.String,System.Int32,System.String)">
+	<summary>Initializes a connection to the Simple DNS Plus server using the specified host, port number, and password for the Simple DNS Plus HTTP API</summary>
+	<param name="host">The host name or IP address of the computer running Simple DNS Plus.
+See Simple DNS Plus Options dialog / HTTP API section</param>
+	<param name="port">The TCP port number which Simple DNS Plus listens for HTTP API requests on.
+See Simple DNS Plus Options dialog / HTTP API section</param>
+	<param name="password">The Simple DNS Plus HTTP API password.
+See Simple DNS Plus Options dialog / HTTP API section</param>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.GetZone(System.String)">
+	<summary>Retrieves a DNS zone from Simple DNS Plus</summary>
+	<param name="zoneName">The name (FQDN) of the zone</param>
+	<returns>A <c>DNSZone</c> object</returns>
+	<remarks>WARNING: In between using the <c>UpdateZone</c> method, and later retrieving the same zone using the <c>GetZone</c> method, the order of the records in the zone may change</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.CreateZone(System.String,System.String,System.String)">
+	<summary>Creates a new DNS zone containing a SOA-record and a single NS-record for the primary DNS server.</summary>
+	<param name="zoneName">The name (FQDN) of the new zone.
+The name may contain non-english characters in which case it will automatically be punycode encoded.</param>
+	<param name="primaryNS">The name (FQDN) of the primary DNS server for this zone
+The name may contain non-english characters in which case it will automatically be punycode encoded.</param>
+	<param name="rPerson">The e-mail address of the person responsible for this zone</param>
+	<returns>The new <c>DNSZone</c> object</returns>
+	<remarks>This method will create a new primary zone.
+To create a new secondary zone, first create the zone using the function, and then set the <c>DNSZone.PrimaryIP</c> property to the IP address of the secondary server. This will convert it to a secondary zone.
+IMPORTANT: The new zone is not actually created in Simple DNS Plus until it is updated using the <c>Connection.UpdateZone</c> method.</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.UpdateZone(JHSoftware.SimpleDNSPlus.DNSZone,System.Boolean)">
+	<summary>Updates a zone on Simple DNS Plus</summary>
+	<param name="zone">The <c>DNSZone</c> object representing the zone to update</param>
+	<param name="IncrementSOASerial">When <c>True</c>, the zone's SOA-record Serial data field will automatically be incremented.
+ You should always set this to <c>True</c> unless you have already updated the Serial number value directly.</param>
+	<remarks>WARNING: In between using the <c>UpdateZone</c> method, and later retrieving the same zone using the <c>GetZone</c> method, the order of the records in the zone may change</remarks>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.RemoveZone(System.String)">
+	<summary>Removes a zone from Simple DNS Plus</summary>
+	<param name="zoneName">Domain name of the zone to remove</param>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.WebDecodeZone(System.String)">
+	<summary>Decodes zone data from a string encoded with the <c>DNSZone.WebEncode</c> method.
+This can be used to retrieve data persisted in a hidden input field on a web-page.</summary>
+	<param name="s">The encoded zone data</param>
+	<returns>A <c>DNSZone</c> object</returns>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.IDNEncode(System.String)">
+	<summary>Utility function to encode IDN domain names</summary>
+	<param name="domainName">Domain name in native characters</param>
+	<returns>Punycode encoded domain name</returns>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.IDNDecode(System.String)">
+	<summary>Utility function to decode punycode encoded IDN domain names</summary>
+	<param name="domainName">Punycode encoded domain name</param>
+	<returns>Domain name in native characters</returns>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.GetZoneList">
+	<summary>Retrieves a list of all the DNS zones on the Simple DNS Plus server</summary>
+	<returns>A collection of <c>ZoneListItem</c> objects</returns>
+</member><member name="M:JHSoftware.SimpleDNSPlus.Connection.GetZoneList(System.Int32)">
+	<summary>Retrieves a list of DNS zones on the Simple DNS Plus server belonging to the specified group</summary>
+	<returns>A collection of <c>ZoneListItem</c> objects</returns>
+	<param name="groupID">Numeric ID for a zone group in Simple DNS Plus (DNS Records Window / View menu / Arrange Zones / by Zone Group).
+The IDs and associated labels can be found and configured in the "editrecs.ini" file. Specify zero (0) for the "Default" group.</param>
+</member><member name="T:JHSoftware.SimpleDNSPlus.Connection">
+	<summary>Represent a connection to the Simple DNS Plus server.</summary>
+</member>
+</members>
+</doc>
