@@ -102,7 +102,7 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(brokerage.Id);
         }
 
-        public List<DMExpertiseInfo> GetMyBrokerageRequests(ReqEmpty req)
+        public List<DMBrokerageInfo> GetMyBrokerageRequests(ReqEmpty req)
         {
             var sql = "select * from DMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
             var res = Provider.Database.ReadList<DMBrokerage>(sql, Provider.CurrentMember.Id, DMBrokerageStates.Open.ToString())
@@ -110,7 +110,7 @@ namespace DealerSafe2.API
             return res;
         }
 
-        public List<DMExpertiseInfo> GetBrokerageReports(string id)
+        public List<DMBrokerageInfo> GetBrokerageReports(string id)
         {
             var sql = "select * from DMExpertise where DMItemId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
             var res = Provider.Database.ReadList<DMExpertise>(sql, id, DMBrokerageStates.Processed.ToString())
