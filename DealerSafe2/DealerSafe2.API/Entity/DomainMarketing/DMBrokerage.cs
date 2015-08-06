@@ -1,8 +1,5 @@
 ﻿using Cinar.Database;
-<<<<<<< HEAD
-=======
 using DealerSafe2.DTO.Enums;
->>>>>>> e9304161675b897b31d7cd29c82526d4fa5f28f9
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
