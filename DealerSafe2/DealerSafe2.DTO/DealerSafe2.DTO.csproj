@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5243104C-6260-4950-AFEC-103F425CCD2B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DealerSafe2.DTO</RootNamespace>
+    <AssemblyName>DealerSafe2.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Facebook">
+      <HintPath>..\..\_dlls\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Cinar\Cinar.CMS.Library\_library\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIException.cs" />
+    <Compile Include="EntityInfo\BaseEntityInfo.cs" />
+    <Compile Include="EntityInfo\Crm\CrmActivityInfo.cs" />
+    <Compile Include="EntityInfo\Common\FeedbackInfo.cs" />
+    <Compile Include="EntityInfo\Common\ExchangeRateInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMAuctionSearchInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMItemInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMOfferInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMOfferItemMemberInfo.cs" />
+    <Compile Include="EntityInfo\Jobs\JobInfo.cs" />
+    <Compile Include="EntityInfo\Products\Domain\ListViewMemberDomainInfo.cs" />
+    <Compile Include="EntityInfo\Products\SSL\ListViewMemberSSLInfo.cs" />
+    <Compile Include="EntityInfo\Products\Domain\MemberDomainInfo.cs" />
+    <Compile Include="EntityInfo\Products\SSL\MemberSSLInfo.cs" />
+    <Compile Include="EntityInfo\Members\ResellerTypeInfo.cs" />
+    <Compile Include="EntityInfo\Members\DashboardItem.cs" />
+    <Compile Include="EntityInfo\Orders\MdfInfo.cs" />
+    <Compile Include="EntityInfo\Orders\MdfResellerInfo.cs" />
+    <Compile Include="EntityInfo\Orders\OrderInfo.cs" />
+    <Compile Include="EntityInfo\Orders\OrderItemInfo.cs" />
+    <Compile Include="EntityInfo\Members\MemberAddressInfo.cs" />
+    <Compile Include="EntityInfo\Members\MemberInfo.cs" />
+    <Compile Include="EntityInfo\NamedEntityInfo.cs" />
+    <Compile Include="EntityInfo\Members\NewsletterDefinitionInfo.cs" />
+    <Compile Include="EntityInfo\Products\ProductInfo.cs" />
+    <Compile Include="EntityInfo\Products\ProductPriceInfo.cs" />
+    <Compile Include="EntityInfo\Products\ViewPropertyValueInfo.cs" />
+    <Compile Include="Enums\Communication.cs" />
+    <Compile Include="Enums\Crm.cs" />
+    <Compile Include="Enums\Domain.cs" />
+    <Compile Include="Enums\DomainMarketing.cs" />
+    <Compile Include="Enums\SignSec.cs" />
+    <Compile Include="Enums\EntityOperation.cs" />
+    <Compile Include="Enums\Member.cs" />
+    <Compile Include="Enums\Job.cs" />
+    <Compile Include="Enums\Order.cs" />
+    <Compile Include="Enums\Rights.cs" />
+    <Compile Include="Handlers\DealerSafeAPIBridgeHandler.cs" />
+    <Compile Include="ISetFieldsByPostData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\ReqAuction.cs" />
+    <Compile Include="Request\ReqBid.cs" />
+    <Compile Include="Request\ReqBidderMemberList.cs" />
+    <Compile Include="Request\ReqOffer.cs" />
+    <Compile Include="Request\ReqPager.cs" />
+    <Compile Include="Request\ReqSearchAuction.cs" />
+    <Compile Include="Request\ReqSendMessage.cs" />
+    <Compile Include="Request\ReqChangeMemberEmail.cs" />
+    <Compile Include="Request\ReqLoginWithRecoveryQuestion.cs" />
+    <Compile Include="Request\ReqApplyForResellership.cs" />
+    <Compile Include="Request\ReqCancelOrderItem.cs" />
+    <Compile Include="Request\ReqChangeForgottenPassword.cs" />
+    <Compile Include="Request\ReqCertificateKeyMatcher.cs" />
+    <Compile Include="Request\ReqSignUpWithFacebook.cs" />
+    <Compile Include="Request\ReqComodoAutoApplySSL.cs" />
+    <Compile Include="Request\ReqComodoAutoReplaceSSL.cs" />
+    <Compile Include="Request\ReqComodoAutoRevokeSSL.cs" />
+    <Compile Include="Request\ReqUpdateDCV.cs" />
+    <Compile Include="Request\ReqCollectSSL.cs" />
+    <Compile Include="Request\ReqChangeMemberPassword.cs" />
+    <Compile Include="Request\ReqDecodeCSR.cs" />
+    <Compile Include="Request\ReqComodoResendDCVEmail.cs" />
+    <Compile Include="Request\ReqGetCityList.cs" />
+    <Compile Include="Request\ReqEmpty.cs" />
+    <Compile Include="Request\ReqLogin.cs" />
+    <Compile Include="Request\ProfileInfo.cs" />
+    <Compile Include="Request\ReqQuickSignUp.cs" />
+    <Compile Include="Request\ReqConvertCertificate.cs" />
+    <Compile Include="Request\ReqVerifyPhoneNumber.cs" />
+    <Compile Include="Response\ResBidderMemberListWithRows.cs" />
+    <Compile Include="Response\ResCertificateKeyMatcher.cs" />
+    <Compile Include="Response\ResConvertCertificate.cs" />
+    <Compile Include="Response\ResDMActionMember.cs" />
+    <Compile Include="Response\ResDMOfferItemMember.cs" />
+    <Compile Include="Response\ResGetDashboard.cs" />
+    <Compile Include="Response\IdNameValue.cs" />
+    <Compile Include="Response\ResOpenAucsListWithRowCount.cs" />
+    <Compile Include="Response\ResSSLCertificateInfo.cs" />
+    <Compile Include="Response\ResCheckCRCCode.cs" />
+    <Compile Include="Response\IdName.cs" />
+    <Compile Include="Response\ResComodoAutoApplySSL.cs" />
+    <Compile Include="Response\ResComodoAutoReplaceSSL.cs" />
+    <Compile Include="Response\ResComodoAutoRevokeSSL.cs" />
+    <Compile Include="Response\ResUpdateDCV.cs" />
+    <Compile Include="Response\ResCollectSSL.cs" />
+    <Compile Include="Response\ResDecodeCSR.cs" />
+    <Compile Include="Response\ResComodoGetDcvEmailAddressList.cs" />
+    <Compile Include="Response\ResComodoResendDCVEmail.cs" />
+    <Compile Include="Response\ResLogin.cs" />
+    <Compile Include="Response\ResSSLChecker.cs" />
+    <Compile Include="ServiceClient\BaseAPI.cs" />
+    <Compile Include="ServiceClient\DealerSafeAPI.cs" />
+    <Compile Include="ServiceRequest.cs" />
+    <Compile Include="ServiceResponse.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
