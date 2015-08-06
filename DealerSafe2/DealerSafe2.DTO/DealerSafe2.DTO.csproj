@@ -54,13 +54,21 @@
     <Compile Include="EntityInfo\Crm\CrmActivityInfo.cs" />
     <Compile Include="EntityInfo\Common\FeedbackInfo.cs" />
     <Compile Include="EntityInfo\Common\ExchangeRateInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\DMAuctionSearchInfo.cs" />
+
+	<Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\DMItemInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMOfferInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMOfferItemMemberInfo.cs" />
+	
+    <Compile Include="EntityInfo\DomainMarketing\DMAuctionSearchInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMBrokerageInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMExpertiseInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMItemInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMMemberInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMSaleInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\EntityCommentInfo.cs" />
+
     <Compile Include="EntityInfo\Jobs\JobInfo.cs" />
     <Compile Include="EntityInfo\Products\Domain\ListViewMemberDomainInfo.cs" />
     <Compile Include="EntityInfo\Products\SSL\ListViewMemberSSLInfo.cs" />
@@ -98,6 +106,7 @@
     <Compile Include="Request\ReqBidderMemberList.cs" />
     <Compile Include="Request\ReqOffer.cs" />
     <Compile Include="Request\ReqPager.cs" />
+    <Compile Include="Request\ReqComment.cs" />
     <Compile Include="Request\ReqSearchAuction.cs" />
     <Compile Include="Request\ReqSendMessage.cs" />
     <Compile Include="Request\ReqChangeMemberEmail.cs" />
@@ -122,14 +131,18 @@
     <Compile Include="Request\ReqQuickSignUp.cs" />
     <Compile Include="Request\ReqConvertCertificate.cs" />
     <Compile Include="Request\ReqVerifyPhoneNumber.cs" />
+
     <Compile Include="Response\ResBidderMemberListWithRows.cs" />
-    <Compile Include="Response\ResCertificateKeyMatcher.cs" />
-    <Compile Include="Response\ResConvertCertificate.cs" />
     <Compile Include="Response\ResDMActionMember.cs" />
     <Compile Include="Response\ResDMOfferItemMember.cs" />
     <Compile Include="Response\ResGetDashboard.cs" />
-    <Compile Include="Response\IdNameValue.cs" />
     <Compile Include="Response\ResOpenAucsListWithRowCount.cs" />
+
+    <Compile Include="Response\ResCertificateKeyMatcher.cs" />
+    <Compile Include="Response\ResConvertCertificate.cs" />
+    <Compile Include="Response\ResDMProfileInfo.cs" />
+    <Compile Include="Response\IdNameValue.cs" />
+
     <Compile Include="Response\ResSSLCertificateInfo.cs" />
     <Compile Include="Response\ResCheckCRCCode.cs" />
     <Compile Include="Response\IdName.cs" />

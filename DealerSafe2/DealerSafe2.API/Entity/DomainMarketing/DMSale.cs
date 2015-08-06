@@ -1,4 +1,8 @@
 ﻿using Cinar.Database;
+<<<<<<< HEAD
+=======
+using DealerSafe2.DTO.Enums;
+>>>>>>> e9304161675b897b31d7cd29c82526d4fa5f28f9
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +18,9 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the buyer")]
         public string BuyerMemberId { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the item being sold")]
+        public string DMItemId { get; set; }
 
         public bool IsPrivateSale { get; set; }
 
@@ -31,12 +38,4 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
     }
 
-    public enum DMSaleStates { 
-        WaitingForPayment,
-        WaitingForTransfer,
-        SuccessfullyClosed,
-        CancelledBySeller,
-        CancelledByBuyer,
-        TimeoutForPayment
-    }
 }

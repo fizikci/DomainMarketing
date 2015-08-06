@@ -126,8 +126,7 @@ namespace DealerSafe2.API.Entity.Members
         public List<MemberAddress> GetMemberAddresses()
         {
             if (memberAddressList == null)
-                memberAddressList = Provider.Database.ReadList<MemberAddress>("select Id, Title from MemberAddress Id={0} order by Title", this.Id);
-
+                memberAddressList = Provider.Database.ReadList<MemberAddress>("select * from MemberAddress where MemberId={0}", this.Id);
             return memberAddressList;
         }
 

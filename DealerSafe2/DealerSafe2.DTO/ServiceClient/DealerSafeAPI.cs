@@ -528,6 +528,42 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region DomainMarketing
 
+        #region Member Comment / Rating
+
+        public bool CreateComment(ReqComment req) {
+            return Call<bool, ReqComment>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        #endregion
+
+        #region Expertise
+
+        public bool AskForExpertise(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<DMExpertiseInfo> GetMyExpertiseRequests(ReqEmpty req)
+        {
+            return Call<List<DMExpertiseInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<DMExpertiseInfo> GetExpertiseReports(string id)
+        {
+            return Call<List<DMExpertiseInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        #endregion
+
+        #region Membership
+
+        public ResDMProfileInfo GetDMProfileInfo(string id)
+        {
+            return Call<ResDMProfileInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        #endregion
+
         #region Search
 
         public List<DMAuctionSearchInfo> GetSearchResults(ReqSearchAuction req)
@@ -558,7 +594,6 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<ResOpenAucsListWithRowCount, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
-
 
         public List<DMItemInfo> GetMyItemsOnAuction(ReqEmpty req)
         {

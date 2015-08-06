@@ -18,4 +18,37 @@ namespace DealerSafe2.DTO.Enums
         NotOnAuction,
         OfferAccepted
     }
+
+    public enum DMMedals
+    {
+        New,
+        Bronze,
+        Silver,
+        Gold,
+        Platinium
+    }
+
+    public enum DMSaleStates
+    {
+        WaitingForPayment,
+        WaitingForTransfer,
+        SuccessfullyClosed,
+        CancelledBySeller,
+        CancelledByBuyer,
+        TimeoutForPayment
+    }
+
+    public enum DMExpertiseStates
+    {
+        Open,
+        BeingEdited,
+        Processed
+    }
+
+    public enum DMBrokerageStates
+    {
+        Open,
+        BeingEdited,
+        Processed
+    }
 }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqSearchAuction
+    public class ReqSearchAuction : BaseRequest
     {
         public string StartsWith { get; set; }
         public string EndsWith { get; set; }

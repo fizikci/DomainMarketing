@@ -1,4 +1,8 @@
 ﻿using Cinar.Database;
+<<<<<<< HEAD
+=======
+using DealerSafe2.DTO.Enums;
+>>>>>>> e9304161675b897b31d7cd29c82526d4fa5f28f9
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,12 +29,5 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string ReportContent { get; set; }
 
         public bool IsPublic { get; set; }
-    }
-
-    public enum DMExpertiseStates
-    { 
-        Open,
-        BeingEdited,
-        Processed
     }
 }

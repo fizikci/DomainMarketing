@@ -1,5 +1,8 @@
 ﻿using DealerSafe2.API.Entity.Common;
 using DealerSafe2.API.Entity.DomainMarketing;
+using DealerSafe2.API.Entity.Members;
+using DealerSafe2.API.Entity.Social;
+using DealerSafe2.DTO.EntityInfo;
 using DealerSafe2.DTO.EntityInfo.DomainMarketing;
 using DealerSafe2.DTO.Enums;
 using DealerSafe2.DTO.Request;
@@ -13,6 +16,139 @@ namespace DealerSafe2.API
 {
     public partial class ApiJson
     {
+        #region Favourites
+
+        public bool AddToFavourites(string id)
+        {
+
+            return true;
+        }
+        public bool RemoveFromFavourites(string id)
+        {
+
+            return true;
+        }
+
+        #endregion
+
+        #region Member Comment / Rating
+
+        public bool CreateComment(ReqComment req) {
+            var comment = new EntityComment();
+            comment.EntityName = "Member";
+
+            // validation
+            if (req.ToMemberId == Provider.CurrentMember.Id)
+                throw new Exception("You cannot comment to yourself!");
+            if (req.Rating > 5 || req.Rating == 0 || req.Rating < -5)
+                throw new Exception("Invalid Rating.");
+
+
+
+            comment.EntityId = req.ToMemberId;
+            // Multiply with 100 to set precision to 0.01
+            comment.Rating = req.Rating * 100;
+            comment.Comment = req.Comment;
+            comment.MemberId = Provider.CurrentMember.Id;
+            comment.Insert();
+
+            //update user rating
+            var newRating = Provider.Database.GetInt("select AVG(Rating) from EntityComment where EntityName = {0} AND EntityId = {1}", "Member", req.ToMemberId);
+            var member = Provider.Database.Read<Member>("select * from Member where id= {0}", req.ToMemberId);
+            member.Rating = newRating;
+            member.Save();
+
+            return !String.IsNullOrEmpty(comment.Id);
+        }
+
+        #endregion
+
+        #region Expertise
+
+        public bool AskForExpertise(string id)
+        {
+            var expertise = new DMExpertise();
+            expertise.RequesterMemberId = Provider.CurrentMember.Id;
+            expertise.Status = DMExpertiseStates.Open;
+            expertise.Insert();
+
+            return !String.IsNullOrEmpty(expertise.Id);
+        }
+
+        public List<DMExpertiseInfo> GetMyExpertiseRequests(ReqEmpty req)
+        {
+            var sql = "select * from DMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
+            var res = Provider.Database.ReadList<DMExpertise>(sql, Provider.CurrentMember.Id, DMExpertiseStates.Open)
+                .ToList().ToEntityInfo<DMExpertiseInfo>();
+            return res;
+        }
+
+        public List<DMExpertiseInfo> GetExpertiseReports(string id)
+        {
+            var sql = "select * from DMExpertise where DMItemId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
+            var res = Provider.Database.ReadList<DMExpertise>(sql, id, DMExpertiseStates.Processed)
+                .ToList().ToEntityInfo<DMExpertiseInfo>();
+            return res;
+        }
+
+
+        public bool AskForBrokerage(string id)
+        {
+            var brokerage = new DMBrokerage();
+            brokerage.RequesterMemberId = Provider.CurrentMember.Id;
+            brokerage.Status = DMBrokerageStates.Open;
+            brokerage.Insert();
+
+            return !String.IsNullOrEmpty(brokerage.Id);
+        }
+
+        public List<DMBrokerageInfo> GetMyBrokerageRequests(ReqEmpty req)
+        {
+            var sql = "select * from DMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
+            var res = Provider.Database.ReadList<DMBrokerage>(sql, Provider.CurrentMember.Id, DMBrokerageStates.Open.ToString())
+                .ToList().ToEntityInfo<DMBrokerageInfo>();
+            return res;
+        }
+
+        public List<DMBrokerageInfo> GetBrokerageReports(string id)
+        {
+            var sql = "select * from DMExpertise where DMItemId = {0} and (IsDeleted is null or IsDeleted=0) and Status = {1}";
+            var res = Provider.Database.ReadList<DMExpertise>(sql, id, DMBrokerageStates.Processed.ToString())
+                .ToList().ToEntityInfo<DMBrokerageInfo>();
+            return res;
+        }
+
+        #endregion
+
+        #region ProfileInfo
+
+        public ResDMProfileInfo GetDMProfileInfo(string id)
+        {
+            var res = new ResDMProfileInfo();
+            var commentsSQL = "select * from ListViewCommentsToMember where ToMemberId = {0}";
+            var comments = Provider.Database.ReadList<ListViewCommentsToMember>(commentsSQL, id);
+            res.Comments = comments.Where(x => x.Rating > 0).ToList().ToEntityInfo<EntityCommentInfo>();
+            res.Complaints = comments.Where(x => x.Rating < 0).ToList().ToEntityInfo<EntityCommentInfo>();
+
+            var saleSQL = "select * from ListViewSales where SellerMemberId = {0} and Status = {1} and COALESCE(IsPrivateSale, 0) = 0 and COALESCE(IsDeleted, 0) = 0";
+            res.Sales = Provider.Database.ReadList<ListViewSales>(saleSQL, id, DMSaleStates.SuccessfullyClosed.ToString()).ToList().ToEntityInfo<DMSaleInfo>();
+
+            var member = Provider.Database.Read<Member>("select * from Member where Id={0}", id);
+            res.MemberInfo = new DMMemberInfo();
+            member.CopyPropertiesWithSameName(res.MemberInfo);
+            res.MemberInfo.FullName = member.FullName;
+            var address = member.GetMemberAddresses()
+                .Where(x => x.AddressType == AddressTypes.DefaultAddress)
+                .FirstOrDefault();
+            if (address != null)
+                res.MemberInfo.Country = address.Country().Name;
+            res.MemberInfo.RegistrationDate = member.InsertDate;
+
+            return res;
+        }
+
+        #endregion
+
         #region Search
 
         public List<DMAuctionSearchInfo> GetSearchResults(ReqSearchAuction req)
@@ -162,10 +298,14 @@ namespace DealerSafe2.API
 
         public bool SaveMyItem(DMItemInfo req)
         {
-            DMItem item = new DMItem();
-
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
                 throw new Exception("Domain name cannot be " + req.DomainName);
+
+            DMItem item = new DMItem();
+
+            //if new record
+            if (string.IsNullOrWhiteSpace(req.Id))
+                item.Status = DMItemStates.NotOnAuction;
 
             req.CopyPropertiesWithSameName(item);
             item.SellerMemberId = Provider.CurrentMember.Id;
@@ -260,7 +400,6 @@ namespace DealerSafe2.API
         
         
         #endregion
-
 
     }
 }
