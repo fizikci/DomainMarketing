@@ -57,6 +57,7 @@
     <Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ViewDMBrowseItemInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMOfferInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMOfferItemMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMAuctionSearchInfo.cs" />
@@ -64,8 +65,9 @@
     <Compile Include="EntityInfo\DomainMarketing\ListViewDMExpertiseInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMItemInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMMemberInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\DMSaleInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ListViewSalesInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\EntityCommentInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ViewDMWatchListItemInfo.cs" />
     <Compile Include="EntityInfo\Jobs\JobInfo.cs" />
     <Compile Include="EntityInfo\Products\Domain\ListViewMemberDomainInfo.cs" />
     <Compile Include="EntityInfo\Products\SSL\ListViewMemberSSLInfo.cs" />

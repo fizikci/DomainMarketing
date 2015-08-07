@@ -986,10 +986,12 @@
     <Compile Include="Entity\DomainMarketing\ListViewDMExpertise.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewOfferItemMember.cs" />
     <Compile Include="Entity\DomainMarketing\DMItemWithLangAndCategory.cs" />
-    <Compile Include="Entity\DomainMarketing\ListViewComment.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewCommentsToMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMSearch.cs" />
     <Compile Include="Entity\DomainMarketing\DMPredefinedMessage.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewSales.cs" />
+    <Compile Include="Entity\DomainMarketing\ViewDMBrowseItem.cs" />
+    <Compile Include="Entity\DomainMarketing\ViewDMWatchListItem.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycle.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycleJob.cs" />
     <Compile Include="Entity\LifeCycles\LifeCyclePhase.cs" />

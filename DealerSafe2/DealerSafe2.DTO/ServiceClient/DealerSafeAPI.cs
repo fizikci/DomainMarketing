@@ -528,10 +528,45 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region DomainMarketing
 
+        #region WatchList & Browse
+
+        public bool RemoveFromWatchList(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public bool AddToWatchList(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
+        {
+            return Call<PagerResponse<ViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public bool AddNewBrowse(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
+        {
+            return Call<PagerResponse<ViewDMBrowseItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        #endregion
+
         #region Member Comment / Rating
 
         public bool CreateComment(ReqComment req) {
             return Call<bool, ReqComment>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<EntityCommentInfo> GetMyComments(ReqPager req)
+        {
+            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<EntityCommentInfo> GetMyComplaints(ReqPager req)
+        {
+            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
@@ -573,12 +608,28 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #endregion
 
-        #region Membership
+        #region Profile Info
 
-        public ResDMProfileInfo GetDMProfileInfo(string id)
+        public DMMemberInfo GetDMProfileInfo(string id)
         {
-            return Call<ResDMProfileInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<DMMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+
+        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
+        {
+            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
+        {
+            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
 
         #endregion
 

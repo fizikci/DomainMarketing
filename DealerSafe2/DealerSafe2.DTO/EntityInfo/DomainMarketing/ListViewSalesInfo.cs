@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class DMSaleInfo : BaseEntityInfo
+    public class ListViewSalesInfo : BaseEntityInfo
     {
         public string SellerMemberId { get; set; }
         public string SellerFullName { get; set; }
@@ -23,5 +23,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string Ownership { get; set; }
         public bool IsVerified { get; set; }
         public string DescriptionShort { get; set; }
+        public DateTime InsertDate { get; set; }
     }
 }
