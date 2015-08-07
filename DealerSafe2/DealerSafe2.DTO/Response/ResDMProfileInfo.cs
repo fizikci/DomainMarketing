@@ -9,7 +9,7 @@ namespace DealerSafe2.DTO.Response
 
         public List<EntityCommentInfo> Complaints { get; set; }
 
-        public List<DMSaleInfo> Sales { get; set; }
+        public List<ListViewSalesInfo> Sales { get; set; }
 
         public DMMemberInfo MemberInfo { get; set; }
     }

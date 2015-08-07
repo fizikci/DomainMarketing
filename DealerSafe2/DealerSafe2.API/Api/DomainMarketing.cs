@@ -16,18 +16,57 @@ namespace DealerSafe2.API
 {
     public partial class ApiJson
     {
-        #region Favourites
+        #region WatchList & Browse
 
-        public bool AddToFavourites(string id)
+        public bool AddToWatchList(string id)
         {
+            var watch = new DMWatchList();
+            if (Provider.Database.Read<DMWatchList>("select * from DMWatchList where DmItemId = {0} and (IsDeleted is null or IsDeleted=0) ", id) != null)
+                throw new Exception("Cannot add to watchlist twice!");
 
+            watch.DMItemId = id;
+            watch.MemberId = Provider.CurrentMember.Id;
+            watch.Save();
             return true;
         }
-        public bool RemoveFromFavourites(string id)
+        public bool RemoveFromWatchList(string id)
         {
-
+            var sql = "select * from DMWatchList where MemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0)";
+            var watch = Provider.Database.Read<DMWatchList>(sql, Provider.CurrentMember.Id, id);
+            watch.Delete();
             return true;
         }
+
+        public PagerResponse<ViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
+        {
+            var sql = "select * from ViewDMWatchListItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var res = new PagerResponse<ViewDMWatchListItemInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ViewDMWatchListItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
+                .ToList().ToEntityInfo<ViewDMWatchListItemInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ViewDMWatchListItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            return res;
+        }
+
+        public bool AddNewBrowse(string id)
+        {
+            var browse = Provider.Database.Read<DMBrowse>("select * from DMBrowse where Id = {0} and (IsDeleted is null or IsDeleted=0) ", id) ?? new DMBrowse();
+            browse.InsertDate = DateTime.Now;
+            browse.DMItemId = id;
+            browse.MemberId = Provider.CurrentMember.Id;
+            browse.Save();
+            return true;
+        }
+
+        public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
+        {
+            var sql = "select * from ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var res = new PagerResponse<ViewDMBrowseItemInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ViewDMBrowseItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
+                .ToList().ToEntityInfo<ViewDMBrowseItemInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            return res;
+        }
+
 
         #endregion
 
@@ -61,9 +100,38 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(comment.Id);
         }
 
+        public PagerResponse<EntityCommentInfo> GetMyComments(ReqPager req)
+        {
+            var sql = "select * from ListViewCommentsToMember where Rating > 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewCommentsToMember where Rating > 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+        }
+        public PagerResponse<EntityCommentInfo> GetMyComplaints(ReqPager req)
+        {
+            var sql = "select * from ListViewCommentsToMember where Rating < 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewCommentsToMember where Rating < 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+        }
+
+        private static PagerResponse<T2> GetPagerResult<T, T2>(ReqPager req, string sql, string totalCountSQL) 
+            where T : DealerSafe2.API.Entity.BaseEntity
+            where T2 : BaseEntityInfo, new()
+        {
+            var res = new PagerResponse<T2>();
+            res.ItemsInPage = Provider.Database.ReadList<T>(sql,
+                    req.RelativeId ?? Provider.CurrentMember.Id,
+                    (req.PageNumber - 1) * req.PageSize,
+                    req.PageSize)
+                .ToList().ToEntityInfo<T2>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(totalCountSQL, req.RelativeId ?? Provider.CurrentMember.Id);
+            return res;
+        }
+
         #endregion
 
-        #region Expertise
+        #region Expertise & Brokerage
 
         public bool AskForExpertise(string id)
         {
@@ -135,29 +203,54 @@ namespace DealerSafe2.API
 
         #region ProfileInfo
 
-        public ResDMProfileInfo GetDMProfileInfo(string id)
+        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
         {
-            var res = new ResDMProfileInfo();
-            var commentsSQL = "select * from ListViewCommentsToMember where ToMemberId = {0}";
-            var comments = Provider.Database.ReadList<ListViewCommentsToMember>(commentsSQL, id);
-            res.Comments = comments.Where(x => x.Rating > 0).ToList().ToEntityInfo<EntityCommentInfo>();
-            res.Complaints = comments.Where(x => x.Rating < 0).ToList().ToEntityInfo<EntityCommentInfo>();
+            var sql = "select * from ListViewCommentsToMember where Rating < 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewCommentsToMember where Rating < 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
-            var saleSQL = "select * from ListViewSales where SellerMemberId = {0} and Status = {1} and COALESCE(IsPrivateSale, 0) = 0 and COALESCE(IsDeleted, 0) = 0";
-            res.Sales = Provider.Database.ReadList<ListViewSales>(saleSQL, id, DMSaleStates.SuccessfullyClosed.ToString()).ToList().ToEntityInfo<DMSaleInfo>();
+            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+        }
+        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
+        {
+            var sql = "select * from ListViewCommentsToMember where Rating > 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewCommentsToMember where Rating > 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
+            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+        }
+        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
+        {
+            var sql = @"select * 
+                        from ListViewSales 
+                        where SellerMemberId = {0} 
+                            and Status = '" + DMSaleStates.SuccessfullyClosed.ToString()+@"' 
+                            and COALESCE(IsPrivateSale, 0) = 0 
+                            and COALESCE(IsDeleted, 0) = 0 
+                            order by InsertDate, Status desc 
+                            OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = @"select count(*) 
+                                  from ListViewSales 
+                                  where SellerMemberId = {0} 
+                                      and Status = '" + DMSaleStates.SuccessfullyClosed.ToString()+@"' 
+                                      and COALESCE(IsPrivateSale, 0) = 0 
+                                      and COALESCE(IsDeleted, 0) = 0";
+
+            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+        }
+
+        public DMMemberInfo GetDMProfileInfo(string id)
+        {
             var member = Provider.Database.Read<Member>("select * from Member where Id={0}", id);
-            res.MemberInfo = new DMMemberInfo();
-            member.CopyPropertiesWithSameName(res.MemberInfo);
-            res.MemberInfo.FullName = member.FullName;
+            var memberInfo = new DMMemberInfo();
+            member.CopyPropertiesWithSameName(memberInfo);
+            memberInfo.FullName = member.FullName;
             var address = member.GetMemberAddresses()
                 .Where(x => x.AddressType == AddressTypes.DefaultAddress)
                 .FirstOrDefault();
             if (address != null)
-                res.MemberInfo.Country = address.Country().Name;
-            res.MemberInfo.RegistrationDate = member.InsertDate;
+                memberInfo.Country = address.Country().Name;
+            memberInfo.RegistrationDate = member.InsertDate;
 
-            return res;
+            return memberInfo;
         }
 
         #endregion
