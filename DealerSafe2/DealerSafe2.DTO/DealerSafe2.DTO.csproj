@@ -102,7 +102,6 @@
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\ReqAuction.cs" />
     <Compile Include="Request\ReqBid.cs" />
-    <Compile Include="Request\ReqBidderMemberList.cs" />
     <Compile Include="Request\ReqOffer.cs" />
     <Compile Include="Request\ReqPager.cs" />
     <Compile Include="Request\ReqComment.cs" />
@@ -131,11 +130,7 @@
     <Compile Include="Request\ReqConvertCertificate.cs" />
     <Compile Include="Request\ReqVerifyPhoneNumber.cs" />
     <Compile Include="Response\PagerResponse.cs" />
-    <Compile Include="Response\ResBidderMemberListWithRows.cs" />
-    <Compile Include="Response\ResDMActionMember.cs" />
-    <Compile Include="Response\ResDMOfferItemMember.cs" />
     <Compile Include="Response\ResGetDashboard.cs" />
-    <Compile Include="Response\ResOpenAucsListWithRowCount.cs" />
     <Compile Include="Response\ResCertificateKeyMatcher.cs" />
     <Compile Include="Response\ResConvertCertificate.cs" />
     <Compile Include="Response\ResDMProfileInfo.cs" />

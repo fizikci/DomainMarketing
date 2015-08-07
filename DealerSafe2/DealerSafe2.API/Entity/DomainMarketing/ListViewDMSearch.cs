@@ -13,6 +13,12 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         #region DMAuction Fields...
 
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the auction, fk referencing item table")]
+        public string Id { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the auction, fk referencing item table")]
+        public string SellerMemberId { get; set; }
+
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the item(domain/web project), fk referencing item table")]
         public string DMItemId { get; set; }
 
