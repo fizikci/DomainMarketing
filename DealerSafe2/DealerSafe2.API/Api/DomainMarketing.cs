@@ -270,6 +270,24 @@ namespace DealerSafe2.API
             return res;
         }
 
+        public PagerResponse<DMAuctionSearchInfo> AuctionsWaitingPayment(ReqPager req)
+        {
+            var sql = @"select (M.FirstName + ' ' + M.LastName) AS WinnerMemberId
+		                , A.*
+                        from ListViewDMSearch as A
+                        Inner Join Member as M On M.Id = A.WinnerMemberId 
+                        where A.DMItemId in 
+	                        (select DMItemId from DMAuction) 
+                        and A.SellerMemberId = {2}                        
+                        and A.Status = '1'
+                        order by A.StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+
+            PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionSearchInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0}", Provider.CurrentMember.Id);
+            return res;
+        }
+
         public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
         {
             var sql = "select * from DMItem where Id not in (select DMItemId from DMAuction) and SellerMemberId = {0}";
