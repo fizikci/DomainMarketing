@@ -610,14 +610,19 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMAuctionSearchInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
+        public Boolean DeleteAuction(string id) 
+        {
+            return Call<Boolean, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
         public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
         {
             return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public List<DMItemInfo> GetMyItemsOnAuction(ReqEmpty req)
+        public PagerResponse<DMAuctionSearchInfo> GetMyItemsOnAuction(ReqPager req)
         {
-            return Call<List<DMItemInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
@@ -683,14 +688,14 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Biddings&offerings
 
-        //public PagerResponse<DMBidderMemberInfo> GetMyExpertiseRequests(ReqPager req)
-        //{
-        //    return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
-        //}
-
         public DMBidderMemberInfo GetBid(string id)
         {
             return Call<DMBidderMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool AcceptBid(DMBidderMemberInfo req) 
+        {
+            return Call<bool, DMBidderMemberInfo>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public bool SaveBid(ReqBid req)

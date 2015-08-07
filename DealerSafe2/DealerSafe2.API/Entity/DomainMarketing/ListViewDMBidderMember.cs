@@ -27,6 +27,12 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 500), Description("comments")]
         public string BidComments { get; set; }
 
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 70), Description("name of the item, if domain than domain name")]
+        public string DomainName { get; set; }
+
+        [Description("starting date of the auction")]
+        public DateTime InsertDate { get; set; }
+
         #endregion
 
         #region membersection
