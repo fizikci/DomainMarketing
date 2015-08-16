@@ -12,6 +12,9 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the auction item(domain/web project), fk referencing item table")]
         public string DMItemId { get; set; }
 
+        [Description("just a toggle")]
+        public bool ShowBidlist { get; set; }
+
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller; 5:due date reached but no successful bid available")]
         public string Status { get; set; }
 

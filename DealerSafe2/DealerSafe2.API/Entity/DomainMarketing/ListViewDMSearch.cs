@@ -58,6 +58,12 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [Description("")]
         public bool IsPrivateSales { get; set; }
 
+        [Description("")]
+        public bool IsDeleted { get; set; }
+
+        [Description("")]
+        public bool ShowBidlist { get; set; }
+
         #endregion
 
         #region DMItem Fields...

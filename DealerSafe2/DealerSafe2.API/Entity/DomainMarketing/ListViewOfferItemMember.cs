@@ -10,13 +10,16 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 {
     public class ListViewOfferItemMember : BaseEntity 
     {
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the offerer, fk referencing member table")]
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the offerer")]
         public string OffererMemberId { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the item thats being sold")]
         public string DMItemId { get; set; }
 
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the offerer, fk referencing member table")]
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("auctionid of the item thats being sold")]
+        public string DMAuctionId { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the offer")]
         public string DMOfferId { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the member that owns the item")]
@@ -34,7 +37,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("firstname of OffererMember")]
         public string OffererMemberFirstName { get; set; }
 
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("lsatname of OffererMember")]
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("lastname of OffererMember")]
         public string OffererMemberLastName { get; set; }
 
         [Description("price offered by the bidder")]
@@ -51,6 +54,9 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 70), Description("name of the item, if domain than domain name")]
         public string DomainName { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("status of the offered auction")]
+        public string Status { get; set; }
 
 
     }

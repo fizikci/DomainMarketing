@@ -661,6 +661,11 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMAuctionSearchInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
+        public ResAucUpdate GetAuctionUpdateInfo(string id)
+        {
+            return Call<ResAucUpdate, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+
         public Boolean DeleteAuction(string id) 
         {
             return Call<Boolean, string>(id, MethodBase.GetCurrentMethod().Name);
@@ -670,6 +675,22 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
+
+        public PagerResponse<DMAuctionSearchInfo> GetHotAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<DMAuctionSearchInfo> GetHighestBiddedAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<DMAuctionSearchInfo> GetNoBiddedAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
 
         public PagerResponse<DMAuctionSearchInfo> GetMyItemsOnAuction(ReqPager req)
         {
@@ -765,11 +786,20 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<DMAuctionMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
+        public PagerResponse<DMBidderMemberInfo> MyBidsForItems(ReqPager req)
+        {
+            return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
         
 
         public bool SaveOffer(ReqOffer req)
         {
             return Call<bool, ReqOffer>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool AcceptOffer(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)

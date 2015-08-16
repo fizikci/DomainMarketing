@@ -1,15 +1,21 @@
-﻿using System;
+﻿using DealerSafe2.DTO.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class DMBidderMemberInfo:BaseEntityInfo
+
+    public class DMBidderMemberInfo : BaseEntityInfo
     {
 
 
         public string DMAuctionId { get; set; }
+
+        public int BiggestBid { get; set; }
+
+        public DMItemTypes Type { get; set; }
 
         public string BidId { get; set; }
 
