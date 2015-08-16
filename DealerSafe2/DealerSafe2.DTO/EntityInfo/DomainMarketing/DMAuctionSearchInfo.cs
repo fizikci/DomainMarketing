@@ -12,8 +12,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         // Item Fields
         public DMItemTypes Type { get; set; }
 
-        public string Id { get; set; }
-
         public string SellerMemberId { get; set; }
         public string DomainName { get; set; }
         public string CategoryName { get; set; }

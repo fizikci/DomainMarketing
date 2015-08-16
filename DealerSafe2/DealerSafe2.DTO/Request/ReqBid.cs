@@ -9,7 +9,7 @@ namespace DealerSafe2.DTO.Request
     {
         public string DMAuctionId { get; set; }
 
-        public int AutoBidValue { get; set; }
+        public int MaxBidValue { get; set; }
 
         public int BidValue { get; set; }
 

@@ -986,7 +986,6 @@
     <Compile Include="Entity\DomainMarketing\ListViewDMBidderMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMExpertise.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewOfferItemMember.cs" />
-    <Compile Include="Entity\DomainMarketing\DMItemWithLangAndCategory.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewCommentsToMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMSearch.cs" />
     <Compile Include="Entity\DomainMarketing\DMPredefinedMessage.cs" />

@@ -656,7 +656,7 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMAuctionSearchInfo, string>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public DMAuctionSearchInfo CreateAuction(ReqAuction req)
+        public DMAuctionSearchInfo SaveAuction(ReqAuction req)
         {
             return Call<DMAuctionSearchInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
@@ -805,6 +805,11 @@ namespace DealerSafe2.DTO.ServiceClient
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
             return Call<PagerResponse<DMOfferItemMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool showBidsToggle(ReqBidsToggle req) 
+        {
+            return Call<bool, ReqBidsToggle>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
