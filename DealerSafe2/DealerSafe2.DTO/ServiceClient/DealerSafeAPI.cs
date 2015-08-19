@@ -581,9 +581,9 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-        public PagerResponse<ListViewDMBrokerageInfo> GetMyExpertiseRequests(ReqPager req)
+        public PagerResponse<ListViewDMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
         {
-            return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewDMExpertiseInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<ListViewDMExpertiseInfo> GetExpertiseReports(string id)
@@ -638,6 +638,11 @@ namespace DealerSafe2.DTO.ServiceClient
         public List<DMAuctionSearchInfo> GetSearchResults(ReqSearchAuction req)
         {
             return Call<List<DMAuctionSearchInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<string> GetDMItemExtensions(ReqEmpty req)
+        {
+            return Call<List<string>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public DMItemInfo GetPrivateSale(string id)

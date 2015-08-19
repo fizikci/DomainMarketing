@@ -146,18 +146,17 @@ namespace DealerSafe2.API
 
         public bool ToggleExpertisePublic(string id)
         {
-            var expertise = Provider.Database.Read<DMExpertise>(@"select Id, IsPublic from DMExpertise where Id = {0}", id);
-            return expertise.IsPublic = !expertise.IsPublic;
+            var expertise = Provider.Database.Read<DMExpertise>("select * from DMExpertise where Id = {0}", id);
+            expertise.IsPublic = !expertise.IsPublic;
+            expertise.Save();
+            return expertise.IsPublic;
         }
 
         public PagerResponse<ListViewDMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
         {
-            var sql = @"select * from ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var res = new PagerResponse<ListViewDMExpertiseInfo>();
-            res.ItemsInPage = Provider.Database.ReadList<ListViewDMExpertise>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
-                .ToList().ToEntityInfo<ListViewDMExpertiseInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
-            return res;
+            var sql = "select * from ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            return GetPagerResult<ListViewDMExpertise, ListViewDMExpertiseInfo>(req, sql, totalCountSQL);
         }
 
         // There might be more than 1 report for an item
@@ -184,11 +183,8 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewDMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
         {
             var sql = @"select * from ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var res = new PagerResponse<ListViewDMBrokerageInfo>();
-            res.ItemsInPage = Provider.Database.ReadList<ListViewDMBrokerage>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
-                .ToList().ToEntityInfo<ListViewDMBrokerageInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
-            return res;
+            var totalCountSQL = "SELECT count(*) FROM ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            return GetPagerResult<ListViewDMBrokerage, ListViewDMBrokerageInfo>(req, sql, totalCountSQL);
         }
 
         public ListViewDMBrokerageInfo GetBrokerageReports(string id)
@@ -267,10 +263,10 @@ namespace DealerSafe2.API
                             AND BiggestBid >= {0} AND BuyItNowPrice >= {0}
                             AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
                             AND (Type = {2})
-                            AND (DomainName LIKE {3})
-                            AND (DomainName LIKE {4})
-                            AND (DomainName LIKE {5})
-                            AND (DomainName LIKE {6})";
+                            AND ((SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {3})
+                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {4})
+                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {5}))
+                            AND (SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) = {6})";
             var res = Provider.Database.ReadList<ListViewDMSearch>(sql,
                     req.MinPrice, 
                     req.MaxPrice, 
@@ -278,9 +274,13 @@ namespace DealerSafe2.API
                     req.StartsWith + "%",
                     "%" + req.EndsWith, 
                     "%" + req.Including + "%", 
-                    "%" + req.Extention
+                    req.Extension
                 ).ToList();
             return res.ToEntityInfo<DMAuctionSearchInfo>();
+        }
+
+        public List<string> GetDMItemExtensions(ReqEmpty req) {
+            return Provider.Database.GetStringList("select distinct SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) from DMItem");
         }
 
         public DMItemInfo GetPrivateSale(string id)
