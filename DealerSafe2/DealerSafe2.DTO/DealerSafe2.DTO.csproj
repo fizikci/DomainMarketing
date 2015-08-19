@@ -68,6 +68,7 @@
     <Compile Include="EntityInfo\DomainMarketing\ListViewSalesInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\EntityCommentInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ViewDMWatchListItemInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ViewMyBidsForItemsInfo.cs" />
     <Compile Include="EntityInfo\Jobs\JobInfo.cs" />
     <Compile Include="EntityInfo\Products\Domain\ListViewMemberDomainInfo.cs" />
     <Compile Include="EntityInfo\Products\SSL\ListViewMemberSSLInfo.cs" />

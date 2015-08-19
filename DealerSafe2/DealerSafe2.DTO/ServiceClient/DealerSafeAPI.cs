@@ -771,9 +771,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMBidderMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool AcceptBid(DMBidderMemberInfo req) 
+        public bool AcceptBid(string req) 
         {
-            return Call<bool, DMBidderMemberInfo>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, string>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public bool SaveBid(ReqBid req)
@@ -791,9 +791,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<DMAuctionMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMBidderMemberInfo> MyBidsForItems(ReqPager req)
+        public PagerResponse<ViewMyBidsForItemsInfo> MyBidsForItems(ReqPager req)
         {
-            return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ViewMyBidsForItemsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
         
 
