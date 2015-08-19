@@ -427,6 +427,7 @@ namespace DealerSafe2.API
                         where
                         SellerMemberId = {2}
                         And (IsDeleted is null or IsDeleted=0)
+                        And Status != '1'
                         order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
 
             PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
@@ -449,7 +450,7 @@ namespace DealerSafe2.API
 
             PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
             res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionSearchInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0}", Provider.CurrentMember.Id);
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0} AND (WinnerMemberId != null OR WinnerMemberId!='')", Provider.CurrentMember.Id);
             return res;
         }
 
@@ -568,7 +569,7 @@ namespace DealerSafe2.API
             {
                 //if autobidding value is set first, 
                 //we are going to check if there is a higher autobidding value then, knock one out
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId);
+                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId, Provider.CurrentMember.Id);
 
                 DMAutoBidder autoBidder = new DMAutoBidder();
                 req.CopyPropertiesWithSameName(autoBidder);
@@ -576,49 +577,63 @@ namespace DealerSafe2.API
                 autoBidder.Save();
 
 
-                if (highestAutoBid != null) {
+                if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null) {
                     var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from ListViewDMSearch where Id = {0}", req.DMAuctionId);
 
                     if(auction.BiggestBid < highestAutoBid.MaxBidValue){
 
                         if (highestAutoBid.MaxBidValue > req.MaxBidValue) {
-                            req.CopyPropertiesWithSameName(newBid);
+                            newBid.BidComments = "Automaticly bidded";
+                            newBid.DMAuctionId = req.DMAuctionId;
                             newBid.BidderMemberId = Provider.CurrentMember.Id;
                             newBid.BidValue = req.MaxBidValue;
                             newBid.Save();
                             newBid = new DMBid();
-                            highestAutoBid.CopyPropertiesWithSameName(newBid);
+                            newBid.BidComments = "Automaticly bidded";
+                            newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                            newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                             if (highestAutoBid.MaxBidValue >= (req.MaxBidValue + minBidInt))
                                 newBid.BidValue = req.MaxBidValue + minBidInt;
                             else
                                 newBid.BidValue = highestAutoBid.MaxBidValue;
                             newBid.Save();
+                            auction.BiggestBid = newBid.BidValue;
                         }
                         else if (highestAutoBid.MaxBidValue < req.MaxBidValue)
                         {
-                            highestAutoBid.CopyPropertiesWithSameName(newBid);
+                            newBid.BidComments = "Automaticly bidded";
+                            newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                            newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                             newBid.BidValue = highestAutoBid.MaxBidValue;
                             newBid.Save();
                             newBid = new DMBid();
-                            req.CopyPropertiesWithSameName(newBid);
+                            newBid.BidComments = "Automaticly bidded";
+                            newBid.DMAuctionId = req.DMAuctionId;
                             newBid.BidderMemberId = Provider.CurrentMember.Id;
                             if (req.MaxBidValue >= (highestAutoBid.MaxBidValue + minBidInt))
                                 newBid.BidValue = highestAutoBid.MaxBidValue + minBidInt;
                             else
                                 newBid.BidValue = req.MaxBidValue;
                             newBid.Save();
+                            auction.BiggestBid = newBid.BidValue;
                         }
+                        auction.Save();
                     }
                 }
             }
             else if (req.MaxBidValue == 0) {//if autobidding value was not set then we are going to check if there is an autobid which has a bigger maxautobidvalue than our current bid value
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId);
-                if(highestAutoBid!=null){
+                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId,Provider.CurrentMember.Id);
+                if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null)
+                {
                     var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from ListViewDMSearch where Id = {0}", req.DMAuctionId);
                     if (highestAutoBid.MaxBidValue > req.BidValue) {
-                        highestAutoBid.CopyPropertiesWithSameName(newBid);
+                        newBid.BidComments = "Automaticly bidded";
+                        newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                        newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                         newBid.BidValue = req.BidValue + minBidInt;
                         newBid.Save();
+                        auction.BiggestBid = newBid.BidValue;
+                        auction.Save();
                     }
                     else if (highestAutoBid.MaxBidValue <= req.BidValue) {//
                         //Do nothing
@@ -652,8 +667,7 @@ namespace DealerSafe2.API
                         bid.BidValue = auc.BuyItNowPrice;
                         bid.Save();
                         AcceptBid(bid.Id);
-                        auc.BiggestBid = bid.BidValue;
-                        auc.Save();
+                        
                         return true;
 
                     }
@@ -755,13 +769,13 @@ namespace DealerSafe2.API
         }
 
 
-        public PagerResponse<DMBidderMemberInfo> MyBidsForItems(ReqPager req)
+        public PagerResponse<ViewMyBidsForItemsInfo> MyBidsForItems(ReqPager req)
         {
-            PagerResponse<DMBidderMemberInfo> res = new PagerResponse<DMBidderMemberInfo>();
-            var sql = @"select DomainName, BidValue, BidId, Type, BiggestBid,DMAuctionId from ListViewDMBidderMember where MemberId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) from ListViewDMBidderMember where MemberId = {0}", Provider.CurrentMember.Id);
+            PagerResponse<ViewMyBidsForItemsInfo> res = new PagerResponse<ViewMyBidsForItemsInfo>();
+            var sql = @"select * from ViewMyBidsForItems where BidderMemberId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) from ViewMyBidsForItems where BidderMemberId = {0}", Provider.CurrentMember.Id);
             if (res.NumberOfItemsInTotal > 0)
-                res.ItemsInPage = Provider.Database.ReadList<ListViewDMBidderMember>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMBidderMemberInfo>();
+                res.ItemsInPage = Provider.Database.ReadList<ViewMyBidsForItems>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<ViewMyBidsForItemsInfo>();
             return res;
         }
 

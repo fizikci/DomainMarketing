@@ -992,6 +992,7 @@
     <Compile Include="Entity\DomainMarketing\ListViewSales.cs" />
     <Compile Include="Entity\DomainMarketing\ViewDMBrowseItem.cs" />
     <Compile Include="Entity\DomainMarketing\ViewDMWatchListItem.cs" />
+    <Compile Include="Entity\DomainMarketing\ViewMyBidsForItems.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycle.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycleJob.cs" />
     <Compile Include="Entity\LifeCycles\LifeCyclePhase.cs" />

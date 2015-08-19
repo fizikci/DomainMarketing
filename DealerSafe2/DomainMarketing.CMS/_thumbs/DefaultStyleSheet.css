@@ -1,4 +1,13 @@
-﻿li.active a {
+﻿.required-star {
+    color:red;
+    display:none;
+    margin-left:10px;
+    font-size:1.1em;
+}
+form.ng-invalid.ng-submitted .required-star {
+    display:inline;
+}
+li.active a {
     color: orange !important;
     font-weight: bold !important;
 }

@@ -299,6 +299,7 @@ app.directive('inputText', function () {
                                     + customAttrs
                                     + ' class="col-sm-10 col-xs-12" />' +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -327,6 +328,7 @@ app.directive('inputPassword', function () {
                                     + customAttrs
                                     + ' class="col-sm-10 col-xs-12" />' +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -353,6 +355,7 @@ app.directive('inputNumber', function () {
                                     + customAttrs
                                     + ' class="input-mini bkspinner" />' +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -412,6 +415,7 @@ app.directive('inputTextarea', function () {
                                     + customAttrs
                                     + ' ng-bind-html="' + attr.model + '" class="col-sm-10 col-xs-12"></div>' : '') +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -448,6 +452,7 @@ app.directive('inputSelect', function () {
                                 + (attr.name ? ' name="' + attr.name + '"' : '') 
                                 + ' />' +
                 elm.html() +
+                (attr.required ? ' <span class="required-star">*</span> ' : '') +
                 '       </div>' +
                 '   </div>' +
                 (!horizontal ? '</div>' : '');
@@ -476,6 +481,7 @@ app.directive('inputDate', function () {
                                     + customAttrs
                                     + '/>' +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -511,6 +517,7 @@ app.directive('inputCheck', function () {
                                     + ' class="ace ace-switch ace-switch-5" />' +
                     '           <span class="lbl"></span>' +
                         elm.html() +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
