@@ -542,10 +542,6 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<PagerResponse<ViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
-        public bool AddNewBrowse(string id)
-        {
-            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
-        }
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
             return Call<PagerResponse<ViewDMBrowseItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
@@ -671,9 +667,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<ResAucUpdate, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public Boolean DeleteAuction(string id) 
+        public bool DeleteAuction(string id) 
         {
-            return Call<Boolean, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
@@ -705,12 +701,6 @@ namespace DealerSafe2.DTO.ServiceClient
         public PagerResponse<DMAuctionSearchInfo> AuctionsWaitingPayment(ReqPager req)
         {
             return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
-        }
-
-
-        public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
-        {
-            return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
@@ -751,7 +741,22 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<DMItemInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-
+        public bool CreatePrivateSales(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
+        {
+            return Call<List<DMItemInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
+        {
+            return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
+        {
+            return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
         public bool SaveMyItem(DMItemInfo req)
         {
             return Call<bool, DMItemInfo>(req, MethodBase.GetCurrentMethod().Name);

@@ -15,7 +15,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string BuyerFullName { get; set; }
         public string DMItemId { get; set; }
         public bool IsPrivateSale { get; set; }
-        public bool IsDeleted { get; set; }
         public int SaleValue { get; set; }
         public string PaymentType { get; set; }
         public string Status { get; set; }

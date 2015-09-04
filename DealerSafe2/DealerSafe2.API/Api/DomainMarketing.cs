@@ -47,21 +47,11 @@ namespace DealerSafe2.API
             return res;
         }
 
-        public bool AddNewBrowse(string id)
-        {
-            var browse = Provider.Database.Read<DMBrowse>(@"select * from DMBrowse where Id = {0} and (IsDeleted is null or IsDeleted=0) ", id) ?? new DMBrowse();
-            browse.InsertDate = DateTime.Now;
-            browse.DMItemId = id;
-            browse.MemberId = Provider.CurrentMember.Id;
-            browse.Save();
-            return true;
-        }
-
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
             var sql = @"select * from ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var res = new PagerResponse<ViewDMBrowseItemInfo>();
-            res.ItemsInPage = Provider.Database.ReadList<ViewDMBrowseItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
+            res.ItemsInPage = Provider.Database.ReadList<ListViewDMBrowseItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
                 .ToList().ToEntityInfo<ViewDMBrowseItemInfo>();
             res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
             return res;
@@ -259,7 +249,7 @@ namespace DealerSafe2.API
                 return new List<DMAuctionSearchInfo>();
 
             var sql = @"SELECT * FROM ListViewDMSearch WHERE 
-                            IsPrivateSales = 0
+                            COALESCE(IsPrivateSales, 0) = 0 
                             AND BiggestBid >= {0} AND BuyItNowPrice >= {0}
                             AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
                             AND (Type = {2})
@@ -315,6 +305,7 @@ namespace DealerSafe2.API
                 auc.Status = "0";
                 auc.BiggestBid = auc.SmallestBid = item.MinimumBidPrice;
                 auc.BuyItNowPrice = item.BuyItNowPrice;
+                auc.ShowBidlist = true;
                 auc.Save();
                 item.Save();
 
@@ -342,14 +333,13 @@ namespace DealerSafe2.API
 
         }
 
-        public Boolean DeleteAuction(string id) {
+        public bool DeleteAuction(string id) {
             var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
             var auc = Provider.Database.Read<DMAuction>(sql,id);
 
             if (Provider.Database.GetInt(@"select count(*) from DMBid where DMAuctionId = {0}", id) > 0)
             {
                 throw (new Exception("There are bids on this auction, thus can't be deleted!"));
-                return false;
             }
             else {
                 auc.Status = "4";
@@ -456,14 +446,14 @@ namespace DealerSafe2.API
 
         public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
         {
-            var sql = @"select * from DMItem where Id not in (select DMItemId from DMAuction) and SellerMemberId = {0}";
-            return Provider.Database.ReadList<DMItem>(sql, Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
+            var sql = @"select * from DMItem where Status = {0} and SellerMemberId = {1}";
+            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
         }
 
         public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
         {
-            var sql = @"select Id, DomainName from DMItem where Id not in (select DMItemId from DMAuction) and SellerMemberId = {0}";
-            return Provider.Database.ReadList<DMItem>(sql, Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
+            var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and ((VerificationAsked = 1 and IsVerified = 1) or VerificationAsked = 0)";
+            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
         }
 
         #endregion
@@ -479,6 +469,20 @@ namespace DealerSafe2.API
         public List<string> GetItemTypesList(ReqEmpty req)
         {
             return Enum.GetNames(typeof(DMItemTypes)).ToList();
+        }
+
+        public bool CreatePrivateSales(string id)
+        {
+            var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
+            item.IsPrivateSales = true;
+            item.Save();
+            return true;
+        }
+        public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
+        {
+            var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and COALESCE(IsDeleted, 0) = 0 and COALESCE(IsPrivateSales, 0) = 0 ";
+            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id)
+                .Select(x => new IdName() { Id = x.Id, Name = x.DomainName }).ToList();
         }
 
         public List<IdName> GetLanguageList(ReqEmpty req)
@@ -513,7 +517,10 @@ namespace DealerSafe2.API
         public DMItemInfo GetItem(string id)
         {
             var sql = @"select * from DMItem where (IsDeleted is null or IsDeleted=0) and Id = {0}";
-            return Provider.Database.Read<DMItem>(sql, id).ToEntityInfo<DMItemInfo>();
+            var item = Provider.Database.Read<DMItem>(sql, id);
+            if (item != null)
+                Provider.Database.ExecuteNonQuery("insert into DMBrowse( MemberId, DMItemId, InsertDate ) values ({0}, {1}, {2})", Provider.CurrentMember.Id, id, DateTime.Now);
+            return item.ToEntityInfo<DMItemInfo>();
         }
 
         public List<IdName> GetDomainBlackList(ReqEmpty req)
@@ -716,29 +723,20 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
         {
-            PagerResponse<DMBidderMemberInfo> res = new PagerResponse<DMBidderMemberInfo>();
-            ListViewDMSearch checker = Provider.Database.Read<ListViewDMSearch>(@"select ShowBidlist, SellerMemberId from ListViewDMSearch where Id = {0}", req.RelativeId);
+            var res = new PagerResponse<DMBidderMemberInfo>();
 
-
-            if (Provider.CurrentMember.Id == checker.SellerMemberId)//check if it is seller who is tying to see bids
-            {
+            //check if it is seller who is tying to see bids
+            if (Provider.CurrentMember.Id == Provider.Database.GetString("select SellerMemberId from DMAuction where Id = {0}", req.RelativeId))
                 return BidlistForSeller(req, res);
-            }
-            else//
-            {
-
-                if (checker.ShowBidlist)//Is it allowed for bidders to see bids
-                {
-                    return BidlistForBidders(req, res);
-                }
-                else
-                    return res;
-            }
+            //Is it allowed for bidders to see bids
+            else if (Provider.Database.GetBool("select ShowBidlist from DMAuction where Id = {0}", req.RelativeId))
+                return BidlistForBidders(req, res);
+            else return res;
         }
 
         private static PagerResponse<DMBidderMemberInfo> BidlistForSeller(ReqPager req, PagerResponse<DMBidderMemberInfo> res)
         {
-            var sql = @"select FirstName, LastName, BidValue, BidId from ListViewDMBidderMember where DMAuctionId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var sql = @"select * from ListViewDMBidderMember where DMAuctionId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMBidderMember where DMAuctionId = {0}", req.RelativeId);
             if (res.NumberOfItemsInTotal > 0)
                 res.ItemsInPage = Provider.Database.ReadList<ListViewDMBidderMember>(sql, req.RelativeId, (req.PageNumber - 1) * req.PageSize, req.PageSize).ToEntityInfo<DMBidderMemberInfo>();
