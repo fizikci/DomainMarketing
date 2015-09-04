@@ -981,6 +981,8 @@
     <Compile Include="Entity\DomainMarketing\DMAutoBidder.cs" />
     <Compile Include="Entity\DomainMarketing\DMBrowse.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewWaitingPayment.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewWonAuctions.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBrokerage.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMAuctionMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBidderMember.cs" />

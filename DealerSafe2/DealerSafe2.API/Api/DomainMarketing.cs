@@ -432,25 +432,17 @@ namespace DealerSafe2.API
 
             PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
             res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionSearchInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt( @"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0}", Provider.CurrentMember.Id);
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0} And (IsDeleted is null or IsDeleted=0) And Status != '1'", Provider.CurrentMember.Id);
             return res;
         }
 
-        public PagerResponse<DMAuctionSearchInfo> AuctionsWaitingPayment(ReqPager req)
+        public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
         {
-            var sql = @"select (M.FirstName + ' ' + M.LastName) AS WinnerMemberId
-		                , A.*
-                        from ListViewDMSearch as A
-                        Inner Join Member as M On M.Id = A.WinnerMemberId 
-                        where A.DMItemId in 
-	                        (select DMItemId from DMAuction) 
-                        and A.SellerMemberId = {2}                        
-                        and A.Status = '1'
-                        order by A.StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+            var sql = @"SELECT * FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment'";
+            PagerResponse<WaitingPaymentInfo> res = new PagerResponse<WaitingPaymentInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewWaitingPayment>(sql, Provider.CurrentMember.Id).ToEntityInfo<WaitingPaymentInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT COUNT(*) FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment'", Provider.CurrentMember.Id);
 
-            PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
-            res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionSearchInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ListViewDMSearch where SellerMemberId = {0} AND (WinnerMemberId != null OR WinnerMemberId!='')", Provider.CurrentMember.Id);
             return res;
         }
 
@@ -464,6 +456,16 @@ namespace DealerSafe2.API
         {
             var sql = @"select Id, DomainName from DMItem where Id not in (select DMItemId from DMAuction) and SellerMemberId = {0}";
             return Provider.Database.ReadList<DMItem>(sql, Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
+        }
+
+        public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
+        {
+            var sql = @"SELECT * FROM ListViewWonAuctions WHERE BuyerMemberId = {0}";
+            PagerResponse<ListViewWonAuctionsInfo> res = new PagerResponse<ListViewWonAuctionsInfo>();
+            res.ItemsInPage = Provider.Database.ReadList<ListViewWonAuctions>(sql,Provider.CurrentMember.Id).ToEntityInfo<ListViewWonAuctionsInfo>();
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT COUNT(*) FROM ListViewWonAuctions WHERE BuyerMEmberId = {0}", Provider.CurrentMember.Id);
+
+            return res;
         }
 
         #endregion
