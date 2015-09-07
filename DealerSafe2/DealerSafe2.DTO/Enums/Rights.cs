@@ -140,5 +140,9 @@
         TranslationLanguageView,
         ViewEntityLocaleAllView,
         ViewEntityLocaleAllEdit,
+        DMPredefinedMessageView,
+        DMPredefinedMessageEdit,
+        DMMessageView,
+        DMMessageEdit
     }
 }

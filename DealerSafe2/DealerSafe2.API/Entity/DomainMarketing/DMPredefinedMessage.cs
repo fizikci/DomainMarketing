@@ -16,4 +16,8 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string Body { get; set; }
     }
 
+    public class ListDMPredefinedMessage : DMPredefinedMessage
+    {
+
+    }
 }

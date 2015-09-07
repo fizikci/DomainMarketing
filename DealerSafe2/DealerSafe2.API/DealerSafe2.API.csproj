@@ -883,6 +883,7 @@
     <Content Include="Staff\Partials\EditCCMessageTemplate.aspx" />
     <Content Include="Staff\Partials\EditCCProfile.aspx" />
     <Content Include="Staff\Partials\EditCCSmsSocket.aspx" />
+    <Content Include="Staff\Partials\EditDMPredefinedMessage.aspx" />
     <Content Include="Staff\Partials\EditProductType.aspx" />
     <Content Include="Staff\Partials\EditLifeCycle.aspx" />
     <Content Include="Staff\Partials\EditMemberDomain.aspx" />
@@ -890,6 +891,7 @@
     <Content Include="Staff\Partials\ListCCMessageTemplate.aspx" />
     <Content Include="Staff\Partials\ListCCProfile.aspx" />
     <Content Include="Staff\Partials\ListCCSmsSocket.aspx" />
+    <Content Include="Staff\Partials\ListDMPredefinedMessage.aspx" />
     <Content Include="Staff\Partials\ListPropertySet.aspx" />
     <Content Include="Staff\Partials\ListProductType.aspx" />
     <Content Include="Staff\Partials\ListDomainContact.aspx" />
@@ -979,6 +981,7 @@
     <Compile Include="Entity\CommunicationChannel\CCSentMessage.cs" />
     <Compile Include="Entity\CommunicationChannel\CCSmsSocket.cs" />
     <Compile Include="Entity\DomainMarketing\DMAutoBidder.cs" />
+    <Compile Include="Entity\DomainMarketing\DMMessage.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewAuctions.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewWaitingPayment.cs" />

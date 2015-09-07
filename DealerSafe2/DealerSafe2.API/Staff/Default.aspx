@@ -329,7 +329,36 @@
                             </li>
                         </ul>
                     </li>
+                    
+                    <li>
+                        <a href="#" class="dropdown-toggle">
+                            <i class="icon-home"></i>
+                            <span class="menu-text"><%=Provider.TR("Domain Marketing") %> </span>
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
 
+                        <ul class="submenu">
+                            <li>
+                                <a href="#/domainMarketingDashboard">
+                                    <i class="icon-dashboard"></i>
+                                    <%=Provider.TR("Dashboard") %> 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#/List/DMPredefinedMessage">
+                                    <i class="icon-dashboard"></i>
+                                    <%=Provider.TR("Predefined") %> 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#/List/DMMessage">
+                                    <i class="icon-user"></i>
+                                    <%=Provider.TR("Admin Message") %> 
+                                </a>
+                            <li>
+                        </ul>
+
+                    </li>
                     <li>
 
                         <a href="#" class="dropdown-toggle">

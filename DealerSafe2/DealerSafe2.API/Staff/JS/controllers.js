@@ -1724,7 +1724,24 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
     defaultViewController($scope, $routeParams, entityService);
 });
 
+/*
+Domain Marketing
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
+app.controller('ListDMPredefinedMessage', function ($scope, $routeParams, entityService) {
+    $scope.search = function () {
+        $scope.where = '';
+        if ($scope.inputSubject) $scope.where += ($scope.where ? ' AND ' : '') + 'Subject LIKE \'%' + $scope.inputSubject + '\'%';
+
+        $scope.getPage(0);
+    };
+
+    $scope.tryFirstSearchCounter = 1;
+
+    defaultListController($scope, $routeParams, entityService);
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 function setCriteriaValue(where, field, value) {
     if (!where) where = '';

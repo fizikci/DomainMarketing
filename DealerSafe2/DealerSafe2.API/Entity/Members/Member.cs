@@ -111,6 +111,8 @@ namespace DealerSafe2.API.Entity.Members
         }
         public bool HasRight(string rightName)
         {
+            if (this.MemberType == MemberTypes.SuperUser)
+                return true;
             try
             {
                 var right = (Rights) Enum.Parse(typeof (Rights), rightName);

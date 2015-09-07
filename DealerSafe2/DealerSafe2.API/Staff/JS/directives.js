@@ -158,8 +158,9 @@ app.directive('inputText', function () {
         restrict: 'E',
         replace: true,
         template: function (elm, attr) {
+            var horizontal = attr.horizontal;
             if (!attr.placeholder) attr.placeholder = '';
-            return '<div>' +
+            return (!horizontal ? '<div>' : '<span>') +
                     '   <div class="space-4"></div>' +
                     '   <div class="form-group">' +
                     '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
@@ -168,7 +169,7 @@ app.directive('inputText', function () {
                         elm.html() +
                     '       </div>' +
                     '   </div>' +
-                    '</div>';
+                    (!horizontal ? '</div>' : '</span>');
         }
     };
 });

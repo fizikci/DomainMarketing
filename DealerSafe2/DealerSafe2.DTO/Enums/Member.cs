@@ -11,6 +11,7 @@
 
     public enum MemberTypes
     {
+        SuperUser,
         Individual,
         Corporate,
         Reseller
