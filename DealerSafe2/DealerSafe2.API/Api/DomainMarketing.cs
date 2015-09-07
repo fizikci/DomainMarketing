@@ -333,21 +333,19 @@ namespace DealerSafe2.API
 
         }
 
-        public bool DeleteAuction(string id) {
+        public bool DeleteAuction(string id) 
+        {
             var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
             var auc = Provider.Database.Read<DMAuction>(sql,id);
 
-            if (Provider.Database.GetInt(@"select count(*) from DMBid where DMAuctionId = {0}", id) > 0)
-            {
+            if (Provider.Database.GetInt(@"select count(*) from DMBid where DMAuctionId = {0}", id) > 0) {
                 throw (new Exception("There are bids on this auction, thus can't be deleted!"));
-            }
-            else {
+            } else {
                 auc.Status = "4";
                 auc.Delete();
                 return true;
             }
         }
-
 
 
         public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
@@ -363,7 +361,6 @@ namespace DealerSafe2.API
             res.NumberOfItemsInTotal = Provider.Database.GetInt("SELECT count(*) FROM ListViewDMSearch where (IsDeleted is null or IsDeleted=0) And (Status='0')");
             return res;
         }
-
 
         public PagerResponse<DMAuctionSearchInfo> GetHotAuctionsList(ReqPager req)
         {
@@ -413,12 +410,12 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMAuctionSearchInfo> GetMyItemsOnAuction(ReqPager req)
         {
-            var sql = @"select * from ListViewDMSearch 
-                        where
+            var sql = @"SELECT * FROM ListViewDMSearch 
+                        WHERE
                         SellerMemberId = {2}
-                        And (IsDeleted is null or IsDeleted=0)
-                        And Status != '1'
-                        order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        AND (IsDeleted IS NULL OR IsDeleted=0)
+                        AND Status != '1'
+                        ORDER BY StartDate DESC OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
 
             PagerResponse<DMAuctionSearchInfo> res = new PagerResponse<DMAuctionSearchInfo>();
             res.ItemsInPage = Provider.Database.ReadList<ListViewDMSearch>(sql, (req.PageNumber - 1) * req.PageSize, req.PageSize, Provider.CurrentMember.Id).ToEntityInfo<DMAuctionSearchInfo>();
