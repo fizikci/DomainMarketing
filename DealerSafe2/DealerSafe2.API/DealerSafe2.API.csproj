@@ -980,6 +980,9 @@
     <Compile Include="Entity\CommunicationChannel\CCSmsSocket.cs" />
     <Compile Include="Entity\DomainMarketing\DMAutoBidder.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewAuctions.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewWaitingPayment.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewWonAuctions.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBrokerage.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMAuctionMember.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBidderMember.cs" />
@@ -990,6 +993,7 @@
     <Compile Include="Entity\DomainMarketing\DMPredefinedMessage.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewSales.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBrowseItem.cs" />
+    <Compile Include="Entity\DomainMarketing\ViewAuction.cs" />
     <Compile Include="Entity\DomainMarketing\ViewDMWatchListItem.cs" />
     <Compile Include="Entity\DomainMarketing\ViewMyBidsForItems.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycle.cs" />

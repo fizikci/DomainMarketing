@@ -696,9 +696,20 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionSearchInfo> AuctionsWaitingPayment(ReqPager req)
+        public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<WaitingPaymentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+
+        public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
+        {
+            return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewWonAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
