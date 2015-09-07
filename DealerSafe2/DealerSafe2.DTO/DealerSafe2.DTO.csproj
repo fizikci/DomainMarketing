@@ -57,6 +57,8 @@
     <Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ListViewAuctionsInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ViewAuctionInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\WaitingPaymentInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewWonAuctionsInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ViewDMBrowseItemInfo.cs" />

@@ -37,5 +37,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 
         public string UserName { get; set; }
 
+
     }
 }

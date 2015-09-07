@@ -6,14 +6,13 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class ViewDMBrowseItem : BaseEntity
+    public class ListViewDMBrowseItem : BaseEntity
     {
         public string MemberId { get; set; }
         public string DMItemId { get; set; }
         public string DomainName { get; set; }
         public DMItemStates Status { get; set; }
         public bool IsPrivateSales { get; set; }
-        public bool IsDeleted { get; set; }
         public string Ownership { get; set; }
     }
 }
