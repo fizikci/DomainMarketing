@@ -760,10 +760,6 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<List<DMItemInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
-        public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
-        {
-            return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
-        }
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
             return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
