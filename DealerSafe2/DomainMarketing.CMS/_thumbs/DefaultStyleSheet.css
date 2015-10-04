@@ -54,3 +54,5 @@ form.ng-invalid.ng-submitted select.ng-invalid, form.ng-invalid.ng-submitted inp
 }
 
 .top-buffer { margin-top:20px; }
+
+.left-buffer { margin-left:20px; }
