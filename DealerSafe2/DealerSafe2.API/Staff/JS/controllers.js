@@ -1589,7 +1589,6 @@ app.controller('ListDomainContactController', function ($scope, $routeParams, en
     };
 
     defaultListController($scope, $routeParams, entityService);
-
 });
 
 app.controller('ViewLifeCycleController', function ($scope, $routeParams, entityService) {
@@ -1728,15 +1727,16 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
 Domain Marketing
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
-app.controller('ListDMPredefinedMessage', function ($scope, $routeParams, entityService) {
+app.controller('ListDMPredefinedMessageController', function ($scope, $routeParams, entityService) {
+    
     $scope.search = function () {
         $scope.where = '';
-        if ($scope.inputSubject) $scope.where += ($scope.where ? ' AND ' : '') + 'Subject LIKE \'%' + $scope.inputSubject + '\'%';
+        // Couldn't run "LIKE" in where... check it out later.
+        if ($scope.subject) $scope.where = 'Subject LIKE \'%' + $scope.subject + '%\''; //'Subject = ' + $scope.subject;
 
         $scope.getPage(0);
     };
 
-    $scope.tryFirstSearchCounter = 1;
 
     defaultListController($scope, $routeParams, entityService);
 });
