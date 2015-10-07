@@ -249,8 +249,7 @@ namespace DealerSafe2.API
                 return new List<DMAuctionSearchInfo>();
 
             var sql = @"SELECT * FROM ListViewDMSearch WHERE 
-                            COALESCE(IsPrivateSales, 0) = 0 
-                            AND BiggestBid >= {0} AND BuyItNowPrice >= {0}
+                            BiggestBid >= {0} AND BuyItNowPrice >= {0}
                             AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
                             AND (Type = {2})
                             AND ((SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {3})

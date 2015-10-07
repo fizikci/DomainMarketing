@@ -18,6 +18,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string SellerMemberId { get; set; }
         public string DomainName { get; set; }
         public string Name { get; set; }
+        public int MinimumBidInterval { get; set; }
 
 
     }

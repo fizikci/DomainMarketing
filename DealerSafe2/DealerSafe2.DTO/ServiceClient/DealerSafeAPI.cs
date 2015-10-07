@@ -650,9 +650,9 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Auctions
 
-        public DMAuctionSearchInfo GetAuction(string req)
+        public ViewAuctionInfo GetAuction(string req)
         {
-            return Call<DMAuctionSearchInfo, string>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<ViewAuctionInfo, string>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public DMAuctionSearchInfo SaveAuction(ReqAuction req)
