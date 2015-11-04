@@ -40,7 +40,7 @@ namespace DealerSafe2.API
 
         public static Database GetNewDatabaseInstance()
         {
-            return new Database(ConfigurationManager.AppSettings["dbConnStr"], DatabaseProvider.SQLServer, null, false, false);
+            return new Database(ConfigurationManager.AppSettings["dbConnStr"], DatabaseProvider.SQLServer, "c:\\temp\\domainmarketing.schema", false, false);
         }
 
         public static ApiJson Api
