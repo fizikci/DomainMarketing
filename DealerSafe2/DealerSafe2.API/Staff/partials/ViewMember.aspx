@@ -83,13 +83,7 @@
                 </div>
             </div>
 
-            <div class="profile-info-row">
-                <div class="profile-info-name">Gender </div>
-
-                <div class="profile-info-value">
-                    {{m.Gender=='F' ? 'Female' : (m.Gender=='M' ? 'Male' : '-')}}
-                </div>
-            </div>
+            <info-row label="Gender">{{m.Gender=='F' ? 'Female' : (m.Gender=='M' ? 'Male' : '-')}}</info-row>
 
             <div class="profile-info-row">
                 <div class="profile-info-name">Company </div>

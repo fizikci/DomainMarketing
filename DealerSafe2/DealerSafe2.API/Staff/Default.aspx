@@ -301,6 +301,29 @@
 
                     </li>
                     <li>
+                        <a href="#" class="dropdown-toggle">
+                            <i class="icon-group"></i>
+                            <span class="menu-text"><%=Provider.TR("Domain Marktng") %> </span>
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
+
+                        <ul class="submenu">
+                            <li>
+                                <a href="#/List/DMItem">
+                                    <i class="icon-comment"></i>
+                                    <%=Provider.TR("Items") %> 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#/List/Auction">
+                                    <i class="icon-phone-sign"></i>
+                                    <%=Provider.TR("Auctions") %> 
+                                </a>
+                            </li>
+                        </ul>
+
+                    </li>
+                    <li>
 
                         <a href="#" class="dropdown-toggle">
                             <i class="icon-cloud"></i>

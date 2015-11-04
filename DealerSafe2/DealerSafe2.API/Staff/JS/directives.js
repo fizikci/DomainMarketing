@@ -4,7 +4,7 @@
         replace: true,
         template: function (elm, attr) {
             return '<div class="page-header">' +
-                    '    <h1>'+attr.title+' <small> <i class="icon-double-angle-right"></i> {{count | number}} kayıt </small></h1>' +
+                    '    <h1>'+attr.title+' <small> <i class="icon-double-angle-right"></i> {{count | number}} records </small></h1>' +
                         elm.html() +
                     '</div>';
         }
