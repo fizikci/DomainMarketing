@@ -8,7 +8,7 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class ListViewDMAuctionMember:BaseEntity
+    public class ListViewDMAuctionMember : BaseEntity
     {
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the auction item(domain/web project)")]
@@ -28,8 +28,5 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("lsatname of user")]
         public string LastName { get; set; }
-
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the requesting member")]
-        public string MemberId { get; set; }
     }
 }

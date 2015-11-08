@@ -18,7 +18,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string BidComments { get; set; }
         public string DomainName { get; set; }
         public DateTime InsertDate { get; set; }
-        public string MemberId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }

@@ -8,7 +8,7 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class ListViewDMBidderMember:BaseEntity
+    public class ListViewDMBidderMember : BaseEntity
     {
 
         #region bidsection
@@ -37,18 +37,9 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 70), Description("name of the item")]
         public string DomainName { get; set; }
 
-        [Description("starting date of the auction")]
-        public DateTime InsertDate { get; set; }
-
-        [Description("isdeleted")]
-        public bool IsDeleted { get; set; }
-
         #endregion
 
         #region membersection
-
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the requesting member")]
-        public string MemberId { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("firstname of user")]
         public string FirstName { get; set; }

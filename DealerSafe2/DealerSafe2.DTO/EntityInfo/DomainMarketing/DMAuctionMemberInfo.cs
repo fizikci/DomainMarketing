@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class DMAuctionMemberInfo:BaseEntityInfo
+    public class DMAuctionMemberInfo : BaseEntityInfo
     {
 
         public string DMAuctionId { get; set; }
@@ -20,7 +20,5 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
-
-        public string MemberId { get; set; }
     }
 }

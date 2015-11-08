@@ -19,6 +19,16 @@ namespace DealerSafe2.DTO.Enums
         OfferAccepted
     }
 
+    public enum DMAuctionStates
+    {
+        Open,
+        Completed,
+        DirectBuy,
+        Suspended,
+        Cancelled,
+        DueDateReached
+    }
+
     public enum DMMedals
     {
         New,

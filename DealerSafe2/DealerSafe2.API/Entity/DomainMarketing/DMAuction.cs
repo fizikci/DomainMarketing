@@ -1,4 +1,5 @@
 ﻿using Cinar.Database;
+using DealerSafe2.DTO.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +17,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public bool ShowBidlist { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller; 5:due date reached but no successful bid available")]
-        public string Status { get; set; }
+        public DMAuctionStates Status { get; set; }
 
         [Description("starting date of the auction")]
         public DateTime StartDate { get; set; }
@@ -65,13 +66,4 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         }
     }
 
-    public enum DMAuctionStates
-    {
-        Open,
-        Completed,
-        DirectBuy,
-        Suspended,
-        Cancelled,
-        DueDateReached
-    }
 }
