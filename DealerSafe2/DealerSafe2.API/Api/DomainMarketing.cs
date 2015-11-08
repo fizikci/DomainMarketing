@@ -356,6 +356,7 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetOpenAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions
+                        where (IsDeleted IS NULL OR IsDeleted=0)
                         order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
             var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
 
@@ -367,8 +368,11 @@ namespace DealerSafe2.API
         {
             var sql = @"select * from ListViewAuctions 
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
+                        and (IsDeleted IS NULL OR IsDeleted=0)
                         order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where StartDate >= DATEADD(day, -1, GETDATE()) ";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
+                                WHERE StartDate >= DATEADD(day, -1, GETDATE())
+                                and (IsDeleted IS NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -377,6 +381,7 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
+                        and (IsDeleted IS NULL OR IsDeleted=0)
                         order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
             var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
 
@@ -386,9 +391,60 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where BiggestBid = 0
+                        where BiggestBid = 0 or BiggestBid IS NULL
+                        and (IsDeleted IS NULL OR IsDeleted=0)
                         order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
             var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 where (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
+        {
+            var sql = @"select * from ListViewAuctions 
+                        where PlannedCloseDate < GetDate() and Status = 'DueDateReached'
+                        and (IsDeleted IS NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 where (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewAuctionsInfo> GetClosedAuctionsList(ReqPager req)
+        {
+            var sql = @"select * from ListViewAuctions 
+                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'SuccessfullyClosed'
+                        and (IsDeleted IS NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
+                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'SuccessfullyClosed'
+                                and (IsDeleted IS NULL OR IsDeleted=0)";
+
+            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewAuctionsInfo> GetWaitingPaymentAuctionsList(ReqPager req)
+        {
+            var sql = @"select * from ListViewAuctions 
+                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForPayment'
+                        and (IsDeleted IS NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions 
+                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForPayment'
+                                and (IsDeleted IS NULL OR IsDeleted=0)";
+
+            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewAuctionsInfo> GetWaitingTransferAuctionsList(ReqPager req)
+        {
+            var sql = @"select * from ListViewAuctions 
+                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForTransfer'
+                        and (IsDeleted IS NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions  
+                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForTransfer'
+                                and (IsDeleted IS NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -669,7 +725,7 @@ namespace DealerSafe2.API
 
             auc.Save();
             bid.Save();
-            AutoBidder(req,auc);
+            AutoBidder(req, auc);
 
             return !String.IsNullOrEmpty(bid.BidderMemberId);
         }
@@ -691,7 +747,7 @@ namespace DealerSafe2.API
             newSale.DMItemId = auc.DMItemId;
 
             auc.WinnerMemberId = bid.BidderMemberId;
-            auc.Status = "1";
+            auc.Status = DMAuctionStates.Completed;
             
 
             if (!String.IsNullOrEmpty(bid.BidderMemberId))
