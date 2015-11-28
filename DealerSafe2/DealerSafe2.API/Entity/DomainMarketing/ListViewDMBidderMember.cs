@@ -8,6 +8,30 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
+    [TableDetail(ViewSQL= @"
+        CREATE VIEW [ListViewDMBidderMember] 
+        AS
+        SELECT
+            B.[Id] AS BidId,
+            B.[DMAuctionId],
+            B.[BidderMemberId],
+            B.[BidValue],
+            B.[BidComments],
+            B.[InsertDate],
+            B.[IsDeleted],
+            M.[Id],
+            M.[FirstName],
+            M.[LastName],
+            M.[UserName],
+            I.[DomainName],
+            I.[Type],
+            A.[BiggestBid]
+            I.[SellerMemberId]
+        FROM DMBid AS B
+        INNER JOIN Member AS M ON M.Id = B.BidderMemberId
+        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+    ")]
     public class ListViewDMBidderMember : BaseEntity
     {
 
@@ -36,6 +60,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 70), Description("name of the item")]
         public string DomainName { get; set; }
+        public string SellerMemberId { get; set; }
 
         #endregion
 

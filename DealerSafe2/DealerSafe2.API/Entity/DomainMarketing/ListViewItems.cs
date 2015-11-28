@@ -6,8 +6,11 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class ListViewMyItemsOnAuction : BaseEntity
+    public class ListViewItems : BaseEntity
     {
+        public int MinimumBidPrice { get; set; }
+        public int MinimumBidInterval { get; set; }
+        public bool VerificationAsked { get; set; }
         public string DMAuctionId { get; set; }
         public int BiggestBid { get; set; }
         public DMItemTypes Type { get; set; }

@@ -18,5 +18,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string DomainName { get; set; }
         public string Name { get; set; }
         public int MinimumBidInterval { get; set; }
+        public string Comments { get; set; }
     }
 }

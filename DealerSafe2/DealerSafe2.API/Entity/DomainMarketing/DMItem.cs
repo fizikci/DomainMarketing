@@ -37,7 +37,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 500), Description("description of the domain/project")]
         public string DescriptionLong { get; set; }
 
-        [Description("minimum bid to be made")]
+        [Description("minimum bid price that this item needs to be sold by an auction")]
         public int MinimumBidPrice { get; set; }
 
         [Description("minimum bidding interval accepted")]

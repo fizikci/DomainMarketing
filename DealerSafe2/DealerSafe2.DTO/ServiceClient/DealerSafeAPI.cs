@@ -689,11 +689,26 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
-
-
-        public PagerResponse<DMAuctionSearchInfo> GetMyItemsOnAuction(ReqPager req)
+        public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ListViewAuctionsInfo> GetClosedAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ListViewAuctionsInfo> GetWaitingPaymentAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+        public PagerResponse<ListViewAuctionsInfo> GetWaitingTransferAuctionsList(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewItemsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
@@ -730,11 +745,11 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<List<string>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
-
-        public List<DMItemInfo> GetMyItemList(ReqEmpty req)
+        
+        public PagerResponse<ListViewItemsInfo> GetMyItemsOnAuction(ReqPager req)
         {
-            return Call<List<DMItemInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
-        }
+            return Call<PagerResponse<ListViewItemsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }   
 
         public List<IdName> GetDomainBlackList(ReqEmpty req)
         {
@@ -753,10 +768,6 @@ namespace DealerSafe2.DTO.ServiceClient
         public bool CreatePrivateSales(string id)
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
-        }
-        public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
-        {
-            return Call<List<DMItemInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
@@ -796,9 +807,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionMemberInfo> BidsForMyItems(ReqPager req)
+        public PagerResponse<DMBidderMemberInfo> BidsForMyItems(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<ViewMyBidsForItemsInfo> MyBidsForItems(ReqPager req)
@@ -821,11 +832,31 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<PagerResponse<DMOfferItemMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
+        public PagerResponse<DMOfferItemMemberInfo> MyOffersForItems(ReqPager req)
+        {
+            return Call<PagerResponse<DMOfferItemMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
 
         public bool showBidsToggle(ReqBidsToggle req) 
         {
             return Call<bool, ReqBidsToggle>(req, MethodBase.GetCurrentMethod().Name);
         }
+
+        #endregion
+
+
+        #region Payments
+
+        public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewSalesInfo> PaymentsIReceive(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
 
         #endregion
 

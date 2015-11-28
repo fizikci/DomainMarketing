@@ -1,4 +1,15 @@
-﻿if(location.href.indexOf('domainmarketing.com')>-1)
+﻿var sweetConfirm = function(callback, _options) {
+    var options = typeof(_options) == 'undefined' || _options == null ? {} : _options;
+    swal({
+        title: options.title ? options.title : "Are you sure?",
+        text: options.text ? options.text : "You will not be able to recover this record!",
+        type: options.type ? options.type : "warning",
+        showCancelButton: options.showCancelButton ? options.showCancelButton : true,
+        confirmButtonColor: options.confirmButtonColor ? options.confirmButtonColor : "#DD6B55",
+        confirmButtonText: options.confirmButtonText ? options.confirmButtonText : "Yes, delete it!"
+    }, callback);
+}
+if(location.href.indexOf('domainmarketing.com')>-1)
     document.domain = "domainmarketing.com";
 else
     document.domain = "localhost";

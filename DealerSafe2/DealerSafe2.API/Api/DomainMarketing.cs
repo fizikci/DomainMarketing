@@ -22,7 +22,7 @@ namespace DealerSafe2.API
         {
             var watch = new DMWatchList();
             if (Provider.Database.Read<DMWatchList>(@"select * from DMWatchList where DmItemId = {0} and (IsDeleted is null or IsDeleted=0) ", id) != null)
-                throw new Exception("Cannot add to watchlist twice!");
+                throw new Exception(Provider.TR("Cannot add to watchlist twice!"));
 
             watch.DMItemId = id;
             watch.MemberId = Provider.CurrentMember.Id;
@@ -71,9 +71,9 @@ namespace DealerSafe2.API
 
             // validation
             if (req.ToMemberId == Provider.CurrentMember.Id)
-                throw new Exception("You cannot comment to yourself!");
+                throw new Exception(Provider.TR("You cannot comment to yourself!"));
             if (req.Rating > 5 || req.Rating == 0 || req.Rating < -5)
-                throw new Exception("Invalid Rating.");
+                throw new Exception(Provider.TR("Invalid Rating."));
 
 
 
@@ -113,12 +113,13 @@ namespace DealerSafe2.API
             where T2 : BaseEntityInfo, new()
         {
             var res = new PagerResponse<T2>();
-            res.ItemsInPage = Provider.Database.ReadList<T>(sql,
+            var list = Provider.Database.ReadList<T>(sql,
                     req.RelativeId ?? Provider.CurrentMember.Id,
-                    (req.PageNumber - 1) * req.PageSize,
-                    req.PageSize)
-                .ToList().ToEntityInfo<T2>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(totalCountSQL, req.RelativeId ?? Provider.CurrentMember.Id);
+                    (req.PageNumber - 1) * req.PageSize, 
+                    req.PageSize);
+            if (list != null)
+                res.ItemsInPage = list.ToList().ToEntityInfo<T2>();
+            res.NumberOfItemsInTotal = list != null ? Provider.Database.GetInt(totalCountSQL, req.RelativeId ?? Provider.CurrentMember.Id) : 0;
             return res;
         }
 
@@ -288,7 +289,15 @@ namespace DealerSafe2.API
         public ViewAuctionInfo GetAuction(string req)
         {
             var sql = @"select * from ViewAuction where  Id = {0} ";
-            return Provider.Database.Read<ViewAuction>(sql, req).ToEntityInfo<ViewAuctionInfo>();
+            var vauc = Provider.Database.Read<ViewAuction>(sql, req);
+            if (vauc != null && vauc.PlannedCloseDate > DateTime.Now)
+            {
+                var auc = Provider.Database.Read<DMAuction>("select * from DMAuction where  Id = {0}", req);
+                auc.Status = DMAuctionStates.DueDateReached;
+                auc.Save();
+                return auc.ToEntityInfo<ViewAuctionInfo>();
+            }
+            return vauc.ToEntityInfo<ViewAuctionInfo>();
         }
 
         public DMAuctionSearchInfo SaveAuction(ReqAuction req)
@@ -304,9 +313,9 @@ namespace DealerSafe2.API
                 auc.Comments = req.Comments;
                 auc.PaymentDate = DateTime.MinValue;
                 auc.StartDate = DateTime.Now;
-                auc.Status = "0";
+                auc.Status = DMAuctionStates.Open;
                 auc.BiggestBid = 0;
-                auc.SmallestBid = item.MinimumBidPrice;
+                auc.SmallestBid = 0;
                 auc.BuyItNowPrice = item.BuyItNowPrice;
                 auc.ShowBidlist = true;
                 auc.Save();
@@ -320,21 +329,20 @@ namespace DealerSafe2.API
             {
                 oldAuc.PlannedCloseDate = req.PlannedCloseDate;
                 oldAuc.Comments = req.Comments;
-                oldAuc.Status = "0";
+                oldAuc.Status = DMAuctionStates.Open;
                 oldAuc.Save();
                 return oldAuc.ToEntityInfo<DMAuctionSearchInfo>();
             }
         }
 
-        public ResAucUpdate GetAuctionUpdateInfo(string id)
-        {
-            var auc = Provider.Database.Read<ListViewDMSearch>(@"select Comments, PlannedCloseDate, DMItemId,DomainName from ListViewDmSearch where Id={0} ", id);
-            ResAucUpdate res = new ResAucUpdate();
-            auc.CopyPropertiesWithSameName(res);
+        //public ResAucUpdate GetAuctionUInfo(string id)
+        //{
+        //    var auc = Provider.Database.Read<ListViewDMSearch>(@"select * from ListViewDmSearch where Id={0} ", id);
+        //    ResAucUpdate res = new ResAucUpdate();
+        //    auc.CopyPropertiesWithSameName(res);
             
-            return res;
-
-        }
+        //    return res;
+        //}
 
         public bool DeleteAuction(string id) {
             var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
@@ -342,22 +350,21 @@ namespace DealerSafe2.API
 
             if (Provider.Database.GetInt(@"select count(*) from DMBid where DMAuctionId = {0}", id) > 0)
             {
-                throw (new Exception("There are bids on this auction, thus it can't be deleted!"));
+                throw (new Exception(Provider.TR("There are bids on this auction, thus it cannot be deleted!")));
             }
             else {
-                auc.Status = "4";
+                auc.Status = DMAuctionStates.Cancelled;
                 auc.Delete();
                 return true;
             }
         }
 
 
-
         public PagerResponse<ListViewAuctionsInfo> GetOpenAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions
-                        where (IsDeleted IS NULL OR IsDeleted=0)
-                        order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        where (IsDeleted = NULL OR IsDeleted=0)
+                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
@@ -368,21 +375,20 @@ namespace DealerSafe2.API
         {
             var sql = @"select * from ListViewAuctions 
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
                                 WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                and (IsDeleted IS NULL OR IsDeleted=0)";
+                                and (IsDeleted = NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
 
-
         public PagerResponse<ListViewAuctionsInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        where (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
@@ -391,10 +397,10 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where BiggestBid = 0 or BiggestBid IS NULL
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 where (IsDeleted is null or IsDeleted=0)";
+                        where (BiggestBid = 0 or BiggestBid = NULL)
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -402,10 +408,10 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and Status = 'DueDateReached'
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 where (IsDeleted is null or IsDeleted=0)";
+                        where PlannedCloseDate < GetDate() and SaleStatus = 'DueDateReached'
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -413,12 +419,12 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetClosedAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'SuccessfullyClosed'
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        where PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed'
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
-                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'SuccessfullyClosed'
-                                and (IsDeleted IS NULL OR IsDeleted=0)";
+                                where PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed'
+                                and (IsDeleted = NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -426,12 +432,12 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetWaitingPaymentAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForPayment'
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment'
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions 
-                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForPayment'
-                                and (IsDeleted IS NULL OR IsDeleted=0)";
+                                where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment'
+                                and (IsDeleted = NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -439,42 +445,45 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetWaitingTransferAuctionsList(ReqPager req)
         {
             var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForTransfer'
-                        and (IsDeleted IS NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
+                        where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer'
+                        and (IsDeleted = NULL OR IsDeleted=0)
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
             var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions  
-                                where PlannedCloseDate < GetDate() and (Status = 'Completed or Status = 'DirectBuy') and SaleStatus = 'WaitingForTransfer'
-                                and (IsDeleted IS NULL OR IsDeleted=0)";
+                                where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer'
+                                and (IsDeleted = NULL OR IsDeleted=0)";
 
             return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
         }
 
-
-        public PagerResponse<ListViewMyItemsOnAuctionInfo> GetMyItemsOnAuction(ReqPager req)
+        
+        public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
         {
-            var sql = @"select * from ListViewMyItemsOnAuction 
-                        where SellerMemberId = {2}
+            var sql = @"select * from ListViewItems
+                        where SellerMemberId = {0}
                             and (IsDeleted is null or IsDeleted=0)
-                        order by StartDate desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewMyItemsOnAuction where SellerMemberId = {0}";
+                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewItems where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
-            return GetPagerResult<ListViewMyItemsOnAuction, ListViewMyItemsOnAuctionInfo>(req, sql, totalCountSQL);
+            return GetPagerResult<ListViewItems, ListViewItemsInfo>(req, sql, totalCountSQL);
         }
+        public PagerResponse<ListViewItemsInfo> GetMyItemsOnAuction(ReqPager req)
+        {
+            var sql = @"select * from ListViewItems
+                        where SellerMemberId = {0}
+                            and (IsDeleted is null or IsDeleted=0)
+                            and (DMAuctionId IS NOT NULL OR DMAuctionId <> '')
+                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewItems where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0) and (DMAuctionId IS NOT NULL OR DMAuctionId <> '')";
 
+            return GetPagerResult<ListViewItems, ListViewItemsInfo>(req, sql, totalCountSQL);
+        }
         public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
         {
-            var sql = @"SELECT * FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment'";
-            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment'";
+            var sql = @"SELECT * FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment' and (IsDeleted is null or IsDeleted=0)";
+            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment' and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewWaitingPayment, WaitingPaymentInfo>(req, sql, totalCountSQL);
         }
-
-        public List<DMItemInfo> GetMyItemsNotOnAuction(ReqEmpty req)
-        {
-            var sql = @"select * from DMItem where Status = {0} and SellerMemberId = {1}";
-            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
-        }
-
         public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
         {
             var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and ((VerificationAsked = 1 and IsVerified = 1) or VerificationAsked = 0)";
@@ -483,8 +492,8 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
         {
-            var sql = @"SELECT * FROM ListViewWonAuctions WHERE BuyerMemberId = {0}";
-            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWonAuctions WHERE BuyerMEmberId = {0}";
+            var sql = @"SELECT * FROM ListViewWonAuctions WHERE BuyerMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWonAuctions WHERE BuyerMEmberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewWonAuctions, ListViewWonAuctionsInfo>(req, sql, totalCountSQL);
         }
@@ -535,12 +544,6 @@ namespace DealerSafe2.API
             return domainName + ", " + DateTime.Now.ToShortDateString();
         }
 
-        public List<DMItemInfo> GetMyItemList(ReqEmpty req)
-        {
-            var sql = @"select * from DMItem where (IsDeleted is null or IsDeleted=0) and SellerMemberId = {0} order by Type, DomainName";
-            return Provider.Database.ReadList<DMItem>(sql, Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
-        }
-
         public DMItemInfo GetMyItem(string id)
         {
             var sql = @"select * from DMItem where (IsDeleted is null or IsDeleted=0) and Id = {0} and SellerMemberId = {1}";
@@ -565,7 +568,7 @@ namespace DealerSafe2.API
         public bool SaveMyItem(DMItemInfo req)
         {
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
-                throw new Exception("Domain name cannot be " + req.DomainName);
+                throw new Exception(Provider.TR("Domain name cannot be ") + req.DomainName);
 
             DMItem item = new DMItem();
 
@@ -688,25 +691,22 @@ namespace DealerSafe2.API
             bid.BidderMemberId = Provider.CurrentMember.Id;
             req.CopyPropertiesWithSameName(bid);
             var auc = Provider.Database.Read<DMAuction>(@"select * from DMAuction where  Id = {0} And (IsDeleted is null or IsDeleted=0)", req.DMAuctionId);
+            var isAutoBidderSet = req.MaxBidValue != 0;
             if (auc != null)
             {
                 if (bid.BidValue < auc.BiggestBid)
-                    throw (new Exception("New bids have to be bigger"));
+                    throw (new Exception(Provider.TR("New bids have to be bigger")));
                 else
                 {
-                    if (req.MaxBidValue != 0)
-                        if (req.MaxBidValue < req.BidValue)
-                        {
-                            throw (new Exception("Auto Bidding Value has to be bigger than bid value!"));
-                        }
-                    if (req.MaxBidValue > auc.BuyItNowPrice)
+                    if (isAutoBidderSet)
                     {
-                        throw (new Exception("Auto Bidding Value has to be smaller than Buy It Now Price!"));
+                        if (req.MaxBidValue < req.BidValue)
+                            throw (new Exception(Provider.TR("Auto Bidding Value has to be bigger than bid value!")));
+                        if (req.MaxBidValue > auc.BuyItNowPrice)
+                            throw (new Exception(Provider.TR("Auto Bidding Value has to be smaller than Buy It Now Price!")));
                     }
-
-                    if (auc.BiggestBid == 0 && bid.BidValue >= (auc.SmallestBid)) {
-                        throw (new Exception("First bid has to be bigger then or equal to Mininmum Bid Value that is " + auc.SmallestBid.ToString() ));
-                    }
+                    if (auc.BiggestBid == 0 && bid.BidValue >= (auc.SmallestBid))
+                        throw (new Exception(Provider.TR("First bid has to be bigger then or equal to Mininmum Bid Value that is ") + auc.SmallestBid.ToString() ));
 
                     if (bid.BidValue >= auc.BuyItNowPrice)
                     {
@@ -720,12 +720,12 @@ namespace DealerSafe2.API
                     auc.BiggestBid = bid.BidValue;
                 }
             }
-            else
-                throw (new Exception("There is no such auction to bid on"));
+            else throw (new Exception(Provider.TR("There is no such auction to bid on")));
 
             auc.Save();
             bid.Save();
-            AutoBidder(req, auc);
+            if (isAutoBidderSet)
+                AutoBidder(req, auc);
 
             return !String.IsNullOrEmpty(bid.BidderMemberId);
         }
@@ -777,13 +777,13 @@ namespace DealerSafe2.API
             return GetPagerResult<ListViewDMBidderMember, DMBidderMemberInfo>(req, sql, totalCountSQL);
         }
 
-        public PagerResponse<DMAuctionMemberInfo> BidsForMyItems(ReqPager req)
+        public PagerResponse<DMBidderMemberInfo> BidsForMyItems(ReqPager req)
         {
-            var sql = @"select * from ListViewDMAuctionMember where MemberId = {2}
-                        order by BiggestBid desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMAuctionMember where (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from ListViewDMBidderMember where SellerMemberId = {0}
+                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewDMBidderMember where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
-            return GetPagerResult<ListViewDMAuctionMember, DMAuctionMemberInfo>(req, sql, totalCountSQL);
+            return GetPagerResult<ListViewDMBidderMember, DMBidderMemberInfo>(req, sql, totalCountSQL);
         }
 
 
@@ -844,9 +844,18 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
-            var sql = @"select * from ListViewOfferItemMember where MemberId = {2} And Status = '0'
-                        order by OfferValue desc OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewOfferItemMember where (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from ListViewOfferItemMember where MemberId = {0} And Status = '0'
+                        order by OfferValue desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewOfferItemMember where MemberId = {0} And Status = '0' and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewOfferItemMember, DMOfferItemMemberInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<DMOfferItemMemberInfo> MyOffersForItems(ReqPager req)
+        {
+            var sql = @"select * from ListViewOfferItemMember where OffererMemberId = {0} And Status = '0'
+                        order by OfferValue desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewOfferItemMember where OffererMemberId = {0} And Status = '0' and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewOfferItemMember, DMOfferItemMemberInfo>(req, sql, totalCountSQL);
         }
@@ -870,6 +879,47 @@ namespace DealerSafe2.API
         }
         
         
+        #endregion
+
+        #region Payments
+
+        public bool CancelPayment(string id)
+        {
+            var sql = @"SELECT * FROM DMSale WHERE Id = {0} and (IsDeleted is null or IsDeleted=0)";
+            var sale = Provider.Database.Read<DMSale>(sql, id);
+            if (sale.InsertDate.AddDays(14) > DateTime.Now)
+            {
+                sale.Status = DMSaleStates.TimeoutForPayment;
+                sale.Save();
+                //rethink the next line...
+                return sale.IsDeleted;
+            }
+            if (sale.SellerMemberId == Provider.CurrentMember.Id)
+                sale.Status = DMSaleStates.CancelledBySeller;
+            else sale.Status = DMSaleStates.CancelledByBuyer;
+            sale.Delete();
+            return sale == null || sale.IsDeleted;
+        }
+
+        public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
+        {
+            var sql = @"select * from ListViewSales where BuyerMemberId = {0}
+                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewSales where BuyerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewSalesInfo> PaymentsIReceive(ReqPager req)
+        {
+            var sql = @"select * from ListViewSales where SellerMemberId = {0}
+                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewSales where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+        }
+
+
         #endregion
 
     }

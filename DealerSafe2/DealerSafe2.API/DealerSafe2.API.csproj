@@ -984,7 +984,7 @@
     <Compile Include="Entity\DomainMarketing\DMMessage.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewAuctions.cs" />
-    <Compile Include="Entity\DomainMarketing\ListViewMyItemsOnAuction.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewItems.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewWaitingPayment.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewWonAuctions.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBrokerage.cs" />

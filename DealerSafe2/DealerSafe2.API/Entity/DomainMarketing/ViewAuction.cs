@@ -8,7 +8,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
     public class ViewAuction : BaseEntity
     {
         public string DMItemId { get; set; }
-        public string Id { get; set; }
         public int BuyItNowPrice { get; set; }
         public int PageRank { get; set; }
         public int BiggestBid { get; set; }

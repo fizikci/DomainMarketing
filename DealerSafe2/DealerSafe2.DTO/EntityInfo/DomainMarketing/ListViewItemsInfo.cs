@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class ListViewMyItemsOnAuctionInfo : BaseEntityInfo
+    public class ListViewItemsInfo : BaseEntityInfo
     {
         public string DMAuctionId { get; set; }
         public int BiggestBid { get; set; }
