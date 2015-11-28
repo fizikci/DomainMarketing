@@ -58,6 +58,7 @@
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewAuctionsInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ListViewDMMessagesInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewItemsInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ViewAuctionInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\WaitingPaymentInfo.cs" />
@@ -72,7 +73,7 @@
     <Compile Include="EntityInfo\DomainMarketing\DMMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewSalesInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\EntityCommentInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\ViewDMWatchListItemInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ListViewDMWatchListItemInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ViewMyBidsForItemsInfo.cs" />
     <Compile Include="EntityInfo\Jobs\JobInfo.cs" />
     <Compile Include="EntityInfo\Products\Domain\ListViewMemberDomainInfo.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Request\ReqPager.cs" />
     <Compile Include="Request\ReqComment.cs" />
     <Compile Include="Request\ReqSearchAuction.cs" />
+    <Compile Include="Request\ReqSendDMMessage.cs" />
     <Compile Include="Request\ReqSendMessage.cs" />
     <Compile Include="Request\ReqChangeMemberEmail.cs" />
     <Compile Include="Request\ReqLoginWithRecoveryQuestion.cs" />

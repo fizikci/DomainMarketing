@@ -1,4 +1,17 @@
-﻿var sweetConfirm = function(callback, _options) {
+﻿var getRatingText = function(number){
+    if(number == 1) return "OK";
+    if(number == 2) return "Fine";
+    if(number == 3) return "Good";
+    if(number == 4) return "Great";
+    if(number == 5) return "Excellent";
+    
+    if(number == -1) return "Not OK";
+    if(number == -2) return "Not Good";
+    if(number == -3) return "Bad";
+    if(number == -4) return "Very Bad";
+    if(number == -5) return "Worst";
+};
+var sweetConfirm = function(callback, _options) {
     var options = typeof(_options) == 'undefined' || _options == null ? {} : _options;
     swal({
         title: options.title ? options.title : "Are you sure?",

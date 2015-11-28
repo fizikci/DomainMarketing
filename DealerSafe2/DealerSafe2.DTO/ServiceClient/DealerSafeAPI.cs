@@ -538,9 +538,9 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-        public PagerResponse<ViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
+        public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
-            return Call<PagerResponse<ViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
@@ -845,7 +845,7 @@ namespace DealerSafe2.DTO.ServiceClient
         #endregion
 
 
-        #region Payments
+        #region Payments & Messages
 
         public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
         {
@@ -857,6 +857,20 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
+        public bool SendMessage(ReqSendDMMessage req)
+        {
+            return Call<bool, ReqSendDMMessage>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewDMMessagesInfo> GetSentMessage(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewDMMessagesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewDMMessagesInfo> GetInbox(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewDMMessagesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
 
         #endregion
 

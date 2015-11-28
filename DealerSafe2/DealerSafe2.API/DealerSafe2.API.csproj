@@ -984,6 +984,7 @@
     <Compile Include="Entity\DomainMarketing\DMMessage.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewAuctions.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewDMMessages.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewItems.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewWaitingPayment.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewWonAuctions.cs" />
@@ -998,7 +999,7 @@
     <Compile Include="Entity\DomainMarketing\ListViewSales.cs" />
     <Compile Include="Entity\DomainMarketing\ListViewDMBrowseItem.cs" />
     <Compile Include="Entity\DomainMarketing\ViewAuction.cs" />
-    <Compile Include="Entity\DomainMarketing\ViewDMWatchListItem.cs" />
+    <Compile Include="Entity\DomainMarketing\ListViewDMWatchListItem.cs" />
     <Compile Include="Entity\DomainMarketing\ViewMyBidsForItems.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycle.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycleJob.cs" />

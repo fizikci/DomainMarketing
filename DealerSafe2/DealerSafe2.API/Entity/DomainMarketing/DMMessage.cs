@@ -17,13 +17,13 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the receiver, fk referencing Member table")]
         public string ToMemberId { get; set; }
+        public string Subject { get; set; }
+        public string Body { get; set; }
     }
 
     public class ListDMMessage : DMMessage
     {
         public string FromMemberFullName { get; set; }
         public string ToMemberFullName { get; set; }
-        public string MessageSubject { get; set; }
-        public string MessageBody { get; set; }
     }
 }

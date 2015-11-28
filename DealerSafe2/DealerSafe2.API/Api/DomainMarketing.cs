@@ -37,17 +37,18 @@ namespace DealerSafe2.API
             return true;
         }
 
-        public PagerResponse<ViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
+        public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
-            var sql = @"select * from ViewDMWatchListItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ViewDMWatchListItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from ListViewDMWatchlistItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = @"SELECT count(*) FROM ListViewDMWatchlistItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
-            return GetPagerResult<ViewDMWatchListItem, ViewDMWatchListItemInfo>(req, sql, totalCountSQL);
+            return GetPagerResult<ListViewDMWatchListItem, ListViewDMWatchListItemInfo>(req, sql, totalCountSQL);
         }
 
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
-            var sql = @"select * from ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var sql = @"select * from ListViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var countSQL = @"SELECT count(*) FROM ListViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
             // GetPagerResult<T, ViewDMBrowseItemInfo>(req, sql, totalCountSQL);
             // method was not used because T, the entity for DMBrowse, is not defined. 
@@ -56,8 +57,8 @@ namespace DealerSafe2.API
             var res = new PagerResponse<ViewDMBrowseItemInfo>();
             res.ItemsInPage = Provider.Database.ReadList<ListViewDMBrowseItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
                 .ToList().ToEntityInfo<ViewDMBrowseItemInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(@"SELECT count(*) FROM ViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
-            return res;
+            res.NumberOfItemsInTotal = Provider.Database.GetInt(countSQL, Provider.CurrentMember.Id);
+            return res;//GetPagerResult<ListViewDMBrowseItem, ViewDMBrowseItemInfo>(req, sql, countSQL);
         }
 
 
@@ -594,7 +595,7 @@ namespace DealerSafe2.API
 
         #endregion
 
-        #region Biddings&Offers
+        #region Biddings & Offers
 
         public DMBidderMemberInfo GetBid(string id)
         {
@@ -881,7 +882,7 @@ namespace DealerSafe2.API
         
         #endregion
 
-        #region Payments
+        #region Payments & Messages
 
         public bool CancelPayment(string id)
         {
@@ -918,6 +919,44 @@ namespace DealerSafe2.API
 
             return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
         }
+
+
+        //Messages...
+        public PagerResponse<ListViewDMMessagesInfo> GetInbox(ReqPager req)
+        {
+            var sql = @"select * from ListViewDMMessages where ToMemberId = {0}
+                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewDMMessages where ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewDMMessages, ListViewDMMessagesInfo>(req, sql, totalCountSQL);
+        }
+
+        public PagerResponse<ListViewDMMessagesInfo> GetSentMessage(ReqPager req)
+        {
+            var sql = @"select * from ListViewDMMessages where FromMemberId = {0}
+                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
+            var totalCountSQL = "SELECT count(*) FROM ListViewDMMessages where FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+
+            return GetPagerResult<ListViewDMMessages, ListViewDMMessagesInfo>(req, sql, totalCountSQL);
+        }
+
+        public bool SendMessage(ReqSendDMMessage req)
+        {
+            var dmmessage = new DMMessage();
+            dmmessage.CopyPropertiesWithSameName(req);
+
+            // ensure that users are using pdm to send messages to each other.
+            if (!string.IsNullOrEmpty(dmmessage.DMPredefinedMessageId))
+                dmmessage.Body = dmmessage.Subject = "";
+            
+            dmmessage.Save();
+            return dmmessage.Id.Length > 0;
+        }
+
+
+
+
+
 
 
         #endregion

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class ViewDMWatchListItemInfo : BaseEntityInfo
+    public class ListViewDMWatchListItemInfo : BaseEntityInfo
     {
         public string MemberId { get; set; }
         public string DMItemId { get; set; }

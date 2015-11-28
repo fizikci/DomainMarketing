@@ -6,7 +6,7 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class ViewDMWatchListItem : BaseEntity
+    public class ListViewDMWatchListItem : BaseEntity
     {
         public string MemberId { get; set; }
         public string DMItemId { get; set; }
