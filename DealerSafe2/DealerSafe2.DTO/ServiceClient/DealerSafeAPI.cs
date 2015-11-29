@@ -577,14 +577,14 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-        public PagerResponse<ListViewDMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
+        public PagerResponse<DMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
         {
-            return Call<PagerResponse<ListViewDMExpertiseInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMExpertiseInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public List<ListViewDMExpertiseInfo> GetExpertiseReports(string id)
+        public List<DMExpertiseInfo> GetExpertiseReports(string id)
         {
-            return Call<List<ListViewDMExpertiseInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<List<DMExpertiseInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public bool AskForBrokerage(string id)
@@ -592,14 +592,14 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<ListViewDMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
+        public PagerResponse<DMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
         {
-            return Call<PagerResponse<ListViewDMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMBrokerageInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ListViewDMBrokerageInfo GetBrokerageReports(string id)
+        public DMBrokerageInfo GetBrokerageReports(string id)
         {
-            return Call<ListViewDMBrokerageInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<DMBrokerageInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion

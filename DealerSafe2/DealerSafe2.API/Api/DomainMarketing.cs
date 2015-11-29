@@ -2,6 +2,7 @@
 using DealerSafe2.API.Entity.DomainMarketing;
 using DealerSafe2.API.Entity.Members;
 using DealerSafe2.API.Entity.Social;
+using DealerSafe2.DTO;
 using DealerSafe2.DTO.EntityInfo;
 using DealerSafe2.DTO.EntityInfo.DomainMarketing;
 using DealerSafe2.DTO.Enums;
@@ -39,26 +40,53 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
-            var sql = @"select * from ListViewDMWatchlistItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewDMWatchlistItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewDMWatchListItem, ListViewDMWatchListItemInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT W.Id,
+                               W.DmItemId,
+                               W.InsertDate,
+                               I.DomainName,
+                               I.Status,
+                               I.Type,
+                               I.IsPrivateSales,
+                               I.Ownership
+                        FROM DMWatchList AS W
+                        LEFT JOIN DMItem AS I ON W.DMItemId = I.Id
+                        WHERE W.MemberId = {0}
+                        ORDER BY W.InsertDate, I.Status desc
+                    ";
+
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMWatchList where MemberId = {0}", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewDMWatchListItemInfo>();
+
+            return new PagerResponse<ListViewDMWatchListItemInfo> {ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
-            var sql = @"select * from ListViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var countSQL = @"SELECT count(*) FROM ListViewDMBrowseItem where MemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            // GetPagerResult<T, ViewDMBrowseItemInfo>(req, sql, totalCountSQL);
-            // method was not used because T, the entity for DMBrowse, is not defined. 
-            // We did not define it to cut down on total data bandwith and decrease response time and limit the table to 3 columns only.
+            var sql = @"SELECT 
+                            B.DMItemId,
+                            B.InsertDate,
+                            I.DomainName,
+                            I.Status,
+                            I.Type,
+                            I.IsPrivateSales,
+                            I.Ownership
+                        FROM DMBrowse AS B
+                        INNER JOIN DMItem AS I ON B.DMItemId = I.Id 
+                        ORDER BY B.InsertDate, I.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBrowse where MemberId = {0}", Provider.CurrentMember.Id);
 
-            var res = new PagerResponse<ViewDMBrowseItemInfo>();
-            res.ItemsInPage = Provider.Database.ReadList<ListViewDMBrowseItem>(sql, Provider.CurrentMember.Id, (req.PageNumber - 1) * req.PageSize, req.PageSize)
-                .ToList().ToEntityInfo<ViewDMBrowseItemInfo>();
-            res.NumberOfItemsInTotal = Provider.Database.GetInt(countSQL, Provider.CurrentMember.Id);
-            return res;//GetPagerResult<ListViewDMBrowseItem, ViewDMBrowseItemInfo>(req, sql, countSQL);
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ViewDMBrowseItemInfo>();
+
+            return new PagerResponse<ViewDMBrowseItemInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
 
@@ -96,32 +124,62 @@ namespace DealerSafe2.API
 
         public PagerResponse<EntityCommentInfo> GetMyComments(ReqPager req)
         {
-            var sql = @"select * from ListViewCommentsToMember where Rating > 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewCommentsToMember where Rating > 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        EC.Id,
+                            (M.FirstName + M.LastName) AS ToFullName,
+                            M.Avatar AS ToAvatar,
+                            (F.FirstName + F.LastName) AS SenderFullName,
+                            F.Avatar AS SenderAvatar,
+	                        EC.MemberId AS SenderMemberId,
+	                        EC.EntityId AS ToMemberId,
+                            EC.Rating,
+                            EC.Comment,
+                            EC.InsertDate,
+                            EC.IsDeleted
+                        FROM EntityComment AS EC 
+                        INNER JOIN Member F ON EC.MemberId = F.Id
+                        INNER JOIN Member M ON EC.EntityId = M.Id
+                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        ORDER BY EC.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) ", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
+
+            return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+        
         public PagerResponse<EntityCommentInfo> GetMyComplaints(ReqPager req)
         {
-            var sql = @"select * from ListViewCommentsToMember where Rating < 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewCommentsToMember where Rating < 0 and FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
-        }
+            var sql = @"SELECT
+	                        EC.Id,
+                            (M.FirstName + M.LastName) AS ToFullName,
+                            M.Avatar AS ToAvatar,
+                            (F.FirstName + F.LastName) AS SenderFullName,
+                            F.Avatar AS SenderAvatar,
+	                        EC.MemberId AS SenderMemberId,
+	                        EC.EntityId AS ToMemberId,
+                            EC.Rating,
+                            EC.Comment,
+                            EC.InsertDate,
+                            EC.IsDeleted
+                        FROM EntityComment AS EC 
+                        INNER JOIN Member F ON EC.MemberId = F.Id
+                        INNER JOIN Member M ON EC.EntityId = M.Id
+                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        ORDER BY EC.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0)", Provider.CurrentMember.Id);
 
-        private static PagerResponse<T2> GetPagerResult<T, T2>(ReqPager req, string sql, string totalCountSQL) 
-            where T : DealerSafe2.API.Entity.BaseEntity
-            where T2 : BaseEntityInfo, new()
-        {
-            var res = new PagerResponse<T2>();
-            var list = Provider.Database.ReadList<T>(sql,
-                    req.RelativeId ?? Provider.CurrentMember.Id,
-                    (req.PageNumber - 1) * req.PageSize, 
-                    req.PageSize);
-            if (list != null)
-                res.ItemsInPage = list.ToList().ToEntityInfo<T2>();
-            res.NumberOfItemsInTotal = list != null ? Provider.Database.GetInt(totalCountSQL, req.RelativeId ?? Provider.CurrentMember.Id) : 0;
-            return res;
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
+
+            return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         #endregion
@@ -147,19 +205,58 @@ namespace DealerSafe2.API
             return expertise.IsPublic;
         }
 
-        public PagerResponse<ListViewDMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
+        public PagerResponse<DMExpertiseInfo> GetMyExpertiseRequests(ReqPager req)
         {
-            var sql = "select * from ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMExpertise where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
-            return GetPagerResult<ListViewDMExpertise, ListViewDMExpertiseInfo>(req, sql, totalCountSQL);
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var sql = @"SELECT 
+	                        E.Id,
+	                        E.RequesterMemberId,
+	                        (M.FirstName + ' ' + M.LastName) as ExpertFullName,
+	                        E.ExpertMemberId,
+	                        E.DMItemId,
+	                        I.DomainName,
+	                        I.Type,
+	                        E.Status,
+	                        E.ReportContent,
+	                        E.IsPublic,
+	                        E.InsertDate
+                        FROM DMExpertise AS E
+                        INNER JOIN DMItem I on E.DMItemId = I.Id
+                        INNER JOIN Member M on M.Id = E.ExpertMemberId
+                        WHERE E.RequesterMemberId = {0} and (E.IsDeleted is null or E.IsDeleted=0) 
+                        ORDER BY E.InsertDate, E.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMExpertise AS E WHERE E.RequesterMemberId = {0} and (E.IsDeleted is null or E.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMExpertiseInfo>();
+
+            return new PagerResponse<DMExpertiseInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         // There might be more than 1 report for an item
-        public List<ListViewDMExpertiseInfo> GetExpertiseReports(string id)
+        public List<DMExpertiseInfo> GetExpertiseReports(string id)
         {
-            var sql = @"select * from ListViewDMExpertise where RequesterMemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0) and Status = {2}";
-            var res = Provider.Database.ReadList<ListViewDMExpertise>(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Processed.ToString())
-                .ToList().ToEntityInfo<ListViewDMExpertiseInfo>();
+            var sql = @"SELECT 
+	                        E.Id,
+	                        E.RequesterMemberId,
+	                        (M.FirstName + ' ' + M.LastName) as ExpertFullName,
+	                        E.ExpertMemberId,
+	                        E.DMItemId,
+	                        I.DomainName,
+	                        I.Type,
+	                        E.Status,
+	                        E.ReportContent,
+	                        E.IsPublic,
+	                        E.InsertDate
+                        FROM DMExpertise AS E
+                        INNER JOIN DMItem I on E.DMItemId = I.Id
+                        INNER JOIN Member M on M.Id = E.ExpertMemberId
+                        WHERE E.RequesterMemberId = {0} and E.DMItemId = {1} AND E.Status = {2} AND (E.IsDeleted is null or E.IsDeleted=0) 
+                        ORDER BY E.InsertDate, E.Status DESC";
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Processed.ToString())
+                .ToEntityList<DMExpertiseInfo>();
             return res;
         }
 
@@ -175,18 +272,57 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(brokerage.Id);
         }
 
-        public PagerResponse<ListViewDMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
+        public PagerResponse<DMBrokerageInfo> GetMyBrokerageRequests(ReqPager req)
         {
-            var sql = @"select * from ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate, Status desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMBrokerage where RequesterMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
-            return GetPagerResult<ListViewDMBrokerage, ListViewDMBrokerageInfo>(req, sql, totalCountSQL);
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var sql = @"SELECT 
+	                        B.Id,
+	                        B.RequesterMemberId,	
+	                        (M.FirstName + ' ' + M.LastName) as BrokerFullName,
+	                        B.BrokerMemberId,
+	                        B.DMItemId,
+	                        I.DomainName,	
+	                        I.Type,
+	                        B.Status,
+	                        B.ReportContent,
+	                        B.IsDeleted,
+	                        B.InsertDate
+                        FROM DMBrokerage AS B
+                        INNER JOIN DMItem I ON B.DMItemId = I.Id
+                        INNER JOIN Member M ON M.Id = B.BrokerMemberId 
+                        WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0) 
+                        ORDER BY B.InsertDate, B.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBrokerage B WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBrokerageInfo>();
+
+            return new PagerResponse<DMBrokerageInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
-        public ListViewDMBrokerageInfo GetBrokerageReports(string id)
+        public DMBrokerageInfo GetBrokerageReports(string id)
         {
-            var sql = @"select * from ListViewDMBrokerage where RequesterMemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0) and Status = {2}";
-            var res = Provider.Database.Read<ListViewDMBrokerage>(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Processed.ToString())
-                .ToEntityInfo<ListViewDMBrokerageInfo>();
+            var sql = @"SELECT 
+	                        B.Id,
+	                        B.RequesterMemberId,	
+	                        (M.FirstName + ' ' + M.LastName) as BrokerFullName,
+	                        B.BrokerMemberId,
+	                        B.DMItemId,
+	                        I.DomainName,	
+	                        I.Type,
+	                        B.Status,
+	                        B.ReportContent,
+	                        B.IsDeleted,
+	                        B.InsertDate
+                        FROM DMBrokerage AS B
+                        INNER JOIN DMItem I ON B.DMItemId = I.Id
+                        INNER JOIN Member M ON M.Id = B.BrokerMemberId 
+                        WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0) AND B.DMItemId = {1} AND B.Status = {2}
+                        ORDER BY B.InsertDate, B.Status DESC";
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Processed.ToString())
+                .ToEntityList<DMBrokerageInfo>().FirstOrDefault();
             return res;
         }
 
@@ -196,36 +332,112 @@ namespace DealerSafe2.API
 
         public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
         {
-            var sql = @"select * from ListViewCommentsToMember where Rating < 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewCommentsToMember where Rating < 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        EC.Id,
+                            (M.FirstName + M.LastName) AS ToFullName,
+                            M.Avatar AS ToAvatar,
+                            (F.FirstName + F.LastName) AS SenderFullName,
+                            F.Avatar AS SenderAvatar,
+	                        EC.MemberId AS SenderMemberId,
+	                        EC.EntityId AS ToMemberId,
+                            EC.Rating,
+                            EC.Comment,
+                            EC.InsertDate,
+                            EC.IsDeleted
+                        FROM EntityComment AS EC 
+                        INNER JOIN Member F ON EC.MemberId = F.Id
+                        INNER JOIN Member M ON EC.EntityId = M.Id
+                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        ORDER BY EC.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) ", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
+
+            return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+        
         public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
         {
-            var sql = @"select * from ListViewCommentsToMember where Rating > 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewCommentsToMember where Rating > 0 and ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewCommentsToMember, EntityCommentInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        EC.Id,
+                            (M.FirstName + M.LastName) AS ToFullName,
+                            M.Avatar AS ToAvatar,
+                            (F.FirstName + F.LastName) AS SenderFullName,
+                            F.Avatar AS SenderAvatar,
+	                        EC.MemberId AS SenderMemberId,
+	                        EC.EntityId AS ToMemberId,
+                            EC.Rating,
+                            EC.Comment,
+                            EC.InsertDate,
+                            EC.IsDeleted
+                        FROM EntityComment AS EC 
+                        INNER JOIN Member F ON EC.MemberId = F.Id
+                        INNER JOIN Member M ON EC.EntityId = M.Id
+                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        ORDER BY EC.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
+
+            return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+
         public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
         {
-            var sql = @"select * 
-                        from ListViewSales 
-                        where SellerMemberId = {0} 
-                            and Status = '" + DMSaleStates.SuccessfullyClosed.ToString()+@"' 
-                            and COALESCE(IsPrivateSale, 0) = 0 
-                            and COALESCE(IsDeleted, 0) = 0 
-                            order by InsertDate, Status desc 
-                            OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"select count(*) 
-                                  from ListViewSales 
-                                  where SellerMemberId = {0} 
-                                      and Status = '" + DMSaleStates.SuccessfullyClosed.ToString()+@"' 
-                                      and COALESCE(IsPrivateSale, 0) = 0 
-                                      and COALESCE(IsDeleted, 0) = 0";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        S.Id,
+	                        S.SellerMemberId,
+	                        (SM.FirstName + ' ' + SM.LastName) AS SellerFullName,
+	                        S.BuyerMemberId,
+	                        (BM.FirstName + ' ' + BM.LastName) AS BuyerFullName,
+	                        S.DMItemId,
+	                        I.DomainName,
+	                        I.Type,
+	                        I.Ownership,
+	                        I.IsVerified,
+	                        I.DescriptionShort,
+	                        I.IsPrivateSales,
+	                        S.IsDeleted,
+	                        S.SaleValue,
+	                        S.PaymentType,
+	                        S.Status,
+	                        S.Description,
+	                        S.InsertDate
+                        FROM DMSale AS S 
+                        INNER JOIN DMItem I ON S.DMItemId = I.Id
+                        INNER JOIN Member SM ON SM.Id = S.SellerMemberId
+                        INNER JOIN Member BM ON BM.Id = S.BuyerMemberId 
+                        WHERE S.SellerMemberId = {0} 
+                            AND S.Status = 'SuccessfullyClosed' 
+                            AND COALESCE(I.IsPrivateSales, 0) = 0 
+                            AND COALESCE(S.IsDeleted, 0) = 0 
+                            ORDER BY S.InsertDate, S.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) 
+                        FROM DMSale AS S
+                        INNER JOIN DMItem I ON S.DMItemId = I.Id
+                        WHERE S.SellerMemberId = {0} 
+                            AND S.Status = 'SuccessfullyClosed' 
+                            AND COALESCE(I.IsPrivateSales, 0) = 0 
+                            AND COALESCE(S.IsDeleted, 0) = 0 ", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
+
+            return new PagerResponse<ListViewSalesInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public DMMemberInfo GetDMProfileInfo(string id)
@@ -253,15 +465,36 @@ namespace DealerSafe2.API
             if (req == null)
                 return new List<DMAuctionSearchInfo>();
 
-            var sql = @"SELECT * FROM ListViewDMSearch WHERE 
-                            BiggestBid >= {0} AND BuyItNowPrice >= {0}
-                            AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
-                            AND (Type = {2})
-                            AND ((SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {3})
-                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {4})
-                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {5}))
-                            AND (SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) = {6})";
-            var res = Provider.Database.ReadList<ListViewDMSearch>(sql,
+            var sql = @"SELECT 
+                            A.Id,
+                        -- DMItem Fields
+	                        I.[SellerMemberId],
+	                        I.[Type],
+	                        I.[DomainName],
+	                        C.[Name] AS CategoryName,
+	                        I.[BuyItNowPrice],
+	                        L.[Name] as [Language],
+	                        I.[DescriptionShort],
+	                        I.[PageRank],
+                        -- DMAuction Fields
+	                        A.[DMItemId],
+	                        A.[StartDate],
+	                        A.[PlannedCloseDate],
+	                        A.[IsDeleted]
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
+                        INNER JOIN [Language] L on L.Id = I.LanguageId
+
+                        WHERE COALESCE(I.IsDeleted, 0) = 0 AND COALESCE(I.IsPrivateSales, 0) = 0
+                        AND BiggestBid >= {0} AND BuyItNowPrice >= {0}
+                        AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
+                        AND (Type = {2})
+                        AND ((SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {3})
+                            AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {4})
+                            AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {5}))
+                        AND (SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) = {6})";
+            var res = Provider.Database.GetDataTable(sql,
                     req.MinPrice, 
                     req.MaxPrice, 
                     req.Type.ToString(), 
@@ -269,8 +502,8 @@ namespace DealerSafe2.API
                     "%" + req.EndsWith, 
                     "%" + req.Including + "%", 
                     req.Extension
-                ).ToList();
-            return res.ToEntityInfo<DMAuctionSearchInfo>();
+                ).ToEntityList<DMAuctionSearchInfo>();
+            return res;
         }
 
         public List<string> GetDMItemExtensions(ReqEmpty req) {
@@ -336,15 +569,6 @@ namespace DealerSafe2.API
             }
         }
 
-        //public ResAucUpdate GetAuctionUInfo(string id)
-        //{
-        //    var auc = Provider.Database.Read<ListViewDMSearch>(@"select * from ListViewDmSearch where Id={0} ", id);
-        //    ResAucUpdate res = new ResAucUpdate();
-        //    auc.CopyPropertiesWithSameName(res);
-            
-        //    return res;
-        //}
-
         public bool DeleteAuction(string id) {
             var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
             var auc = Provider.Database.Read<DMAuction>(sql,id);
@@ -363,128 +587,383 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewAuctionsInfo> GetOpenAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions
-                        where (IsDeleted = NULL OR IsDeleted=0)
-                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.StartDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
 
         public PagerResponse<ListViewAuctionsInfo> GetHotAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
-                                WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                and (IsDeleted = NULL OR IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id 
+                        WHERE StartDate >= DATEADD(day, -1, GETDATE())
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction
+                                WHERE StartDate >= DATEADD(day, -1, GETDATE())
+                                AND (A.IsDeleted  = NULL OR A.IsDeleted =0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id  
+                        WHERE (A.IsDeleted  = NULL OR A.IsDeleted =0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where (BiggestBid = 0 or BiggestBid = NULL)
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id  
+                        WHERE (A.BiggestBid = 0 OR A.BiggestBid = NULL)
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"
+                SELECT count(*) FROM DMAuction A
+                WHERE (A.BiggestBid = 0 or A.BiggestBid = NULL) 
+                AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and SaleStatus = 'DueDateReached'
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewAuctions where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id  
+                        WHERE A.PlannedCloseDate < GetDate() AND SaleStatus = 'DueDateReached'
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetClosedAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed'
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions
-                                where PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed'
-                                and (IsDeleted = NULL OR IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"
+                        SELECT count(*) FROM DMAuction AS A
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'SuccessfullyClosed' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetWaitingPaymentAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment'
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions 
-                                where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment'
-                                and (IsDeleted = NULL OR IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction AS A
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForPayment' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetWaitingTransferAuctionsList(ReqPager req)
         {
-            var sql = @"select * from ListViewAuctions 
-                        where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer'
-                        and (IsDeleted = NULL OR IsDeleted=0)
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewAuctions  
-                                where PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer'
-                                and (IsDeleted = NULL OR IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewAuctions, ListViewAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+                          A.[Id],
+                          A.[BiggestBid],
+                          I.[Type],
+                          I.[DomainName],
+                          I.[MinimumBidInterval],
+                          A.[StartDate],
+                          A.[PlannedCloseDate],
+                          A.[BuyItNowPrice],
+                          A.[IsDeleted],
+                          A.[InsertDate],
+                          S.[Status] AS SaleStatus
+                        FROM DMAuction AS A
+                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction AS A
+                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
+                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForTransfer' 
+                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+
+            return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         
         public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
         {
-            var sql = @"select * from ListViewItems
-                        where SellerMemberId = {0}
-                            and (IsDeleted is null or IsDeleted=0)
-                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewItems where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewItems, ListViewItemsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+	                        I.[Id],
+	                        A.[Id] as DMAuctionId,
+	                        I.[MinimumBidPrice],
+	                        I.[MinimumBidInterval],
+	                        I.[VerificationAsked],
+	                        A.[BiggestBid],
+	                        I.[Type],
+	                        I.[DomainName],
+	                        A.[StartDate],
+	                        A.[PlannedCloseDate],
+	                        A.[BuyItNowPrice],
+	                        A.[Status],
+	                        I.[SellerMemberId],
+	                        I.IsDeleted,
+	                        I.InsertDate
+                        FROM DMItem as I
+                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
+                        WHERE I.SellerMemberId = {0}
+                            AND (I.IsDeleted is null or I.IsDeleted=0)
+                        ORDER BY A.StartDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
+
+            return new PagerResponse<ListViewItemsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+        
         public PagerResponse<ListViewItemsInfo> GetMyItemsOnAuction(ReqPager req)
         {
-            var sql = @"select * from ListViewItems
-                        where SellerMemberId = {0}
-                            and (IsDeleted is null or IsDeleted=0)
-                            and (DMAuctionId IS NOT NULL OR DMAuctionId <> '')
-                        order by StartDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT count(*) FROM ListViewItems where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0) and (DMAuctionId IS NOT NULL OR DMAuctionId <> '')";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewItems, ListViewItemsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT 
+	                        I.[Id],
+	                        A.[Id] as DMAuctionId,
+	                        I.[MinimumBidPrice],
+	                        I.[MinimumBidInterval],
+	                        I.[VerificationAsked],
+	                        A.[BiggestBid],
+	                        I.[Type],
+	                        I.[DomainName],
+	                        A.[StartDate],
+	                        A.[PlannedCloseDate],
+	                        A.[BuyItNowPrice],
+	                        A.[Status],
+	                        I.[SellerMemberId],
+	                        I.IsDeleted,
+	                        I.InsertDate
+                        FROM DMItem as I
+                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
+                        WHERE I.SellerMemberId = {0}
+                            AND (I.IsDeleted is null or I.IsDeleted=0)
+                            AND (A.Id IS NOT NULL OR A.Id <> '')
+                        ORDER BY A.StartDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem AS I
+                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
+                        WHERE I.SellerMemberId = {0} 
+                            AND (I.IsDeleted IS NULL OR I.IsDeleted=0) 
+                            AND (A.Id IS NOT NULL OR A.Id <> '')", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
+
+            return new PagerResponse<ListViewItemsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+
         public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
         {
-            var sql = @"SELECT * FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment' and (IsDeleted is null or IsDeleted=0)";
-            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWaitingPayment WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment' and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewWaitingPayment, WaitingPaymentInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+                            I.DomainName,
+                            I.Type,
+                            A.StartDate,
+                            S.InsertDate AS CloseDate,
+                            A.BuyItNowPrice,
+                            S.SaleValue,
+                            S.BuyerMemberId,
+                            S.SellerMemberId,
+                            S.Status,
+                            M.FirstName,
+                            M.LastName
+                        FROM DMSale AS S
+                        INNER JOIN Member as M ON M.Id = S.BuyerMemberId
+                        INNER JOIN DMItem as I ON I.Id = S.DMItemId
+                        INNER JOIN DMAuction AS A ON A.DMItemId = S.DMItemId
+                        WHERE S.SellerMemberId = {0} 
+                            AND S.Status = 'WaitingForPayment' 
+                            AND (S.IsDeleted IS NULL OR S.IsDeleted=0)";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMSale WHERE SellerMemberId = {0} AND Status = 'WaitingForPayment' AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<WaitingPaymentInfo>();
+
+            return new PagerResponse<WaitingPaymentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
+        
         public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
         {
             var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and ((VerificationAsked = 1 and IsVerified = 1) or VerificationAsked = 0)";
@@ -493,10 +972,35 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
         {
-            var sql = @"SELECT * FROM ListViewWonAuctions WHERE BuyerMemberId = {0} and (IsDeleted is null or IsDeleted=0) order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = @"SELECT COUNT(*) FROM ListViewWonAuctions WHERE BuyerMEmberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewWonAuctions, ListViewWonAuctionsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        I.Id AS DMItemId,
+	                        A.Id AS DMAuctionId,
+	                        I.DomainName,
+	                        I.Type,
+	                        A.StartDate,
+	                        S.InsertDate AS CloseDate,
+	                        A.InsertDate,
+	                        A.BuyItNowPrice,
+	                        S.SaleValue,
+	                        S.BuyerMemberId,
+	                        S.Status,
+	                        S.Id,
+	                        A.IsDeleted
+                        FROM DMSale AS S
+                        INNER JOIN Member as M ON M.Id = S.BuyerMemberId
+                        INNER JOIN DMItem as I ON I.Id = S.DMItemId
+                        LEFT JOIN DMAuction AS A ON A.DMItemId = S.DMItemId
+                        WHERE S.BuyerMemberId = {0} AND (A.IsDeleted IS NULL OR A.IsDeleted=0) ORDER BY S.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMSale WHERE BuyerMEmberId = {0} AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewWonAuctionsInfo>();
+
+            return new PagerResponse<ListViewWonAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         #endregion
@@ -600,8 +1104,28 @@ namespace DealerSafe2.API
         public DMBidderMemberInfo GetBid(string id)
         {
 
-            var sql = @"SELECT * FROM ListViewDMBidderMember WHERE BidId= {0} And (IsDeleted is null or IsDeleted=0)";
-            var res = Provider.Database.Read<ListViewDMBidderMember>(sql, id).ToEntityInfo<DMBidderMemberInfo>();
+            var sql = @"SELECT
+	                        B.[Id] AS BidId,
+	                        B.[DMAuctionId],
+	                        B.[BidderMemberId],
+	                        B.[BidValue],
+	                        B.[BidComments],
+	                        B.[InsertDate],
+	                        B.[IsDeleted],
+	                        M.[Id],
+	                        M.[FirstName],
+	                        M.[LastName],
+	                        M.[UserName],
+	                        I.[DomainName],
+	                        I.[Type],
+	                        A.[BiggestBid],
+	                        I.[SellerMemberId]
+                        FROM DMBid AS B
+                        INNER JOIN Member AS M ON M.Id = B.BidderMemberId
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE BidId = {0} AND (B.IsDeleted IS NULL OR B.IsDeleted=0)";
+            var res = Provider.Database.GetDataTable(sql, id).ToEntityList<DMBidderMemberInfo>().FirstOrDefault();
             return res;
         }
 
@@ -763,37 +1287,114 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
         {
-            var res = new PagerResponse<DMBidderMemberInfo>();
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMBidderMember where DMAuctionId = {0}";
-            var sql = "";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            //check if it is seller who is tying to see bids
-            if (Provider.CurrentMember.Id == Provider.Database.GetString("SELECT SellerMemberId FROM DMItem where Id = (select DMItemId from DMAuction where Id={0}) ", req.RelativeId))
-                sql = @"select * from ListViewDMBidderMember where DMAuctionId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            //Is it allowed for bidders to see bids
-            else if (Provider.Database.GetBool("select ShowBidlist from DMAuction where Id = {0}", req.RelativeId))
-                sql = @"select * from ListViewDMBidderMember where DMAuctionId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            else return res;
+            var sql = @"SELECT
+	                        B.[Id] AS BidId,
+	                        B.[DMAuctionId],
+	                        B.[BidderMemberId],
+	                        B.[BidValue],
+	                        B.[BidComments],
+	                        B.[InsertDate],
+	                        B.[IsDeleted],
+	                        M.[Id],
+	                        M.[FirstName],
+	                        M.[LastName],
+	                        M.[UserName],
+	                        I.[DomainName],
+	                        I.[Type],
+	                        A.[BiggestBid],
+	                        I.[SellerMemberId]
+                        FROM DMBid AS B
+                        INNER JOIN Member AS M ON M.Id = B.BidderMemberId
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
+                        ORDER BY B.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
 
-            return GetPagerResult<ListViewDMBidderMember, DMBidderMemberInfo>(req, sql, totalCountSQL);
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+
+            return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<DMBidderMemberInfo> BidsForMyItems(ReqPager req)
         {
-            var sql = @"select * from ListViewDMBidderMember where SellerMemberId = {0}
-                        order by BiggestBid desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMBidderMember where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewDMBidderMember, DMBidderMemberInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        B.[Id] AS BidId,
+	                        B.[DMAuctionId],
+	                        B.[BidderMemberId],
+	                        B.[BidValue],
+	                        B.[BidComments],
+	                        B.[InsertDate],
+	                        B.[IsDeleted],
+	                        M.[Id],
+	                        M.[FirstName],
+	                        M.[LastName],
+	                        M.[UserName],
+	                        I.[DomainName],
+	                        I.[Type],
+	                        A.[BiggestBid],
+	                        I.[SellerMemberId]
+                        FROM DMBid AS B
+                        INNER JOIN Member AS M ON M.Id = B.BidderMemberId
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE I.SellerMemberId = {0} 
+                        ORDER BY A.BiggestBid DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE I.SellerMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+
+            return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
 
         public PagerResponse<ViewMyBidsForItemsInfo> MyBidsForItems(ReqPager req)
         {
-            var sql = @"select * from ViewMyBidsForItems where BidderMemberId = {0}  order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) from ViewMyBidsForItems where BidderMemberId = {0}";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ViewMyBidsForItems, ViewMyBidsForItemsInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        B.[Id],
+	                        B.[DMAuctionId],
+	                        B.[BidderMemberId],
+	                        B.[BidValue],
+	                        B.[InsertDate],
+	                        B.[IsDeleted],
+	                        I.[DomainName],
+	                        I.[Type],
+	                        A.[BiggestBid],
+	                        A.[PlannedCloseDate],
+	                        A.[BuyItNowPrice]
+                        FROM DMBid AS B
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        WHERE A.Status = 'Open' AND B.BidderMemberId = {0}
+                        ORDER BY B.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMBid AS B
+                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
+                        WHERE A.Status = 'Open' AND B.BidderMemberId = {0}", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ViewMyBidsForItemsInfo>();
+
+            return new PagerResponse<ViewMyBidsForItemsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
 
@@ -845,20 +1446,91 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
-            var sql = @"select * from ListViewOfferItemMember where MemberId = {0} And Status = '0'
-                        order by OfferValue desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewOfferItemMember where MemberId = {0} And Status = '0' and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewOfferItemMember, DMOfferItemMemberInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+                            -- Member Fields
+                            M.[Id] AS MemberId,
+                            M.[FirstName],
+                            M.[LastName],
+                            M.[UserName],
+                            -- DMItem Fields
+                            I.[Id] AS DMItemId,
+                            I.[Type],
+                            I.[DomainName],
+                            I.[BuyItNowPrice],
+                            O.[Id] AS DMOfferId,
+                            O.[OfferValue],
+                            O.[OffererMemberId],
+                            OM.[FirstName] AS OffererMemberFirstName,
+                            OM.[LastName] AS OffererMemberLastName,
+                            A.[BiggestBid],
+                            A.[Id] AS DMAuctionId,
+                            A.[Status],
+                            O.[IsDeleted]
+                        FROM DMOffer AS O
+                        INNER JOIN DMItem AS I ON I.Id = O.DMItemId
+                        INNER JOIN Member as M ON M.Id = I.SellerMemberId
+                        INNER JOIN Member as OM ON OM.Id = O.OffererMemberId
+                        INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
+                        WHERE M.Id = {0} AND A.Status = 'Open' 
+                        ORDER BY OfferValue DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
+                                    INNER JOIN DMItem AS I ON I.Id = O.DMItemId
+                                    INNER JOIN Member as M ON M.Id = I.SellerMemberId
+                                    INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
+                                    WHERE M.Id = {0} AND A.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
+
+            return new PagerResponse<DMOfferItemMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<DMOfferItemMemberInfo> MyOffersForItems(ReqPager req)
         {
-            var sql = @"select * from ListViewOfferItemMember where OffererMemberId = {0} And Status = '0'
-                        order by OfferValue desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewOfferItemMember where OffererMemberId = {0} And Status = '0' and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewOfferItemMember, DMOfferItemMemberInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+                            -- Member Fields
+                            M.[Id] AS MemberId,
+                            M.[FirstName],
+                            M.[LastName],
+                            M.[UserName],
+                            -- DMItem Fields
+                            I.[Id] AS DMItemId,
+                            I.[Type],
+                            I.[DomainName],
+                            I.[BuyItNowPrice],
+                            O.[Id] AS DMOfferId,
+                            O.[OfferValue],
+                            O.[OffererMemberId],
+                            OM.[FirstName] AS OffererMemberFirstName,
+                            OM.[LastName] AS OffererMemberLastName,
+                            A.[BiggestBid],
+                            A.[Id] AS DMAuctionId,
+                            A.[Status],
+                            O.[IsDeleted]
+                        FROM DMOffer AS O
+                        INNER JOIN DMItem AS I ON I.Id = O.DMItemId
+                        INNER JOIN Member as M ON M.Id = I.SellerMemberId
+                        INNER JOIN Member as OM ON OM.Id = O.OffererMemberId
+                        INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
+                        WHERE O.OffererMemberId = {0} AND A.Status = 'Open' 
+                        ORDER BY OfferValue DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
+                                    INNER JOIN DMItem AS I ON I.Id = O.DMItemId
+                                    INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
+                                    WHERE O.OffererMemberId = {0} AND A.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
+
+            return new PagerResponse<DMOfferItemMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public bool showBidsToggle(ReqBidsToggle req) {
@@ -904,40 +1576,150 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
         {
-            var sql = @"select * from ListViewSales where BuyerMemberId = {0}
-                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewSales where BuyerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        S.Id,
+	                        S.SellerMemberId,
+	                        (SM.FirstName + ' ' + SM.LastName) AS SellerFullName,
+	                        S.BuyerMemberId,
+	                        (BM.FirstName + ' ' + BM.LastName) AS BuyerFullName,
+	                        S.DMItemId,
+	                        I.DomainName,
+	                        I.Type,
+	                        I.Ownership,
+	                        I.IsVerified,
+	                        I.DescriptionShort,
+	                        I.IsPrivateSales,
+	                        S.IsDeleted,
+	                        S.SaleValue,
+	                        S.PaymentType,
+	                        S.Status,
+	                        S.Description,
+	                        S.InsertDate
+                        FROM DMSale AS S 
+                        INNER JOIN DMItem I ON S.DMItemId = I.Id
+                        INNER JOIN Member SM ON SM.Id = S.SellerMemberId
+                        INNER JOIN Member BM ON BM.Id = S.BuyerMemberId 
+                        WHERE S.BuyerMemberId = {0} 
+                            AND S.Status = 'SuccessfullyClosed'
+                        ORDER BY S.InsertDate, S.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMSale where BuyerMemberId = {0} AND Status = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
+
+            return new PagerResponse<ListViewSalesInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewSalesInfo> PaymentsIReceive(ReqPager req)
         {
-            var sql = @"select * from ListViewSales where SellerMemberId = {0}
-                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewSales where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewSales, ListViewSalesInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT
+	                        S.Id,
+	                        S.SellerMemberId,
+	                        (SM.FirstName + ' ' + SM.LastName) AS SellerFullName,
+	                        S.BuyerMemberId,
+	                        (BM.FirstName + ' ' + BM.LastName) AS BuyerFullName,
+	                        S.DMItemId,
+	                        I.DomainName,
+	                        I.Type,
+	                        I.Ownership,
+	                        I.IsVerified,
+	                        I.DescriptionShort,
+	                        S.IsPrivateSales,
+	                        S.IsDeleted,
+	                        S.SaleValue,
+	                        S.PaymentType,
+	                        S.Status,
+	                        S.Description,
+	                        S.InsertDate
+                        FROM DMSale AS S 
+                        INNER JOIN DMItem I ON S.DMItemId = I.Id
+                        INNER JOIN Member SM ON SM.Id = S.SellerMemberId
+                        INNER JOIN Member BM ON BM.Id = S.BuyerMemberId 
+                        WHERE S.SellerMemberId = {0} 
+                            AND S.Status = 'SuccessfullyClosed'
+                        ORDER BY S.InsertDate, S.Status DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMSale WHERE SellerMemberId = {0} AND Status = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
+
+            return new PagerResponse<ListViewSalesInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
 
         //Messages...
         public PagerResponse<ListViewDMMessagesInfo> GetInbox(ReqPager req)
         {
-            var sql = @"select * from ListViewDMMessages where ToMemberId = {0}
-                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMMessages where ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewDMMessages, ListViewDMMessagesInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
+			                        THEN M.Subject ELSE PDM.Subject END AS Subject,
+                                CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
+       		                        THEN M.Body ELSE PDM.Body END AS Body,
+                                M.SenderMemberId,
+                                (FM.FirstName + ' ' + FM.Lastname) AS FromMemberFullname,
+                                FM.Avatar AS FromMemberAvatar,
+                                M.ToMemberId,
+                                (TM.FirstName + ' ' + TM.Lastname) AS ToMemberFullname,
+                                TM.Avatar AS ToMemberAvatar,
+                                M.Id,
+                                M.IsDeleted,
+                                M.InsertDate
+                        FROM DMMessage AS M
+                        INNER JOIN Member AS FM ON M.SenderMemberId = FM.Id
+                        INNER JOIN Member AS TM ON M.TomemberId = TM.Id
+                        LEFT JOIN DMPredefinedMessage AS PDM ON M.DMPredefinedMessageId = PDM.Id
+                        WHERE M.ToMemberId = {0} 
+                        ORDER BY M.InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewDMMessagesInfo>();
+
+            return new PagerResponse<ListViewDMMessagesInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewDMMessagesInfo> GetSentMessage(ReqPager req)
         {
-            var sql = @"select * from ListViewDMMessages where FromMemberId = {0}
-                        order by InsertDate desc OFFSET {1} ROWS FETCH NEXT {2} ROWS ONLY";
-            var totalCountSQL = "SELECT count(*) FROM ListViewDMMessages where FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
+            ///////////////////////////////////////////////////////////////////////
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            return GetPagerResult<ListViewDMMessages, ListViewDMMessagesInfo>(req, sql, totalCountSQL);
+            var sql = @"SELECT CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
+			                        THEN M.Subject ELSE PDM.Subject END AS Subject,
+                                CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
+       		                        THEN M.Body ELSE PDM.Body END AS Body,
+                                M.SenderMemberId,
+                                (FM.FirstName + ' ' + FM.Lastname) AS FromMemberFullname,
+                                FM.Avatar AS FromMemberAvatar,
+                                M.ToMemberId,
+                                (TM.FirstName + ' ' + TM.Lastname) AS ToMemberFullname,
+                                TM.Avatar AS ToMemberAvatar,
+                                M.Id,
+                                M.IsDeleted,
+                                M.InsertDate
+                        FROM DMMessage AS M
+                        INNER JOIN Member AS FM ON M.SenderMemberId = FM.Id
+                        INNER JOIN Member AS TM ON M.TomemberId = TM.Id
+                        LEFT JOIN DMPredefinedMessage AS PDM ON M.DMPredefinedMessageId = PDM.Id
+                        WHERE SenderMemberId = {0} 
+                        ORDER BY InsertDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where SenderMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewDMMessagesInfo>();
+
+            return new PagerResponse<ListViewDMMessagesInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public bool SendMessage(ReqSendDMMessage req)

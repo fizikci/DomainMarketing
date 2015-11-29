@@ -10,9 +10,9 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string ToFullName { get; set; }
         public string ToAvatar { get; set; }
         public string ToMemberId { get; set; }
-        public string FromMemberId { get; set; }
-        public string FromFullName { get; set; }
-        public string FromAvatar { get; set; }
+        public string SenderMemberId { get; set; }
+        public string SenderFullName { get; set; }
+        public string SenderAvatar { get; set; }
         public int Rating { get; set; }
         public string Comment { get; set; }
         public bool IsDeleted { get; set; }

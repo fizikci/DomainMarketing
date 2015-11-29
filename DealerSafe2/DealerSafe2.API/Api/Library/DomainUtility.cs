@@ -1,4 +1,5 @@
-﻿using DealerSafe2.API.Entity.Products.Domain;
+﻿using DealerSafe2.API.Entity.Products;
+using DealerSafe2.API.Entity.Products.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
