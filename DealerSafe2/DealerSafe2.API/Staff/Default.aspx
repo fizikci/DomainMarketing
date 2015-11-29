@@ -302,7 +302,7 @@
 
                         <ul class="submenu">
                             <li>
-                                <a href="#/domainMarketingDashboard">
+                                <a href="#/DomainMarketingDashboard">
                                     <i class="icon-dashboard"></i>
                                     <%=Provider.TR("Dashboard") %> 
                                 </a>

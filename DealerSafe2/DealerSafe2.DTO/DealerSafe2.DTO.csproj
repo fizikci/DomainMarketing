@@ -68,8 +68,8 @@
     <Compile Include="EntityInfo\DomainMarketing\DMOfferInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMOfferItemMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMAuctionSearchInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\ListViewDMBrokerageInfo.cs" />
-    <Compile Include="EntityInfo\DomainMarketing\ListViewDMExpertiseInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMBrokerageInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMExpertiseInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMItemInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewSalesInfo.cs" />
