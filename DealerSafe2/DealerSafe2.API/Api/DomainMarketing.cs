@@ -1312,15 +1312,15 @@ namespace DealerSafe2.API
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
                         INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
                         INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {1}) 
                         ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
                         INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
                         INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {1})", req.RelativeId, Provider.CurrentMember.Id);
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+            var res = Provider.Database.GetDataTable(sql, req.RelativeId, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
 
             return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
