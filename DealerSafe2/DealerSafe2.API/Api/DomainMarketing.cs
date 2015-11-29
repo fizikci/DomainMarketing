@@ -237,7 +237,7 @@ namespace DealerSafe2.API
             var address = member.GetMemberAddresses()
                 .Where(x => x.AddressType == AddressTypes.DefaultAddress)
                 .FirstOrDefault();
-            if (address != null)
+            if (address != null && !string.IsNullOrEmpty(address.CountryId))
                 memberInfo.Country = address.Country().Name;
             memberInfo.RegistrationDate = member.InsertDate;
 
@@ -291,6 +291,7 @@ namespace DealerSafe2.API
         {
             var sql = @"select * from ViewAuction where  Id = {0} ";
             var vauc = Provider.Database.Read<ViewAuction>(sql, req);
+            
             if (vauc != null && vauc.PlannedCloseDate > DateTime.Now)
             {
                 var auc = Provider.Database.Read<DMAuction>("select * from DMAuction where  Id = {0}", req);
@@ -335,15 +336,6 @@ namespace DealerSafe2.API
                 return oldAuc.ToEntityInfo<DMAuctionSearchInfo>();
             }
         }
-
-        //public ResAucUpdate GetAuctionUInfo(string id)
-        //{
-        //    var auc = Provider.Database.Read<ListViewDMSearch>(@"select * from ListViewDmSearch where Id={0} ", id);
-        //    ResAucUpdate res = new ResAucUpdate();
-        //    auc.CopyPropertiesWithSameName(res);
-            
-        //    return res;
-        //}
 
         public bool DeleteAuction(string id) {
             var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
@@ -938,6 +930,11 @@ namespace DealerSafe2.API
             var totalCountSQL = "SELECT count(*) FROM ListViewDMMessages where FromMemberId = {0} and (IsDeleted is null or IsDeleted=0)";
 
             return GetPagerResult<ListViewDMMessages, ListViewDMMessagesInfo>(req, sql, totalCountSQL);
+        }
+
+        public List<ListDMPredefinedMessageInfo> GetDMPredefinedMessages(ReqEmpty req)
+        {
+            return Provider.Database.ReadList<DMPredefinedMessage>("select * from DMPredefinedMessage").ToEntityInfo<ListDMPredefinedMessageInfo>();
         }
 
         public bool SendMessage(ReqSendDMMessage req)

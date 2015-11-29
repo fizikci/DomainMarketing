@@ -57,6 +57,7 @@
     <Compile Include="EntityInfo\DomainMarketing\DMAuctionMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\ListDMPredefinedMessageInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewAuctionsInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewDMMessagesInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewItemsInfo.cs" />

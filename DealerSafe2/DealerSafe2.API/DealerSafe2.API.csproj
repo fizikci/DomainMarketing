@@ -39,8 +39,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Net.Http" />
@@ -664,6 +665,7 @@
     <Content Include="Staff\Default.aspx" />
     <Content Include="Assets\js\angular.min.js.map" />
     <Content Include="SignSec.ashx" />
+    <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\File.pubxml" />
     <Content Include="Staff\Handlers\CRUDHandler.ashx" />
     <Content Include="Staff\Handlers\DoLogin.ashx" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DealerSafe2.DTO.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,8 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public DateTime PlannedCloseDate { get; set; }
         public string SellerMemberId { get; set; }
         public string DomainName { get; set; }
-        public string Name { get; set; }
+        public string CategoryName { get; set; }
+        public DMAuctionStates Status { get; set; }
         public int MinimumBidInterval { get; set; }
         public string Comments { get; set; }
     }

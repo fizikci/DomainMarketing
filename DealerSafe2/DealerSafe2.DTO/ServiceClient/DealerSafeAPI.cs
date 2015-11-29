@@ -785,7 +785,7 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #endregion
 
-        #region Biddings&offerings
+        #region Bids & Offers
 
         public DMBidderMemberInfo GetBid(string id)
         {
@@ -855,6 +855,11 @@ namespace DealerSafe2.DTO.ServiceClient
         public PagerResponse<ListViewSalesInfo> PaymentsIReceive(ReqPager req)
         {
             return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<ListDMPredefinedMessageInfo> GetDMPredefinedMessages(ReqEmpty req)
+        {
+            return Call<List<ListDMPredefinedMessageInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public bool SendMessage(ReqSendDMMessage req)
