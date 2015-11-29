@@ -1,13 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections;
 using Cinar.Database;
 using DealerSafe2.API.Entity.ApiRelated;
 using DealerSafe2.API.Entity.Common;
-using System;
-using System.Collections.Generic;
 using DealerSafe2.DTO;
 using DealerSafe2.DTO.Enums;
 using DealerSafe2.API.Entity.Products.Domain;
 using DealerSafe2.API.Api.Library;
+using DealerSafe2.API.Entity.Products;
 
 namespace DealerSafe2.API.Entity.Members
 {
@@ -88,6 +89,12 @@ namespace DealerSafe2.API.Entity.Members
         public Member ReferenceMember() { return Provider.ReadEntityWithRequestCache<Member>(ReferenceMemberId); }
         public Client Client() { return Provider.ReadEntityWithRequestCache<Client>(ClientId); }
         public Member StaffMember() { return Provider.ReadEntityWithRequestCache<Member>(StaffMemberId); }
+        public Member GetAdminResellerMember()
+        {
+            var c = this.Client();
+            if (c == null) return null;
+            return c.AdminMember();
+        }
         public Reseller Reseller()
         {
             if (MemberType == MemberTypes.Reseller) 
@@ -105,14 +112,17 @@ namespace DealerSafe2.API.Entity.Members
 
         public bool HasRight(Rights right)
         {
+            if (this.Id.IsEmpty())
+                return false; // anonim user has no right
+            if (this.SuperUser)
+                return true; // super user has all rights
+
             return Provider.Database.GetBool("select count(*) from MemberRole where MemberId={0} AND RoleId in (select RoleId from RoleRight where [Right]={1})",
                 Provider.CurrentMember.Id,
                 right.ToString());
         }
         public bool HasRight(string rightName)
         {
-            if (this.MemberType == MemberTypes.SuperUser)
-                return true;
             try
             {
                 var right = (Rights) Enum.Parse(typeof (Rights), rightName);
@@ -128,7 +138,8 @@ namespace DealerSafe2.API.Entity.Members
         public List<MemberAddress> GetMemberAddresses()
         {
             if (memberAddressList == null)
-                memberAddressList = Provider.Database.ReadList<MemberAddress>("select * from MemberAddress where MemberId={0}", this.Id);
+                memberAddressList = Provider.Database.ReadList<MemberAddress>("SELECT Id, InvoiceTitle FROM MemberAddress WHERE MemberId={0} order by InvoiceTitle", this.Id);
+
             return memberAddressList;
         }
 
@@ -218,15 +229,15 @@ namespace DealerSafe2.API.Entity.Members
         public DomainDefaults DomainDefaults(string domainName) {
             if (domainDefaults == null)
             {
-                domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForMember>(Id, "MemberId");
+                domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForMember>(Id); // one-to-one ilişkili tablo olduğundan member'ın id'sini kullanmak yetiyor
                 if (domainDefaults == null)
-                    domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForClient>(ClientId, "ClientId");
+                    domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForClient>(ClientId); // one-to-one
                 if (domainDefaults == null)
                 {
-                    var zone = DomainUtility.GetZoneFormDomainName(domainName);
-                    domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForZone>(zone.Id, "ZoneId");
+                    var zone = DomainUtility.GetZoneFromDomainName(domainName);
+                    domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForZone>(zone.Id); // one-to-one
                     if (domainDefaults == null)
-                        domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForClient>(zone.RegistryId, "RegistryId");
+                        domainDefaults = Provider.ReadEntityWithRequestCache<DomainDefaultsForRegistry>(zone.SupplierId); // one-to-one
                 }
 
                 if (domainDefaults == null)
@@ -240,7 +251,6 @@ namespace DealerSafe2.API.Entity.Members
         {
             var memberDomain = new MemberDomain();
             memberDomain.DomainName = domainName;
-            memberDomain.OrderItemId = orderItemId;
             memberDomain.AdminDomainContactId = DomainDefaults(domainName).AdminDomainContactId;
             memberDomain.BillingDomainContactId = DomainDefaults(domainName).BillingDomainContactId;
             memberDomain.OwnerDomainContactId = DomainDefaults(domainName).OwnerDomainContactId;
@@ -249,8 +259,16 @@ namespace DealerSafe2.API.Entity.Members
             memberDomain.TransferMode = DomainDefaults(domainName).TransferMode;
             memberDomain.PrivacyProtection = DomainDefaults(domainName).PrivacyProtection;
             memberDomain.NameServers = DomainDefaults(domainName).NameServers;
-            memberDomain.AuthInfo = Utility.CreatePassword(8);
+            memberDomain.AuthInfo = Utility.CreatePassword(6).ToLowerInvariant() + "!1Fbs";
             memberDomain.Save();
+
+            MemberProduct memberProduct = new MemberProduct();
+            memberProduct.OrderItemId = orderItemId;
+            memberProduct.Id = memberDomain.Id;
+            memberProduct.InsertDate = Provider.Database.Now;
+            memberProduct.MemberId = this.Id;
+            memberProduct.Name = domainName;
+            Provider.Database.Insert("MemberProduct", memberProduct);
 
             return memberDomain;
         }

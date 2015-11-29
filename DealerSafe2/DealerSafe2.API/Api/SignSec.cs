@@ -1,5 +1,4 @@
-﻿// Created: Yalcin Gormez, 2015.01.07
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -16,6 +15,7 @@ using System.Web;
 using DealerSafe2.API.Entity.Orders;
 using DealerSafe2.DTO.EntityInfo.Products.SSL;
 using DealerSafe2.API.Entity.Products.SSL;
+using DealerSafe2.API.Entity.Products;
 
 namespace DealerSafe2.API
 {
@@ -30,14 +30,15 @@ namespace DealerSafe2.API
                         SELECT 
                             ssl.Id,
                             ssl.InsertDate,
-                            ssl.OrderItemId,
+                            mp.OrderItemId,
                             oi.OrderId,
                             oi.DisplayName AS ProductName,
                             ssl.State,
                             ssl.DomainName
                         FROM 
                             MemberSSL ssl
-                            INNER JOIN OrderItem oi ON ssl.OrderItemId = oi.Id
+                            INNER JOIN MemberProduct mp ON ssl.Id = mp.Id
+                            INNER JOIN OrderItem oi ON mp.OrderItemId = oi.Id
                             INNER JOIN [Order] o ON o.Id = oi.OrderId AND o.MemberId = {0} AND o.State = 'Order';", Session.MemberId)
                    .ToEntityList<ListViewMemberSSLInfo>();
         }
@@ -48,7 +49,8 @@ namespace DealerSafe2.API
                             ssl.Id
                         from 
                             MemberSSL ssl
-                            inner join OrderItem oi ON ssl.OrderItemId = oi.Id
+                            INNER JOIN MemberProduct mp ON ssl.Id = mp.Id
+                            inner join OrderItem oi ON mp.OrderItemId = oi.Id
                             inner join [Order] o ON o.Id = oi.OrderId AND o.MemberId = {0}
                         where
 	                        ssl.State = 'None';", Session.MemberId);
@@ -91,13 +93,24 @@ namespace DealerSafe2.API
             {
                 Provider.Database.Begin();
 
-                var memberSSL = Provider.Database.Read<MemberSSL>("OrderItemId={0}", req.OrderItemId) ?? new MemberSSL();
-                req.CopyPropertiesWithSameName(memberSSL);
-                memberSSL.State = SSLStates.CSRReceived;
-                memberSSL.Save();
+                var memberProduct = Provider.Database.Read<MemberProduct>("OrderItemId={0}", req.OrderItemId) ?? new MemberProduct();
+                req.CopyPropertiesWithSameName(memberProduct);
+                memberProduct.Save();
 
-                var job = Provider.Database.Read<Job>("RelatedEntityName={1} AND RelatedEntityId={0}", memberSSL.OrderItemId, "OrderItem");
-                job.StartDate = DateTime.Now;
+                var memberSSL = Provider.Database.Read<MemberSSL>("Id={0}", memberProduct.Id) ?? new MemberSSL();
+                req.CopyPropertiesWithSameName(memberSSL);
+                memberSSL.DomainName = memberSSL.CsrCN;
+                memberSSL.State = SSLStates.CSRReceived;
+                if (memberSSL.Id.IsEmpty()) {
+                    memberSSL.Id = memberProduct.Id;
+                    Provider.Database.Insert("MemberSSL", memberSSL);
+                }
+                else
+                    memberSSL.Save();
+
+                // WorkerSSL.CreateJobsFor(order) ile kullanıcıya bir Job atamıştık. (yani Executer=Member) Bu adımda kullanıcı görevini yapmış oluyor. Artık bu Job'ı Machine'e atayabiliriz.
+                var job = Provider.Database.Read<Job>("RelatedEntityName={1} AND RelatedEntityId={0}", memberProduct.OrderItemId, "OrderItem");
+                job.StartDate = Provider.Database.Now;
                 job.Executer = JobExecuters.Machine;
                 job.State = JobStates.NotStarted;
                 job.Save();
@@ -121,7 +134,7 @@ namespace DealerSafe2.API
         {
             var orderItem = Provider.Database.Read<OrderItem>("Id={0}", req.OrderItemId);
 
-            var res = ComodoAutoApplySSL(new ReqComodoAutoApplySSL()
+            var comodoRes = ComodoAutoApplySSL(new ReqComodoAutoApplySSL()
             {
                 csr = req.ReqCSRCode,
                 streetAddress1 = req.CsrStreet,
@@ -132,18 +145,29 @@ namespace DealerSafe2.API
                 product = orderItem.Product().SupplierProductRefNo,
                 serverSoftware = ComodoServerSoftware.Other,
                 servers = 100,
-                years = orderItem.Amount
+                years = orderItem.Amount,
+                caCertificateID = 635
+
             });
 
-            var memberSSL = Provider.Database.Read<MemberSSL>("OrderItemId={0}", req.OrderItemId);
-            memberSSL.ResCertificateId = res.certificateID;
-            memberSSL.ResCertificateStatus = res.certificateStatus;
-            memberSSL.ResOrderNumber = res.orderNumber;
-            memberSSL.ResTotalCost = res.totalCost;
+            var memProd = Provider.Database.Read<MemberProduct>("OrderItemId={0}", req.OrderItemId);
+            memProd.StartDate = Provider.Database.Now;
+            memProd.EndDate = Provider.Database.Now.AddYears(orderItem.Amount);
+            memProd.CurrentPhase = LifeCyclePhases.Active;
+            memProd.Save();
+
+            var memberSSL = Provider.Database.Read<MemberSSL>("Id={0}", memProd.Id);
+            memberSSL.ResCertificateId = comodoRes.certificateID;
+            memberSSL.ResCertificateStatus = comodoRes.certificateStatus;
+            memberSSL.ResOrderNumber = comodoRes.orderNumber;
+            memberSSL.ResTotalCost = comodoRes.totalCost;
             memberSSL.State = SSLStates.SentToCA;
             memberSSL.Save();
 
-            return memberSSL.ToEntityInfo<MemberSSLInfo>();
+            var res = memberSSL.ToEntityInfo<MemberSSLInfo>();
+            memProd.CopyPropertiesWithSameName(res);
+
+            return res;
         }
 
         /// <summary>
@@ -161,7 +185,7 @@ namespace DealerSafe2.API
         {
             if (string.IsNullOrWhiteSpace(orderItemId)) return null;
 
-            var memberSSL = Provider.Database.Read<MemberSSL>("OrderItemId={0}", orderItemId);
+            var memberSSL = Provider.Database.Read<MemberSSL>("Id={0}", Provider.Database.GetString("SELECT Id FROM MemberProduct WHERE OrderItemId={0}", orderItemId));
             if (memberSSL == null) return null;
 
             ReqCollectSSL reqCollectSSL = new ReqCollectSSL

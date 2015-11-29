@@ -117,7 +117,7 @@ namespace DealerSafe2.API.Staff.Handlers
                     context.Response.Redirect("/Staff/#/View/Feedback/" + j.RelatedEntityId, true);
                     break;
                 default:
-                    context.Response.Redirect("/Staff", true);
+                    context.Response.Redirect("/Staff/#/View/Job/"+j.Id, true);
                     break;
             }
         }

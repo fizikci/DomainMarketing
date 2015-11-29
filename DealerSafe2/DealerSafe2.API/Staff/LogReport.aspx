@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" %>
+﻿<%@ Page Language="C#" Inherits="DealerSafe2.API.Staff.BasePage" %>
 <%@ Import Namespace="System.Data" %>
 <%@ Import Namespace="DealerSafe2.API" %>
 <script runat="server">

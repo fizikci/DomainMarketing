@@ -35,12 +35,14 @@ namespace DealerSafe2.DTO.Handlers
         protected string Serialize(object obj)
         {
            var jsonStr = JsonConvert.SerializeObject(obj, Formatting.Indented);
-
+           return jsonStr;
+            /*
             if (ConfigurationManager.AppSettings["developmentMode"] == "true")
                 return jsonStr;
 
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(jsonStr);
             return System.Convert.ToBase64String(plainTextBytes);
+             * */
         }
         protected object Deserialize(string data, Type type)
         {

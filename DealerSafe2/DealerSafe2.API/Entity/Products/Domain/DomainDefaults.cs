@@ -1,31 +1,23 @@
-﻿using Cinar.Database;
-using DealerSafe2.DTO.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
+using DealerSafe2.DTO.Enums;
 
 namespace DealerSafe2.API.Entity.Products.Domain
 {
-    public class DomainDefaultsForMember : DomainDefaults
+    public class DomainDefaultsForMember : DomainDefaults // one-to-one with Member
     {
-        [ColumnDetail(Length = 12)]
-        public string MemberId { get; set; }
     }
-    public class DomainDefaultsForClient : DomainDefaults
+    public class DomainDefaultsForClient : DomainDefaults // one-to-one with Client
     {
-        [ColumnDetail(Length = 12)]
-        public string ClientId { get; set; }
     }
-    public class DomainDefaultsForZone : DomainDefaults
+    public class DomainDefaultsForZone : DomainDefaults // one-to-one with Product
     {
-        [ColumnDetail(Length = 12)]
-        public string ZoneId { get; set; }
     }
-    public class DomainDefaultsForRegistry : DomainDefaults
+    public class DomainDefaultsForRegistry : DomainDefaults // one-to-one with Supplier
     {
-        [ColumnDetail(Length = 12)]
-        public string RegistryId { get; set; }
     }
     public class DomainDefaults : NamedEntity
     {
@@ -49,6 +41,15 @@ namespace DealerSafe2.API.Entity.Products.Domain
 
         [ColumnDetail(Length = 400)]
         public string NameServers { get; set; }
+
+        public DomainDefaults() 
+        {
+            // default contact id atamasını burada yapalım
+            OwnerDomainContactId = "LLHKBR";
+            AdminDomainContactId = "LLHKBR";
+            TechDomainContactId = "LLHKBR";
+            BillingDomainContactId = "LLHKBR";
+        }
     }
 
 }

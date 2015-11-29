@@ -1,4 +1,7 @@
-﻿using Cinar.Database;
+﻿using System;
+using Cinar.Database;
+using DealerSafe2.DTO.Enums;
+
 namespace DealerSafe2.API.Entity.LifeCycles
 {
     public class LifeCyclePhase : NamedEntity, ICriticalEntity
@@ -10,6 +13,9 @@ namespace DealerSafe2.API.Entity.LifeCycles
         public string Description { get; set; }
 
         public int Days { get; set; }
+
+        public LifeCyclePhases PhaseType { get; set; }
+
     }
 
 }

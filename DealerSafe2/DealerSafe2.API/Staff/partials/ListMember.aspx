@@ -1,8 +1,8 @@
 ﻿<list-header title="Members"></list-header>
 
 <form id="form" class="form-inline" role="form" autocomplete="off">
-    <input-select horizontal="1" label="Type" name="MemberType" model="selectedMemberType" options="i.Id as i.Name for i in MemberTypeList"></input-select> 
-    <input-select horizontal="1" label="State" name="State" model="selectedState" options="i.Id as i.Name for i in StateList"></input-select>
+    <input-select no-empty-option="1" horizontal="1" label="Type" name="MemberType" model="selectedMemberType" options="i.Id as i.Name for i in MemberTypeList"></input-select> 
+    <input-select no-empty-option="1" horizontal="1" label="State" name="State" model="selectedState" options="i.Id as i.Name for i in StateList"></input-select>
     <input type="button" value="Filtrele" ng-click="search()" />
 </form>
 
@@ -14,7 +14,7 @@
         <tr>
             <th></th>
             <th column-header="Email" field="Email"></th>
-            <th column-header="Name" field="FullName"></th>
+            <th column-header="Name" field="Name"></th>
             <th column-header="Type" field="MemberType"></th>
             <th column-header="Date" field="InsertDate"></th>
             <th></th>

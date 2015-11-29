@@ -1,14 +1,16 @@
-﻿using Cinar.Database;
-using DealerSafe2.DTO.EntityInfo.Products.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
+using DealerSafe2.DTO.EntityInfo.Products.Domain;
 using DealerSafe2.DTO.Enums;
+using Epp.Protocol.Shared;
+using DealerSafe.DTO.Epp.Protocol.Rgp;
 
 namespace DealerSafe2.API.Entity.Products.Domain
 {
-    public class MemberDomain : MemberProduct 
+    public class MemberDomain : BaseEntity 
     {
         [ColumnDetail(Length = 100)]
         public string DomainName { get; set; }
@@ -26,16 +28,19 @@ namespace DealerSafe2.API.Entity.Products.Domain
 
         [ColumnDetail(Length = 200)]
         public string RegistryStatus { get; set; } // List<RegistryStates>
-        public List<RegistryStates> RegistryStates
+        public List<Status> RegistryStates
         {
             get
             {
-                return RegistryStatus.SplitWithTrim(',').Select(s => (RegistryStates)Enum.Parse(typeof(RegistryStates), s)).ToList();
+                return RegistryStatus.SplitWithTrim(',').Select(s => (Status)Enum.Parse(typeof(Status), s)).ToList();
+            }
+            set {
+                RegistryStatus = value.StringJoin(",");
             }
         }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 20)]
-        public RGPStates RGPStatus { get; set; }
+        public statusValueType RGPStatus { get; set; }
 
         public string SponsorId { get; set; }
         public string CreatorId { get; set; }
@@ -70,11 +75,12 @@ namespace DealerSafe2.API.Entity.Products.Domain
 
         public DateTime TransferDate { get; set; }
 
-
+        public TransferStates TransferState { get; set; }
     }
 
     public class ListViewMemberDomain : BaseEntity
     {
+        public DateTime InsertDate { get; set; }
         public string OrderItemId { get; set; }
         public string OrderId { get; set; }
         public string MemberId { get; set; }

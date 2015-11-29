@@ -7,8 +7,8 @@
     <thead>
         <tr>
             <th></th>
-            <th column-header="Date" field="StartDate"></th>
-            <th column-header="Domain" field="DomainName"></th>
+            <th column-header="Start Date" field="StartDate"></th>
+            <th column-header="Domain Name" field="DomainName"></th>
             <th column-header="Order" field="DisplayName"></th>
             <th column-header="Member" field="Email"></th>
             <th column-header="State" field="State"></th>
@@ -18,7 +18,7 @@
     <tbody>
         <tr ng-repeat="entity in list" ng-class="{deleted:entity.IsDeleted}">
             <td indexer></td>
-            <td>{{entity.StartDate | date}}</td>
+            <td link-to-view>{{entity.StartDate | date}}</td>
             <td link-to-view>{{entity.DomainName}}</td>
             <td link-to-parent="Order">{{entity.DisplayName}}</td>
             <td link-to-parent="Member">{{entity.Email}}</td>

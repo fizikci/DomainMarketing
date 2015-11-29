@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DealerSafe2.API.Entity.Jobs;
 using DealerSafe2.API.Entity.Products;
 using DealerSafe2.DTO.EntityInfo;
@@ -86,8 +87,11 @@ namespace DealerSafe2.API.Entity.Orders
                     o.Member().Save();
 
                     var cancelJob = Provider.Database.Read<Job>("RelatedEntityId = {0} AND RelatedEntityName='OrderItem' AND Command={1}", this.Id, JobCommands.CancelRefundReq.ToString());
-                    cancelJob.State = JobStates.Done;
-                    cancelJob.Save();
+                    if (cancelJob != null)
+                    {
+                        cancelJob.State = JobStates.Done;
+                        cancelJob.Save();
+                    }
                 });
         }
     }

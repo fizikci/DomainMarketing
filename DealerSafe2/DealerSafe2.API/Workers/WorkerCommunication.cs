@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Net.Mail;
 using Cinar.Database;
+using DealerSafe.DTO.Common;
 using DealerSafe2.API.Api.Library;
 using DealerSafe2.API.Entity.ApiRelated;
 using DealerSafe2.API.Entity.CommunicationChannel;
@@ -16,7 +17,9 @@ using DealerSafe2.API.Entity.Products.Domain;
 using DealerSafe.ServiceClient;
 using DealerSafe2.API.Entity.Members;
 using Cinar.Scripting;
+using Newtonsoft.Json;
 using Order = DealerSafe2.API.Entity.Orders.Order;
+using DealerSafe2.DTO.Request;
 
 namespace DealerSafe2.API.Workers
 {
@@ -42,6 +45,11 @@ namespace DealerSafe2.API.Workers
 
         private void SendMessage(Job job)
         {
+            JobData jd = Provider.Database.Read<JobData>("JobId={0}", job.Id);
+            if (jd == null) throw new Exception("CCSendMessage jobs should have corresponding JobData. This one doesn't.");
+
+            ReqSendMessage req = JsonConvert.DeserializeObject<ReqSendMessage>(jd.Request);
+
             // CCMessageTemplate
             var msgTemplate = Provider.Database.Read<CCMessageTemplate>("Id={0}", job.RelatedEntityId);
             if (msgTemplate == null)
@@ -62,17 +70,18 @@ namespace DealerSafe2.API.Workers
 
 
             // 1. template'i veritabanından oku
-            string[] arr = job.CommandParameter.Split(new string[] { "___" }, StringSplitOptions.None);
-            string sqlPrm = arr[0];
-            string memberId = arr[1];
+            //string[] arr = job.CommandParameter.Split(new string[] { "___" }, StringSplitOptions.None);
+            //string sqlPrm = arr[0];
+            //string memberId = arr[1];
 
             string msgBody = "";
 
-            if (sqlPrm != "")
+            if (req.SqlParam != "")
             {
                 // 2. SqlCommand'dan parametre ile script engine marifetiyle SQL'i elde et
                 var engine = new Interpreter(msgTemplate.SqlCommand, new List<string>());
-                engine.SetAttribute("SqlParam", sqlPrm);
+                engine.SetAttribute("SqlParam", req.SqlParam);
+                engine.SetAttribute("Parameters", req.Parameters);
                 engine.Parse();
                 engine.Execute();
 
@@ -84,6 +93,7 @@ namespace DealerSafe2.API.Workers
                 // 4. Message alanındaki HTML'i script engine ve datarow'u kullanarak mesaj metnine dönüştür
                 var engine2 = new Interpreter(msgTemplate.Message, new List<string>());
                 engine2.SetAttribute("rs", rs);
+                engine2.SetAttribute("Parameters", req.Parameters);
                 engine2.Parse();
                 engine2.Execute();
 
@@ -97,10 +107,10 @@ namespace DealerSafe2.API.Workers
 
 
             string msgSubject = "";
-            if (arr.Length > 1) // 3.parametre varsa dışardan mesaj gelmiştir
+            if (!req.AddMessage.IsEmpty()) // 3.parametre varsa dışardan mesaj gelmiştir
             {
-                msgBody = msgBody.Replace("$=msg$", arr[2]); // gönderilen mesajı ekle
-                msgSubject = (arr.Length > 2) ? arr[3] : "";
+                msgBody = msgBody.Replace("$=msg$", req.AddMessage); // gönderilen mesajı ekle
+                msgSubject = req.AddSubject.IsEmpty() ? "" : req.AddSubject;
             }
 
 
@@ -110,20 +120,20 @@ namespace DealerSafe2.API.Workers
             string nameSurname = "";
             string phone = "";
 
-            if (memberId.Contains("@")) // memberId 'nin içinde '@' varsa maildir.
+            if (!req.Email.IsEmpty()) // memberId 'nin içinde '@' varsa maildir.
             {
-                eMail = memberId.Trim();
-                nameSurname = memberId.Trim();
+                eMail = req.Email;
+                nameSurname = req.Email;
             }
             else
             {
-                var msgMember = GetMemberRow(memberId, client.ConnectionStrings);
+                var msgMember = GetMemberRow(req.MemberId, client.ConnectionStrings);
                 if (msgMember == null)
                     throw new Exception("Members record not found");
 
                 // Member Info
                 eMail = msgMember["EMail"].ToString();
-                nameSurname = msgMember["EMail"].ToString();
+                nameSurname = msgMember["NameSurname"].ToString();
                 phone = msgMember["Phone2"].ToString();
             }
 
@@ -177,7 +187,7 @@ namespace DealerSafe2.API.Workers
                 CCMessageTemplateId = msgTemplate.Id,
                 JobId = job.Id,
                 MessageType = msgProfile.ProfileType.ToString(),
-                MemberId = memberId
+                MemberId = req.MemberId
             };
             sentMessage.Save();
 

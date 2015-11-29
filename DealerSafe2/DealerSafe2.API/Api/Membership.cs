@@ -207,7 +207,7 @@ namespace DealerSafe2.API
             Provider.CurrentMember = member;
 
             member.LastLoginDate = member.CurrLoginDate;
-            member.CurrLoginDate = DateTime.Now;
+            member.CurrLoginDate = Provider.Database.Now;
             member.Save();
 
             res.Member = new MemberInfo();
@@ -217,9 +217,9 @@ namespace DealerSafe2.API
             Order anonimOrder = Order.GetMemberBasket();
 
             this.Session.MemberId = member.Id;
-            this.Session.LoginDate = DateTime.Now;
-            this.Session.LastAccess = DateTime.Now;
-            this.Session.Insert();
+            this.Session.LoginDate = Provider.Database.Now;
+            this.Session.LastAccess = Provider.Database.Now;
+            this.Session.Save();
 
             // eğer yeni sepette item varsa eski oturumdan kalan sepeti iptal edelim
             if (anonimOrder.Items.Count > 0)
@@ -260,9 +260,11 @@ namespace DealerSafe2.API
                 }
             }
 
+            //TODO: bu kodun daha 
+            /*
             var memberSSLIds =
                 Provider.Database.GetList<string>(
-                    "SELECT Id FROM MemberSSL WHERE OrderItemId IN (select Id from OrderItem where OrderId in (select Id from [Order] where MemberId = {0}))",
+                    "SELECT DISTINCT Id FROM MemberSSL WHERE Id in (SELECT Id FROM MemberProduct WHERE OrderItemId IN (select Id from OrderItem where OrderId in (select Id from [Order] where MemberId = {0})))",
                     Provider.Api.Session.MemberId);
             res.CompletedOrders =
                 Provider.Database.GetInt("SELECT count(*) from MemberSSL WHERE State='Completed' AND Id in ('" +
@@ -270,6 +272,7 @@ namespace DealerSafe2.API
             res.WaitingOrders =
                 Provider.Database.GetInt("SELECT count(*) from MemberSSL WHERE State!='Completed' AND Id in ('" +
                                          memberSSLIds.StringJoin("','") + "')");
+            */
 
             res.TotalOrderCost = Provider.Database.GetInt("select sum(TotalPrice) from [Order] where MemberId = {0} AND State = 'Order'",
                                                           Provider.Api.Session.MemberId);
@@ -417,7 +420,7 @@ namespace DealerSafe2.API
                     Password = Utility.MD5(req.Password),
                     MemberType = MemberTypes.Individual,
                     State = MemberStates.WaitingEmailConfirmation,
-                    LastLoginDate = DateTime.Now,
+                    LastLoginDate = Provider.Database.Now,
                     ClientId = this.ApiClient.ClientId,
                     StaffMemberId = Provider.Api.GetNextIdleStaffMemberId(Departments.Marketing)
                 };
@@ -429,8 +432,8 @@ namespace DealerSafe2.API
             member.CopyPropertiesWithSameName(res.Member);
 
             this.Session.MemberId = member.Id;
-            this.Session.LoginDate = DateTime.Now;
-            this.Session.LastAccess = DateTime.Now;
+            this.Session.LoginDate = Provider.Database.Now;
+            this.Session.LastAccess = Provider.Database.Now;
             this.Session.Save();
 
             res.SessionId = this.Session.Id;
@@ -477,7 +480,7 @@ namespace DealerSafe2.API
                     LastName = req.Surname,
                     UserName = req.Nick,
                     Gender = req.Gender,
-                    LastLoginDate = DateTime.Now,
+                    LastLoginDate = Provider.Database.Now,
                     ClientId = this.ApiClient.ClientId,
                     StaffMemberId = Provider.Api.GetNextIdleStaffMemberId(Departments.Marketing)
                 };

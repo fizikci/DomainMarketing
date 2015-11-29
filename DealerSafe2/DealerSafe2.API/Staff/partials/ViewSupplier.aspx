@@ -90,12 +90,18 @@
 
 
 
-        <div class="widget-box transparent" id="recent-box" ng-init="tab='reg'">
+        <div class="widget-box transparent" id="recent-box" ng-init="tab='props'">
             <div class="widget-header">
                 <div class="widget-toolbar no-border">
                     <ul class="nav nav-tabs" id="recent-tab">
-                        <li ng-if="entity.ApiId=='DealerSafe'" class="{{tab=='reg' ? 'active':''}}">
+                        <li class="{{tab=='reg' ? 'active':''}}" ng-show="entity.ApiId=='DealerSafe'">
                             <a ng-click="tab='reg'"><i class="icon-map-marker blue"></i>Registry Details</a>
+                        </li>
+                        <li class="{{tab=='domainDefs' ? 'active':''}}" ng-show="entity.ApiId=='DealerSafe'">
+                            <a ng-click="tab='domainDefs'"><i class="icon-map-marker blue"></i>Domain Defaults</a>
+                        </li>
+                        <li class="{{tab=='props' ? 'active':''}}">
+                            <a ng-click="tab='props'"><i class="icon-map-marker blue"></i>Properties</a>
                         </li>
                     </ul>
                 </div>
@@ -111,7 +117,8 @@
                             <div class="row">
                                 <input type="text" ng-model="entity.Id" name="Id" style="display:none"/>
                                     <input-select label="Registry Backend" model="entity.RegistryBackendId" options="i.Id as i.Name for i in RegistryBackends"></input-select>
-		
+		                            <input-check label="Follow Poll Messages" model="entity.FollowPollMessages"></input-check>
+                                    <div style="clear:both"></div>
                                     <fieldset class="col-sm-6">
                                         <legend>EPP</legend>
                                         <input-text label="Server" model="entity.EppServerUri"></input-text>
@@ -149,6 +156,63 @@
                             </div>
 
 
+                        </div>
+                            
+                        <div ng-if="entity.ApiId=='DealerSafe'" class="tab-pane{{tab=='domainDefs' ? 'active':''}}" ng-controller="EditDomainDefaultsForRegistryController">
+
+
+                            <div class="row">
+                                <input type="text" ng-model="entity.Id" name="Id" style="display:none"/>
+                                <input-select label="Renewal Mode" model="entity.RenewalMode" options="i.Id as i.Name for i in RenewalModes"></input-select>
+                                <input-select label="Transfer Mode" model="entity.TransferMode" options="i.Id as i.Name for i in TransferModes"></input-select>
+                                <input-text label="Owner Contact Id" model="entity.OwnerDomainContactId"></input-text>
+                                <input-text label="Admin Contact Id" model="entity.AdminDomainContactId"></input-text>
+                                <input-text label="Tech Contact Id" model="entity.TechDomainContactId"></input-text>
+                                <input-text label="Billing Contact Id" model="entity.BillingDomainContactId"></input-text>
+                                <input-select label="Privacy Protection" model="entity.PrivacyProtection" options="i.Id as i.Name for i in PrivacyProtectionOptions"></input-select>
+                                <input-text label="Name Servers" model="entity.NameServers"></input-text>
+                            </div>
+
+                            <div class="clearfix form-actions">
+	                            <div class="text-right">
+		                            <button class="btn btn-xs btn-primary" type="button" ng-click="save()">
+			                            <i class="icon-ok bigger-110"></i>
+			                            Save
+		                            </button>
+	                            </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="tab-pane{{tab=='props' ? 'active':''}}" style="position:relative">
+                            <table class="table table-bordered table-hover" aria-describedby="table-storage_info">
+                                <tbody ng-repeat="groupProps in props | groupBy: 'PropertyGroupName' | toArray:true | orderBy:min">
+                                <tr style="background: honeydew;"><td colspan="3"><b>{{groupProps.$key || ''}}</b></td></tr>
+                                <tr ng-repeat="p in groupProps | orderBy:'OrderNo'" ng-class="{deleted:p.IsDeleted}">
+                                    <td> &nbsp; - &nbsp; {{p.PropertyName}}</td>
+                                    <td>
+                                        <span ng-click="editProp(entity, p)">
+                                            <b>{{p.Value}}</b>
+                                            <i ng-show="!p.Value">{{p.PropertyDefaultValue}}</i>
+                                            <i class="icon-pencil green"></i>
+                                        </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div id="propEdit" class="dialog" ng-show="entity.currProp">
+                                {{entity.currProp.PropertyName}}<br />
+                                <input ng-if="entity.currProp.PropertyType=='string'" ng-model="entity.currProp.Value" class="form-control" type="text"/>
+                                <select ng-if="entity.currProp.PropertyType=='options'" ng-model="entity.currProp.Value" class="form-control" ng-options="i for i in entity.currProp.PropertyOptions.split(',')"></select>
+                                <input ng-if="entity.currProp.PropertyType=='int'" ng-model="entity.currProp.Value" class="form-control" type="number"/>
+                                <input ng-if="entity.currProp.PropertyType=='date'" ng-model="entity.currProp.Value" class="form-control" type="date"/>
+                                <select ng-if="entity.currProp.PropertyType=='bool'" ng-model="entity.currProp.Value" class="form-control" ng-options="i for i in [0,1]"></select>
+                                <input ng-if="entity.currProp.PropertyType=='money'" ng-model="entity.currProp.Value" class="form-control" type="number"/>
+                                <br />
+                                <button class="btn btn-primary" ng-click="saveProp(entity)">Save</button>
+                                <button class="btn btn-default" ng-click="cancelEditProp(entity)">Cancel</button>
+                            </div>
                         </div>
 
                     </div>

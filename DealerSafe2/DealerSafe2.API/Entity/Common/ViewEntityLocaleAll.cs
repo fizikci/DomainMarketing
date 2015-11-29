@@ -1,4 +1,6 @@
-﻿namespace DealerSafe2.API.Entity.Common
+﻿using System;
+
+namespace DealerSafe2.API.Entity.Common
 {
     public class ViewEntityLocaleAll : BaseEntity
     {

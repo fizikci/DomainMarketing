@@ -14,9 +14,14 @@
         // Domain related
         DomainRegister,
         DomainRenewal,
-        DomainTransfer,
+        DomainTransferRequest,
         DomainRestore,
         DomainDelete,
+        DomainTransferQuery,
+        DomainCancel,
+
+        ReadPollMessages,
+        HandlePollMessage,
 
         // Hosting related
         HostingCreate,

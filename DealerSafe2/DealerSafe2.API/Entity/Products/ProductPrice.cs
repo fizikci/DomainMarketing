@@ -1,5 +1,7 @@
-﻿using Cinar.Database;
+﻿using System;
+using Cinar.Database;
 using DealerSafe2.DTO.Enums;
+
 namespace DealerSafe2.API.Entity.Products
 {
     public class ProductPrice : BaseEntity, ICriticalEntity

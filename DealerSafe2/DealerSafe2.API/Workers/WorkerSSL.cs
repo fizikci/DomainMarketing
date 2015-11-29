@@ -9,6 +9,7 @@ using DealerSafe2.DTO.Enums;
 using System.Linq;
 using DealerSafe2.API.Entity.Products.SSL;
 using DealerSafe2.DTO.EntityInfo.Products.SSL;
+using DealerSafe2.API.Entity.Products;
 
 namespace DealerSafe2.API.Workers
 {
@@ -36,9 +37,20 @@ namespace DealerSafe2.API.Workers
                     job.Save();
 
                     var memberSSL = new MemberSSL();
-                    memberSSL.OrderItemId = item.Id;
+                    //memberSSL.OrderItemId = item.Id;
                     memberSSL.State = SSLStates.None;
                     memberSSL.Save();
+
+                    var now = Provider.Database.Now;
+
+                    var memberProduct = new MemberProduct();
+                    memberProduct.Id = memberSSL.Id;
+                    memberProduct.OrderItemId = item.Id;
+                    memberProduct.StartDate = now;
+                    memberProduct.EndDate = now.AddYears(item.Amount);
+                    memberProduct.InsertDate = now;
+                    memberProduct.Name = item.DisplayName;
+                    Provider.Database.Insert("MemberProduct", memberProduct);
 
                     Provider.Database.Commit();
                 }
@@ -79,7 +91,7 @@ namespace DealerSafe2.API.Workers
                         switch (res)
                         {
                             case JobStates.TryAgain:
-                                job.StartDate = DateTime.Now.AddMinutes(1);
+                                job.StartDate = Provider.Database.Now.AddMinutes(1);
                                 job.State = JobStates.TryAgain;
                                 job.Save();
                                 break;
@@ -113,9 +125,10 @@ namespace DealerSafe2.API.Workers
                     }
                 case JobCommands.SSLCheckResult:
                     {
-                        var memberProduct = Provider.Database.Read<MemberSSL>("OrderItemId={0}", job.RelatedEntityId);
+
+                        var memberProduct = Provider.Database.Read<MemberProduct>("OrderItemId={0}", job.RelatedEntityId);
                         if (memberProduct == null)
-                            throw new Exception("MemberSSL record not found for the job: " + job.ParentJobId);
+                            throw new Exception("MemberProduct record not found for the job: " + job.ParentJobId);
 
                         var res = checkSSLResult(job);
 
@@ -153,11 +166,14 @@ namespace DealerSafe2.API.Workers
         {
             try
             {
-                var memberProduct = Provider.Database.Read<MemberSSL>("OrderItemId={0}", job.RelatedEntityId);
+                var memberProduct = Provider.Database.Read<MemberProduct>("OrderItemId={0}", job.RelatedEntityId);
                 if (memberProduct == null)
                     throw new Exception("MemberSSL record not found for the job: " + job.ParentJobId);
 
-                Provider.Api.GenerateSSL(memberProduct.ToEntityInfo<MemberSSLInfo>());
+                var memberSSLInfo = Provider.Database.Read<MemberSSL>("Id={0}", memberProduct.Id).ToEntityInfo<MemberSSLInfo>();
+                memberProduct.CopyPropertiesWithSameName(memberSSLInfo);
+
+                Provider.Api.GenerateSSL(memberSSLInfo);
 
                 return JobStates.Done;
             }
@@ -171,29 +187,33 @@ namespace DealerSafe2.API.Workers
         {
             try
             {
-                var memberProduct = Provider.Database.Read<MemberSSL>("OrderItemId={0}", job.RelatedEntityId);
+                var memberProduct = Provider.Database.Read<MemberProduct>("OrderItemId={0}", job.RelatedEntityId);
                 if (memberProduct == null)
+                    throw new Exception("MemberProduct record not found for the job: " + job.ParentJobId);
+
+                var memberSSL = Provider.Database.Read<MemberSSL>("Id={0}", memberProduct.Id);
+                if (memberSSL == null)
                     throw new Exception("MemberSSL record not found for the job: " + job.ParentJobId);
 
                 var res = Provider.Api.CollectSSL(job.RelatedEntityId);
 
                 if (!string.IsNullOrWhiteSpace(res.zipFile))
                 {
-                    memberProduct.State = SSLStates.Completed;
-                    memberProduct.Save();
+                    memberSSL.State = SSLStates.Completed;
+                    memberSSL.Save();
                     return JobStates.Done;
                 }
 
                 if (res.certificateStatus.ToLowerInvariant() == "issued")
                 {
-                    memberProduct.State = SSLStates.Completed;
-                    memberProduct.Save();
+                    memberSSL.State = SSLStates.Completed;
+                    memberSSL.Save();
                     return JobStates.Done;
                 }
                 if (res.certificateStatus.ToLowerInvariant() == "valid")
                 {
-                    memberProduct.State = SSLStates.DomainValidated;
-                    memberProduct.Save();
+                    memberSSL.State = SSLStates.DomainValidated;
+                    memberSSL.Save();
                 }
 
                 if (res.certificateStatus.IndexOf("awaiting", StringComparison.InvariantCultureIgnoreCase) > -1)
@@ -202,13 +222,13 @@ namespace DealerSafe2.API.Workers
                         res.validationStatus.IndexOf("Awaiting Legal Documents",
                                                      StringComparison.InvariantCultureIgnoreCase) > -1)
                     {
-                        memberProduct.State = SSLStates.WaitingDocument;
-                        memberProduct.Save();
+                        memberSSL.State = SSLStates.WaitingDocument;
+                        memberSSL.Save();
                     }
                     else if (res.dcvStatus == "1")
                     {
-                        memberProduct.State = SSLStates.DomainValidated;
-                        memberProduct.Save();
+                        memberSSL.State = SSLStates.DomainValidated;
+                        memberSSL.Save();
                     }
                 }
 

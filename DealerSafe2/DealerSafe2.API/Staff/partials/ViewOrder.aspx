@@ -136,7 +136,7 @@
                             <td>
                                 <i ng-show="!j.expanded" class="icon-plus-sign-alt blue" ng-click="expandJD(j)"></i>
                                 <i ng-show="j.expanded" class="icon-minus-sign-alt blue" ng-click="collapseJD(j)"></i>
-                                {{j.Command}}
+                                {{j.Command}} - <a href="#/View/Job/{{j.Id}}">{{j.Id}}</a>
                             </td>
                             <td>{{j.Name}}</td>
                             <td>{{j.State}}</td>

@@ -13,15 +13,21 @@
 
     <div class="col-xs-12 col-sm-12">
         
-        <h1>{{entity.Name}}</h1>
+        <h1>
+            {{entity.Name}}
+            <div class="pull-right">
+                <button class="btn btn-primary btn-sm" ng-click="addPhase()">Add Phase</button> &nbsp; 
+                <button class="btn btn-primary btn-sm" ng-click="addJob()">Add Job</button>
+            </div>
+        </h1>
 
         <div class="life-cycle">
             <div class="phase" ng-repeat="phase in phases" style="width:{{phase.ui.width / totalWidth*100}}%; background-color:{{phase.ui.color}}">
-                <div class="title"><b>{{phase.Name}} <i class="icon-pencil green" ng-click="editPhase(phase)"></i> <i class="icon-remove red" ng-click="deletePhase(job)"></i></b></div>
+                <div class="title"><b>{{phase.Name}} <i class="icon-pencil green" ng-click="editPhase(phase)"></i> <i class="icon-remove red" ng-click="deletePhase(phase)"></i></b></div>
                 <p>{{phase.Days}} days</p>
             </div>
 
-            <div class="job {{job.Executer}}" ng-repeat="job in jobs" style="left:{{job.ui.left / totalWidth*100}}%;" title="{{job.Description}}">
+            <div class="job {{job.Executer}}" ng-repeat="job in jobs" style="left:{{job.ui.left / totalWidth*100}}%;width:{{job.ui.width / totalWidth*100}}%;" title="{{job.Description}}">
                 <span style=" top:{{job.ui.top}}px">
                     <i class="icon-gear green" ng-show="job.Executer=='Machine'"></i>
                     <i class="icon-user red" ng-show="job.Executer=='Member'"></i>
@@ -35,18 +41,24 @@
 
     </div>
 
-    <div style="clear:both"></div>
-
-    <p class="col-sm-12" align="center" style="margin-top:20px">
-        <button class="btn btn-primary btn-sm" ng-click="addPhase()">Add Phase</button> &nbsp; 
-        <button class="btn btn-primary btn-sm" ng-click="addJob()">Add Job</button>
-    </p>
+    <ul class="pull-right phaseDef hide">
+        <li ng-repeat="(key, value) in colors"><span style="background:{{value}}"></span> {{key}}</li>
+    </ul>
+    <ul class="pull-right phaseDef">
+        <li><span style="background:lightgray"></span> None</li>
+        <li><span style="background:rgb(199, 252, 199)"></span> Active</li>
+        <li><span style="background:rgb(124, 240, 255)"></span> WaitingForRenewal</li>
+        <li><span style="background:rgb(255, 209, 124)"></span> WaitingForRestore</li>
+        <li><span style="background:rgb(255, 185, 197)"></span> Deleted</li>
+        <li><span style="background:rgb(255, 254, 174)"></span> BackupAvailable</li>
+    </ul>
 
     <div style="clear:both"></div>
 
     <div class="dialog edit-phase" ng-show="currPhase">
         <input-text name="Name" label="Phase Name" model="currPhase.Name"></input-text>
         <input-number name="Days" label="Days" model="currPhase.Days"></input-number>
+        <input-select label="Phase Type" model="currPhase.PhaseType" options="i.Id as i.Name for i in EnumLifeCyclePhases"></input-select>
         <input-text name="Description" label="Description" model="currJob.Description"></input-text>
         <input-number name="OrderNo" label="Order" model="currPhase.OrderNo"></input-number>
         <br />
@@ -58,6 +70,7 @@
         <input-select label="Command" model="currJob.Command" options="i.Id as i.Name for i in EnumJobCommands"></input-select>
         <input-select label="Executer" model="currJob.Executer" options="i.Id as i.Name for i in EnumJobExecuters"></input-select>
         <input-number name="RunAtDay" label="Run at day" model="currJob.RunAtDay"></input-number>
+        <input-number name="ValidForDays" label="Valid for days" model="currJob.ValidForDays"></input-number>
         <input-text name="Description" label="Description" model="currJob.Description"></input-text>
         <hr />
         <div ng-if="currJob.Command=='CCSendMessage'">
@@ -82,7 +95,7 @@
       overflow: hidden;
       vertical-align: top;
       text-align:center;
-      height: 300px;
+      height: 360px;
       border-right: 1px solid black;
     }
     .phase .title {
@@ -92,7 +105,6 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.22);
     }
     .job {
-      height: 280px;
       position: absolute;
       top: 20px;
       border-left: 1px dashed rgba(0, 0, 0, 0.22);
@@ -100,6 +112,7 @@
     .job.Member span {
       border: 1px solid red;
       background-color: rgb(255,235,235);
+      width: 100%;
     }
     .job.Staff span {
       border: 1px solid orange;
@@ -121,6 +134,28 @@
     }
     .job span:hover i.op {
         display:inline;
+    }
+
+
+    ul.phaseDef {
+        width: 170px;
+        margin: 12px;
+        padding: 13px;
+        clear: both;
+    }
+
+    ul.phaseDef > li {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+        font-size: smaller;
+    }
+
+    ul.phaseDef > li > span {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        vertical-align: text-bottom;
     }
 </style>
 

@@ -32,12 +32,11 @@ namespace DealerSafe2.API
                                 FROM 
                                     Product
                                 WHERE 
-                                    ApiId = {0} AND
                                     " + strOR + @" AND
                                     IsDeleted = 0
                                 ORDER BY
                                     OrderNo
-                            ", ApiClient.ApiId)
+                            ")
                               .ToEntityInfo<ProductInfo>();
 
             return addPropertyAndPrices(res);
@@ -267,11 +266,11 @@ namespace DealerSafe2.API
                 throw new APIException("Coupon definition not found", ErrorTypes.SystemError);
 
             // if valid for one year:
-            if (coupon.ValidFor1Year && coupon.InsertDate.AddYears(1) < DateTime.Now)
+            if (coupon.ValidFor1Year && coupon.InsertDate.AddYears(1) < Provider.Database.Now)
                 throw new APIException("Coupon is expired", ErrorTypes.ValidationError);
 
             // if not valid for one year:
-            if (!coupon.ValidFor1Year && (coupon.ValidFrom > DateTime.Now || coupon.ValidTo < DateTime.Now))
+            if (!coupon.ValidFor1Year && (coupon.ValidFrom > Provider.Database.Now || coupon.ValidTo < Provider.Database.Now))
                 throw new APIException("Coupon is expired or not valid", ErrorTypes.ValidationError);
 
             // if it is not multiUse and if it is used, throw error
@@ -340,23 +339,26 @@ namespace DealerSafe2.API
 
         #region Order
 
-        public OrderInfo CreateOrderFromBasket(string hash)
+        public OrderInfo CreateOrderFromBasket(string externalPaymentCode) // eğer ödeme PaymentGateway gibi harici bir servisten alındıysa "externalPaymentCode" gönderilir. Aksi halde boş bırakılır, ödeme reseller'ın kredisinden tahsil edilir.
         {
             Order order = Order.GetMemberBasket();
             if (order.Items.Count == 0)
                 throw new APIException("There is no items in the basket");
 
-            order.PGHash = hash;
+            order.PGHash = externalPaymentCode;
             order.State = OrderStates.Order;
-            order.OrderDate = DateTime.Now;
-            order.InvoiceDate = DateTime.Now;
+            order.OrderDate = Provider.Database.Now;
+            order.InvoiceDate = Provider.Database.Now;
             order.InvoiceNo = "INV-" + Provider.Database.GetInt("select count(Id) + 1 from [Order]").ToString().PadLeft(6, '0');
             order.DisplayName = order.Items[0].DisplayName;
             order.Save();
 
+            // eğer ödeme yapıldıysa transaction üyeye, yapılmadıysa resellera kesilir. 
+            // (SignSec, Domain gibi APIler kullanılıyorsa externalPaymentCode her zaman boş olacağından transaction resellera kesilir)
             new MemberTransaction
                 {
-                    MemberId = order.MemberId,
+                    ExternalPaymentCode = externalPaymentCode,
+                    MemberId = externalPaymentCode.IsEmpty() ? order.Member().Client().AdminMemberId : order.MemberId, 
                     RelatedEntityName = "Order",
                     RelatedEntityId = order.Id,
                     Amount = order.TotalPrice,

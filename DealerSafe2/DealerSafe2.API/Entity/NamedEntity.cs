@@ -1,4 +1,6 @@
-﻿namespace DealerSafe2.API.Entity
+﻿using System;
+
+namespace DealerSafe2.API.Entity
 {
     public class NamedEntity : BaseEntity
     {

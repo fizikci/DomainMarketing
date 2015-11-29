@@ -51,5 +51,7 @@ namespace DealerSafe2.DTO.Request
 
         public string isCustomerValidated { get { return "Y"; } }
         public string showCertificateID { get { return "Y"; } }
+
+        public int caCertificateID { get; set; }
     }
 }

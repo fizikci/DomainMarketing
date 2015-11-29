@@ -229,7 +229,7 @@ app.directive('inputTextarea', function () {
                     '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
                     '       <div class="col-sm-9">' +
   (!attr.htmlEdit ? '           <textarea ng-model="' + attr.model + '"' + (attr.name ? ' name="' + attr.name + '" id="' + attr.name + '"' : '') + (attr.style ? ' style="'+attr.style+'"' : '') + (attr.disabled ? ' disabled="' + attr.disabled + '"' : '') + ' class="col-sm-10 col-xs-12" rows="3"></textarea>' : '') +
-   (attr.htmlEdit ? '			<div style="height:200px" class="ww"' + (attr.name ? ' name="' + attr.name + '"' : '') + ' ng-bind-html="' + attr.model + '" class="col-sm-10 col-xs-12"></div>' : '') +
+   (attr.htmlEdit ? '			<div style="height: 310px;overflow: scroll;width: 680px;border: 1px solid red;" class="ww"' + (attr.name ? ' name="' + attr.name + '"' : '') + ' ng-bind-html="' + attr.model + '" class="col-sm-10 col-xs-12"></div>' : '') +
                         elm.html() +
                     '       </div>' +
                     '   </div>' +

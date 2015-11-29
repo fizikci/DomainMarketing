@@ -8,10 +8,10 @@ using DealerSafe2.API.Entity.ApiRelated;
 using Newtonsoft.Json.Converters;
 using rfl = System.Reflection;
 using System.Web;
+using Newtonsoft.Json;
 using DealerSafe2.DTO;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Web.SessionState;
-using Newtonsoft.Json;
 
 namespace DealerSafe2.API
 {
@@ -95,19 +95,21 @@ namespace DealerSafe2.API
                 this.CurrentLanguage = (req.GetMemberValue("Lang") ?? "en").ToString();
                 var objSessionId = req.GetMemberValue("SessionId");
                 string sessionId = objSessionId == null ? "" : objSessionId.ToString();
-                if (!sessionId.IsEmpty())
+
+                if (!sessionId.IsEmpty()) // eğer client sessionId göndermişse
                 {
-                    this.Session = Provider.Database.Read<ApiSession>("Id={0}", sessionId);
-                    if (this.Session == null) 
+                    this.Session = Provider.Database.Read<ApiSession>("Id={0}", sessionId); // veritabanından session'ı okuyalım
+                    
+                    if (this.Session == null) // eğer session veritabanına kaydedilmemişse hemen kaydedelim (çünkü bu client API ile session açarak çalışmak istiyor)
                     {
                         this.Session = new ApiSession();
                         this.Session.Id = sessionId;
-                        this.Session.LastAccess = DateTime.Now;
+                        this.Session.LastAccess = Provider.Database.Now;
                         this.Session.SerializedParams = this.Session.Params.Serialize();
                         Provider.Database.Insert("ApiSession", this.Session);
                     }
                 }
-                else
+                else // eğer client sessionId gönderMEmişse, yeni bir sessionId oluşturalım (ama veritabanına kaydetmeyelim yoksa ApiSession tablosunu google botları patlatabilir)
                 {
                     this.Session = new ApiSession();
                     this.Session.Id = Utility.CreatePassword(12);

@@ -21,28 +21,7 @@ namespace DealerSafe2.API.Workers
             {
                 try
                 {
-                    Provider.Database.Begin();
 
-                    var job = new Job
-                    {
-                        Command = JobCommands.SiteProtectionNewOrder,
-                        Name = item.DisplayName,
-                        RelatedEntityName = "OrderItem",
-                        RelatedEntityId = item.Id,
-                        State = JobStates.NotStarted,
-                        Executer = JobExecuters.Member,
-                        ExecuterId = order.MemberId
-                    };
-                    job.Save();
-
-                    var memberSSL = new MemberSSL
-                    {
-                        OrderItemId = item.Id,
-                        State = SSLStates.None
-                    };
-                    memberSSL.Save();
-
-                    Provider.Database.Commit();
                 }
                 catch (Exception ex)
                 {

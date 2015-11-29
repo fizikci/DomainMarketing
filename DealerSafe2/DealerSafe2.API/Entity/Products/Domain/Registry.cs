@@ -1,8 +1,8 @@
-﻿using Cinar.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
 
 namespace DealerSafe2.API.Entity.Products.Domain
 {
@@ -13,9 +13,6 @@ namespace DealerSafe2.API.Entity.Products.Domain
     {
         [ColumnDetail(Length = 12)]
         public string RegistryBackendId { get; set; }
-
-        [ColumnDetail(Length = 12)]
-        public string PropertySetId { get; set; }
 
         [ColumnDetail(Length=100)]
         public string EppServerUri { get; set; }
@@ -61,5 +58,7 @@ namespace DealerSafe2.API.Entity.Products.Domain
         [ColumnDetail(Length = 30)]
         public string UniqueRegistryName { get; set; }
 
+
+        public bool FollowPollMessages { get; set; }
     }
 }

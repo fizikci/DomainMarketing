@@ -13,6 +13,7 @@ namespace DealerSafe2.DTO.EntityInfo.Products.Domain
         public string OrderItemId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public string MemberId { get; set; }
 
         public string DomainName { get; set; }
         public string DomainIDN { get; set; }
@@ -24,18 +25,8 @@ namespace DealerSafe2.DTO.EntityInfo.Products.Domain
         public DomainTransferModes TransferMode { get; set; }
 
         public string RegistryStatus { get; set; } // List<RegistryStates>
-        public List<RegistryStates> RegistryStates
-        {
-            get
-            {
-                if (System2.UtilityDTO.IsEmpty(RegistryStatus))
-                    return new List<RegistryStates>();
 
-                return System2.UtilityDTO.SplitWithTrim(RegistryStatus, ',').Select(s => (RegistryStates)Enum.Parse(typeof(RegistryStates), s)).ToList();
-            }
-        }
-
-        public RGPStates RGPStatus { get; set; }
+        public string RGPStatus { get; set; }
 
         public string NameServers { get; set; }
         public string HostNames { get; set; }

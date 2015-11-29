@@ -1,5 +1,7 @@
-﻿using Cinar.Database;
+﻿using System;
+using Cinar.Database;
 using DealerSafe2.DTO.Enums;
+
 namespace DealerSafe2.API.Entity.LifeCycles
 {
     public class LifeCycleJob : BaseEntity, ICriticalEntity
@@ -8,6 +10,7 @@ namespace DealerSafe2.API.Entity.LifeCycles
         public string LifeCycleId { get; set; }
 
         public int RunAtDay { get; set; }
+        public int ValidForDays { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 50)]
         public JobCommands Command { get; set; }
@@ -21,5 +24,6 @@ namespace DealerSafe2.API.Entity.LifeCycles
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 200)]
         public string Description { get; set; }
     }
+
 
 }

@@ -1,7 +1,8 @@
 ﻿<list-header title="Products"></list-header>
 
 <form id="form" class="form-inline" role="form" autocomplete="off">
-    <input-select no-empty-option="1" horizontal="1" label="Type" name="ProductTypeId" model="selectedProductType" options="i.Id as i.Name for i in ProductTypes"></input-select>
+    <input-select horizontal="1" label="Type" name="ProductTypeId" model="selectedProductType" options="i.Id as i.Name for i in ProductTypes"></input-select>
+    <input-select horizontal="1" label="Supplier" model="selectedSupplier" options="i.Id as i.Name for i in Suppliers"></input-select>
     <input type="button" value="Filtrele" ng-click="search()" />
 </form>
 

@@ -329,6 +329,34 @@ app.controller('ListJobController', function ($scope, $routeParams, entityServic
 
     defaultListController($scope, $routeParams, entityService);
 });
+app.controller('ViewJobController', function ($scope, $routeParams, entityService) {
+
+    entityService.getList('JobData', 20000, 0, function (res) {
+        $scope.$apply(function () {
+            $scope.jobDatas = res.list || [];
+        });
+    }, "JobId = " + $routeParams.Id, 'InsertDate');
+
+    $scope.getFunc = function () {
+        if ($scope.entity.State == "Done")
+            $scope.jobStateClass = "success";
+        else if ($scope.entity.State == "Failed" || $scope.entity.State == "Canceled")
+            $scope.jobStateClass = "danger";
+        else if ($scope.entity.State == "Processing" || $scope.entity.State == "TryAgain")
+            $scope.jobStateClass = "warning";
+        else
+            $scope.jobStateClass = "default";
+
+        if($scope.entity.RelatedEntityName=="OrderItem")
+            entityService.get("OrderItem", $scope.entity.RelatedEntityId, function (entity) {
+                $scope.$apply(function () {
+                    $scope.orderItem = entity;
+                });
+            });
+    };
+
+    defaultViewController($scope, $routeParams, entityService);
+});
 
 app.controller('ListMemberController', function ($scope, $routeParams, entityService) {
     $scope.search = function () {
@@ -603,6 +631,52 @@ app.controller('EditProductTypeController', function ($scope, $routeParams, enti
 
     defaultEditController($scope, $routeParams, entityService);
 });
+app.controller('ViewProductTypeController', function ($scope, $routeParams, entityService) {
+
+    entityService.get('ProductType', $routeParams.Id, function (entity) {
+        $scope.$apply(function () {
+            $scope.entity = entity;
+
+            entityService.getList('PropertyValue', 20, 0, function (res) {
+                $scope.$apply(function () {
+                    $scope.props = res.list;
+                });
+            }, "ProductTypeId = " + $scope.entity.Id);
+
+        });
+    });
+
+    $scope.min = function (arr) {
+        return Math.min.apply(Math, arr.map(function (e) { return e.OrderNo; }));
+    }
+
+    $scope.tab = 'props';
+    var oldVal = null;
+    var oldProp = null;
+
+    $scope.editProp = function (pt, a) {
+        if (oldProp != null)
+            oldProp.PropertyValue = oldVal;
+        oldVal = a.PropertyValue;
+        oldProp = a;
+        pt.currProp = a;
+    };
+    $scope.cancelEditProp = function (pt) {
+        pt.currProp.PropertyValue = oldVal;
+        pt.currProp = null;
+        oldProp = null;
+    };
+    $scope.saveProp = function (pt) {
+        entityService.save('PropertyValue', pt.currProp, function () {
+            $scope.$apply(function () {
+                pt.currProp = null;
+                oldProp = null;
+            });
+        });
+    };
+
+});
+
 
 app.controller('ViewPropertySetController', function ($scope, $routeParams, entityService) {
 
@@ -615,7 +689,7 @@ app.controller('ViewPropertySetController', function ($scope, $routeParams, enti
     defaultViewController($scope, $routeParams, entityService);
 
     $scope.readProps = function () {
-        entityService.getList('Property', 20, 0, function (res) {
+        entityService.getList('Property', 20000, 0, function (res) {
             $scope.$apply(function () {
                 $scope.props = res.list || [];
             });
@@ -673,15 +747,22 @@ app.controller('ListProductController', function ($scope, $routeParams, entitySe
     $scope.search = function () {
         $scope.where = '';
         if ($scope.selectedProductType) $scope.where += ($scope.where ? ' AND ' : '') + 'ProductTypeId = ' + $scope.selectedProductType;
+        if ($scope.selectedSupplier) $scope.where += ($scope.where ? ' AND ' : '') + 'SupplierId = ' + $scope.selectedSupplier;
 
         $scope.getPage(0);
     };
 
     $scope.tryFirstSearchCounter = 1;
 
-    entityService.getIdNameList('ProductType', 20, 0, function (list) {
+    entityService.getIdNameList('ProductType', 2000, 0, function (list) {
         $scope.$apply(function () {
             $scope.ProductTypes = list;
+            $scope.tryFirstSearch();
+        });
+    });
+    entityService.getIdNameList('Supplier', 2000, 0, function (list) {
+        $scope.$apply(function () {
+            $scope.Suppliers = list;
             $scope.tryFirstSearch();
         });
     });
@@ -695,7 +776,7 @@ app.controller('EditProductController', function ($scope, $routeParams, entitySe
             $scope.Apis = list;
         });
     });
-    entityService.getIdNameList('Product', 20, 0, function (list) {
+    entityService.getIdNameList('Product', 2000, 0, function (list) {
         $scope.$apply(function () {
             $scope.Products = list;
         });
@@ -740,9 +821,8 @@ app.controller('ViewProductController', function ($scope, $routeParams, entitySe
             entityService.getList('PropertyValue', 20, 0, function (res) {
                 $scope.$apply(function () {
                     $scope.props = res.list;
-                    $scope.props.each(function (a) { a.PropertyValue = a.PropertyValue || a.DefaultValue; });
                 });
-            }, "EntityName = Product AND EntityId = " + $scope.entity.Id);
+            }, "ProductId = " + $scope.entity.Id + " AND ProductTypeId = " + $scope.entity.ProductTypeId + " AND SupplierId = " + $scope.entity.SupplierId);
 
         });
     });
@@ -816,6 +896,25 @@ app.controller('ViewProductController', function ($scope, $routeParams, entitySe
     };
 });
 
+app.controller('ListSupplierController', function ($scope, $routeParams, entityService) {
+    $scope.search = function () {
+        $scope.where = '';
+        if ($scope.selectedApiId) $scope.where += ($scope.where ? ' AND ' : '') + 'ApiId = ' + $scope.selectedApiId;
+
+        $scope.getPage(0);
+    };
+
+    $scope.tryFirstSearchCounter = 1;
+
+    entityService.getIdNameList('Api', 2000, 0, function (list) {
+        $scope.$apply(function () {
+            $scope.Apis = list;
+            $scope.tryFirstSearch();
+        });
+    });
+
+    defaultListController($scope, $routeParams, entityService);
+});
 app.controller('EditSupplierController', function ($scope, $routeParams, entityService) {
 
     entityService.getIdNameList('Api', 20, 0, function (list) {
@@ -828,8 +927,58 @@ app.controller('EditSupplierController', function ($scope, $routeParams, entityS
             $scope.LifeCycles = list;
         });
     });
+    entityService.getIdNameList('PropertySet', 200, 0, function (list) {
+        $scope.$apply(function () {
+            $scope.PropertySets = list;
+        });
+    });
 
     defaultEditController($scope, $routeParams, entityService);
+});
+app.controller('ViewSupplierController', function ($scope, $routeParams, entityService) {
+
+    entityService.get('Supplier', $routeParams.Id, function (entity) {
+        $scope.$apply(function () {
+            $scope.entity = entity;
+
+            entityService.getList('PropertyValue', 20, 0, function (res) {
+                $scope.$apply(function () {
+                    $scope.props = res.list;
+                });
+            }, "SupplierId = " + $scope.entity.Id);
+
+        });
+    });
+
+    $scope.min = function (arr) {
+        return Math.min.apply(Math, arr.map(function (e) { return e.OrderNo; }));
+    }
+
+    $scope.tab = 'props';
+    var oldVal = null;
+    var oldProp = null;
+
+    $scope.editProp = function (pt, a) {
+        if (oldProp != null)
+            oldProp.PropertyValue = oldVal;
+        oldVal = a.PropertyValue;
+        oldProp = a;
+        pt.currProp = a;
+    };
+    $scope.cancelEditProp = function (pt) {
+        pt.currProp.PropertyValue = oldVal;
+        pt.currProp = null;
+        oldProp = null;
+    };
+    $scope.saveProp = function (pt) {
+        entityService.save('PropertyValue', pt.currProp, function () {
+            $scope.$apply(function () {
+                pt.currProp = null;
+                oldProp = null;
+            });
+        });
+    };
+
 });
 
 app.controller('EditRegistryController', function ($scope, $routeParams, entityService) {
@@ -846,6 +995,27 @@ app.controller('EditRegistryController', function ($scope, $routeParams, entityS
     viewDetailEditController($scope, $routeParams, entityService);
 });
 
+app.controller('EditDomainDefaultsForRegistryController', function ($scope, $routeParams, entityService) {
+    entityService.getEnumList('DomainRenewalModes', function (list) { $scope.$apply(function () { $scope.RenewalModes = list; }); });
+    entityService.getEnumList('DomainTransferModes', function (list) { $scope.$apply(function () { $scope.TransferModes = list; }); });
+    entityService.getEnumList('PrivacyProtectionOptions', function (list) { $scope.$apply(function () { $scope.PrivacyProtectionOptions = list; }); });
+
+    $scope.entityName = 'DomainDefaultsForRegistry';
+    $scope.entityId = $routeParams.Id;
+
+    viewDetailEditController($scope, $routeParams, entityService);
+});
+app.controller('EditDomainDefaultsForZoneController', function ($scope, $routeParams, entityService) {
+    entityService.getEnumList('DomainRenewalModes', function (list) { $scope.$apply(function () { $scope.RenewalModes = list; }); });
+    entityService.getEnumList('DomainTransferModes', function (list) { $scope.$apply(function () { $scope.TransferModes = list; }); });
+    entityService.getEnumList('PrivacyProtectionOptions', function (list) { $scope.$apply(function () { $scope.PrivacyProtectionOptions = list; }); });
+
+    $scope.entityName = 'DomainDefaultsForZone';
+    $scope.entityId = $routeParams.Id;
+
+    viewDetailEditController($scope, $routeParams, entityService);
+});
+
 app.controller('EditApiClientController', function ($scope, $routeParams, entityService) {
 
     entityService.getIdNameList('Api', 20, 0, function (list) {
@@ -857,7 +1027,7 @@ app.controller('EditApiClientController', function ($scope, $routeParams, entity
         $scope.$apply(function () {
             $scope.Clients = list;
         });
-    });
+    }, "IsDeleted = 0");
 
     defaultEditController($scope, $routeParams, entityService);
 });
@@ -1249,6 +1419,21 @@ function findViewDetailScope(scope, entityName) {
 app.controller('APIDemoController', function ($scope, $routeParams, entityService) {
 });
 
+app.controller('ListJobSchedulerController', function ($scope, $routeParams, entityService) {
+
+    defaultListController($scope, $routeParams, entityService);
+});
+app.controller('EditJobSchedulerController', function ($scope, $routeParams, entityService) {
+
+    entityService.getEnumList('JobCommands', function (res) {
+        $scope.$apply(function () {
+            $scope.EnumJobCommands = res;
+        });
+    });
+
+    defaultEditController($scope, $routeParams, entityService);
+});
+
 
 app.controller('ListCCProfileController', function ($scope, $routeParams, entityService) {
 
@@ -1506,12 +1691,34 @@ app.controller('ViewMemberDomainController', function ($scope, $routeParams, ent
 
     $scope.tab = 'contact';
 
-    entityService.getList('DomainContact', 20, 0, function (res) {
-        $scope.$apply(function () {
-            $scope.addresses = res.list;
-        });
-    }, "MemberDomainId = " + $routeParams.Id);
+    $scope.getFunc = function () {
+        $scope.addresses = [];
 
+        if ($scope.entity.OwnerDomainContactId)
+            entityService.get("DomainContact", $scope.entity.OwnerDomainContactId, function (entity) {
+                $scope.$apply(function () {
+                    $scope.addresses.push(entity);
+                });
+            });
+        if ($scope.entity.AdminDomainContactId)
+            entityService.get("DomainContact", $scope.entity.AdminDomainContactId, function (entity) {
+                $scope.$apply(function () {
+                    $scope.addresses.push(entity);
+                });
+            });
+        if ($scope.entity.TechDomainContactId)
+            entityService.get("DomainContact", $scope.entity.TechDomainContactId, function (entity) {
+                $scope.$apply(function () {
+                    $scope.addresses.push(entity);
+                });
+            });
+        if ($scope.entity.BillingDomainContactId)
+            entityService.get("DomainContact", $scope.entity.BillingDomainContactId, function (entity) {
+                $scope.$apply(function () {
+                    $scope.addresses.push(entity);
+                });
+            });
+    };
 
 
     entityService.getEnumList('ContactTypes', function (res) {
@@ -1604,7 +1811,14 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
     });
 
 
-    $scope.colors = ['rgb(245, 230, 210)', 'rgb(199, 252, 199)', 'rgb(199, 252, 199)', 'rgb(124, 240, 255)', 'rgb(255, 209, 124)', 'rgb(255, 185, 197)', 'rgb(255, 254, 174)'];
+    $scope.colors = {
+        None: 'lightgray',
+        Active: 'rgb(199, 252, 199)',
+        WaitingForRenewal:'rgb(124, 240, 255)',
+        WaitingForRestore:'rgb(255, 209, 124)',
+        Deleted:'rgb(255, 185, 197)',
+        BackupAvailable: 'rgb(255, 254, 174)'
+    };
 
     $scope.readPhases = function () {
         entityService.getList('LifeCyclePhase', 2000, 0, function (res) {
@@ -1617,7 +1831,7 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
                     var p = $scope.phases[i];
                     p.ui = {};
                     $scope.totalDays += p.Days;
-                    p.ui.color = $scope.colors[i % $scope.colors.length];
+                    p.ui.color = $scope.colors[p.PhaseType];
                     p.ui.width = Math.log(p.Days + 1);
                     $scope.totalWidth += p.ui.width;
                 }
@@ -1630,7 +1844,8 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
                         var j = $scope.jobs[i];
                         j.ui = {};
                         j.ui.left = $scope.calculateLogorithmicPosition(j.RunAtDay);
-                        j.ui.top = 30 + 50 * (i % 5);
+                        j.ui.width = j.Executer == 'Machine' ? $scope.totalWidth - j.ui.left : $scope.calculateLogorithmicLength(j.RunAtDay, j.ValidForDays);
+                        j.ui.top = 30 + 30 * (i % 10);
                     }
                 });
             }, "LifeCycleId = " + $scope.entity.Id + " AND IsDeleted = 0", 'RunAtDay');
@@ -1652,6 +1867,9 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
             }
         }
         return res;
+    };
+    $scope.calculateLogorithmicLength = function (x, len) {
+        return $scope.calculateLogorithmicPosition(x + len) - $scope.calculateLogorithmicPosition(x);
     };
 
     $scope.addPhase = function (p) {
@@ -1688,6 +1906,11 @@ app.controller('ViewLifeCycleController', function ($scope, $routeParams, entity
     entityService.getEnumList('JobExecuters', function (res) {
         $scope.$apply(function () {
             $scope.EnumJobExecuters = res;
+        });
+    });
+    entityService.getEnumList('LifeCyclePhases', function (res) {
+        $scope.$apply(function () {
+            $scope.EnumLifeCyclePhases = res;
         });
     });
 

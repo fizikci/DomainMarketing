@@ -30,7 +30,7 @@ namespace DealerSafe2.API.Entity
 
                 var tbl = Provider.Database.CheckTableExistance(this);
 
-                bool isUpdate = !string.IsNullOrWhiteSpace(this.Id);
+                bool isUpdate = !this.Id.IsEmpty();
 
                 this.BeforeSave(isUpdate);
 
@@ -45,13 +45,16 @@ namespace DealerSafe2.API.Entity
                         id = "";
                     }
                     this.Id = id;
-                    this.InsertDate = DateTime.Now;
+                    this.InsertDate = Provider.Database.Now;
 
                     Provider.Database.Insert(this.GetType().Name, Provider.Database.EntityToHashtable(this));
                 }
                 else
                 {
-                    Provider.Database.Update(tbl.Name, Provider.Database.EntityToHashtable(this));
+                    if(Provider.Database.Read(this.GetType(), "Id={0}", this.Id)!=null)
+                        Provider.Database.Update(tbl.Name, Provider.Database.EntityToHashtable(this));
+                    else
+                        Provider.Database.Insert(this.GetType().Name, Provider.Database.EntityToHashtable(this));
                 }
                 this.AfterSave(isUpdate);
 
@@ -84,7 +87,7 @@ namespace DealerSafe2.API.Entity
 
                 if (!isUpdate)
                 {
-                    this.InsertDate = DateTime.Now;
+                    this.InsertDate = Provider.Database.Now;
 
                     Provider.Database.Insert(this.GetType().Name, Provider.Database.EntityToHashtable(this));
                 }
@@ -108,10 +111,7 @@ namespace DealerSafe2.API.Entity
         public virtual void Delete()
         {
             var tbl = Provider.Database.GetTableForEntityType(this.GetType());
-            if (tbl.Columns["IsDeleted"] != null)
-                Provider.Database.ExecuteNonQuery("UPDATE [" + tbl.Name + "] SET IsDeleted=1 WHERE Id={0}", Id);
-            else
-                Provider.Database.ExecuteNonQuery("DELETE FROM [" + tbl.Name + "] WHERE Id={0}", Id);
+            Provider.Database.ExecuteNonQuery("UPDATE [" + tbl.Name + "] SET IsDeleted=1 WHERE Id={0}", Id);
         }
 
         public override string ToString()

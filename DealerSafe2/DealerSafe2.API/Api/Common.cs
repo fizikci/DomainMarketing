@@ -39,7 +39,7 @@ namespace DealerSafe2.API
 
         public bool ExecuteJob(string jobId)
         {
-            var job = Provider.Database.Read<Job>("Id={0}", jobId);
+            var job = Provider.Database.Read<Job>("Id = {0}", jobId);
             if (job == null)
                 throw new APIException("Job not found: " + jobId);
             try
@@ -57,7 +57,7 @@ namespace DealerSafe2.API
 
                 JobData jd = Provider.Database.Read<JobData>("JobId={0}", job.Id);
                 if (jd == null) jd = new JobData() { JobId = job.Id };
-                jd.Request = "";
+                jd.Request = jd.Request ?? "";
                 jd.Response = ex.Message;
                 jd.Save();
             }
@@ -69,13 +69,13 @@ namespace DealerSafe2.API
         {
             ExchangeRates rates = HttpContext.Current.Application["exchangeRates"] as ExchangeRates;
 
-            if (rates == null || rates.Date < DateTime.Now.Date)
+            if (rates == null || rates.Date < Provider.Database.Now.Date)
             {
-                rates = new ExchangeRates { Date = DateTime.Now.Date };
+                rates = new ExchangeRates { Date = Provider.Database.Now.Date };
 
                 List<ExchangeRate> list =
                     Provider.Database.ReadList<ExchangeRate>("select * from ExchangeRate where InsertDate>={0}",
-                                                             DateTime.Now.Date);
+                                                             Provider.Database.Now.Date);
                 if (list == null || list.Count == 0)
                 {
                     XmlTextReader rdr = new XmlTextReader("http://www.tcmb.gov.tr/kurlar/today.xml");
@@ -108,7 +108,7 @@ namespace DealerSafe2.API
                 }
                 else
                 {
-                    rates.Date = DateTime.Now.Date;
+                    rates.Date = Provider.Database.Now.Date;
                     rates.AddRange(list.ToEntityInfo<ExchangeRateInfo>());
                     HttpContext.Current.Application["exchangeRates"] = rates;
                 }
@@ -122,13 +122,17 @@ namespace DealerSafe2.API
             Job j = new Job();
             j.Command = JobCommands.CCSendMessage;
             j.Executer = JobExecuters.Machine;
-            j.CommandParameter = req.SqlParam + "___" + req.MemberId + "___" + req.AddMessage + "___" + req.AddSubject;
-            //j.Name = req.SqlParam + "___" + req.MemberId;
-            j.Name = "ToBeSend";
+            j.Name = "to " + (req.Email.IsEmpty() ? "member " + req.MemberId : req.Email);
             j.RelatedEntityName = "CCMessageTemplate";
             j.RelatedEntityId = req.TemplateId;
             j.StartDate = req.SendDate;
             j.Save();
+
+            JobData jd = new JobData();
+            jd.Request = req.ToJSON();
+            jd.JobId = j.Id;
+            jd.Response = "";
+            jd.Save();
 
             return true;
         }

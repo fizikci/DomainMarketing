@@ -109,7 +109,9 @@
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\ReqAcceptBid.cs" />
     <Compile Include="Request\ReqAcceptOffer.cs" />
+    <Compile Include="Request\ReqUpdateDomainNameServers.cs" />
     <Compile Include="Request\ReqAuction.cs" />
+    <Compile Include="Request\ReqPlaceOrderForDomain.cs" />
     <Compile Include="Request\ReqBid.cs" />
     <Compile Include="Request\ReqBidsToggle.cs" />
     <Compile Include="Request\ReqOffer.cs" />

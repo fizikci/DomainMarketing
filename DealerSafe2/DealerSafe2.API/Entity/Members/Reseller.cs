@@ -1,10 +1,10 @@
-﻿using Cinar.Database;
-using DealerSafe2.API.Entity.Products;
-using DealerSafe2.DTO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
+using DealerSafe2.API.Entity.Products;
+using DealerSafe2.DTO;
 using DealerSafe2.DTO.Enums;
 using Order = DealerSafe2.API.Entity.Orders.Order;
 
@@ -43,7 +43,7 @@ namespace DealerSafe2.API.Entity.Members
             if (Member().IsDeleted)
                 return false;
 
-            if (DateTime.Now > ResellerEndDate)
+            if (Provider.Database.Now > ResellerEndDate)
                 return false;
 
             return true;

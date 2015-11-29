@@ -98,7 +98,7 @@ namespace DealerSafe2.API.Entity.Orders
 
             this.TotalPrice = this.Items.Sum(i => (int)(i.Price * rates.GetRate(i.Currency, this.Currency)));
 
-            if (string.IsNullOrWhiteSpace(this.CouponItemId) && member.MemberType == MemberTypes.Reseller)
+            if (string.IsNullOrWhiteSpace(this.CouponItemId) && member!=null && member.MemberType == MemberTypes.Reseller)
             {
                 var reseller = member.Reseller();
                 if (reseller != null && reseller.IsResellerActive())
@@ -140,7 +140,7 @@ namespace DealerSafe2.API.Entity.Orders
             entityOrderItem.ProductPriceId = productPrice.Id;
 
             entityOrderItem.OrderId = this.Id;
-            entityOrderItem.DisplayName = entityOrderItem.Product().Name;
+            entityOrderItem.DisplayName = orderItem.DisplayName.IsEmpty() ? entityOrderItem.Product().Name : orderItem.DisplayName; // bu önemli mesela domain'de DomainName bilgisini içeriyor.
             entityOrderItem.Save();
 
             ReadItemsRecursive();

@@ -1,4 +1,7 @@
-﻿using Cinar.Database;
+﻿using System;
+using Cinar.Database;
+using DealerSafe2.API.Entity.LifeCycles;
+
 namespace DealerSafe2.API.Entity.Products
 {
     public class ProductType : NamedEntity, ICriticalEntity
@@ -8,6 +11,9 @@ namespace DealerSafe2.API.Entity.Products
 
         [ColumnDetail(Length = 12)]
         public string PropertySetId { get; set; }
+
+        public LifeCycle LifeCycle() { return Provider.ReadEntityWithRequestCache<LifeCycle>(LifeCycleId); }
+
     }
 
     public class ListViewProductType : ProductType

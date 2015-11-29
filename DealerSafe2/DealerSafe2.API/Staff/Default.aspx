@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="DealerSafe2.API.Staff.BasePage" %>
 
 <%@ Import Namespace="DealerSafe2.API" %>
 <%@ Import Namespace="DealerSafe2.API.Entity.ApiRelated" %>
@@ -160,8 +160,7 @@
                         </a>
 
                         <ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
-                            <li><a href="#"><i class="icon-cog"></i><%=Provider.TR("Settings") %></a></li>
-                            <li><a href="#"><i class="icon-user"></i><%=Provider.TR("Profile") %></a></li>
+                            <li><a href="#"><i class="icon-dashboard"></i><%=Provider.TR("Dashboard") %></a></li>
                             <li class="divider"></li>
                             <%
                                 foreach (var api in Provider.Database.ReadList<Api>("select * from Api where Id in (select ApiId from ApiClient where ClientId = {0})", Provider.CurrentMember.ClientId))
@@ -262,69 +261,10 @@
                                     <%=Provider.TR("Dashboard") %> 
                                 </a>
                             </li>
-                            <li>
-                                <a href="#/profile">
-                                    <i class="icon-user"></i>
-                                    <%=Provider.TR("Profile") %> 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#/settings">
-                                    <i class="icon-cog"></i>
-                                    <%=Provider.TR("Settings") %> 
-                                </a>
-                            </li>
                         </ul>
 
                     </li>
                     <li>
-                        <a href="#" class="dropdown-toggle">
-                            <i class="icon-group"></i>
-                            <span class="menu-text"><%=Provider.TR("CRM") %> </span>
-                            <b class="arrow icon-angle-down"></b>
-                        </a>
-
-                        <ul class="submenu">
-                            <li>
-                                <a href="#/List/Feedback">
-                                    <i class="icon-comment"></i>
-                                    <%=Provider.TR("Feedback") %> 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#/List/CrmActivity">
-                                    <i class="icon-phone-sign"></i>
-                                    <%=Provider.TR("Tickets") %> 
-                                </a>
-                            </li>
-                        </ul>
-
-                    </li>
-                    <li>
-                        <a href="#" class="dropdown-toggle">
-                            <i class="icon-group"></i>
-                            <span class="menu-text"><%=Provider.TR("Domain Marktng") %> </span>
-                            <b class="arrow icon-angle-down"></b>
-                        </a>
-
-                        <ul class="submenu">
-                            <li>
-                                <a href="#/List/DMItem">
-                                    <i class="icon-comment"></i>
-                                    <%=Provider.TR("Items") %> 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#/List/Auction">
-                                    <i class="icon-phone-sign"></i>
-                                    <%=Provider.TR("Auctions") %> 
-                                </a>
-                            </li>
-                        </ul>
-
-                    </li>
-                    <li>
-
                         <a href="#" class="dropdown-toggle">
                             <i class="icon-cloud"></i>
                             <span class="menu-text">API</span>
@@ -424,7 +364,30 @@
                         </ul>
                     </li>
                     <li>
+                        <a href="#" class="dropdown-toggle">
+                            <i class="icon-group"></i>
+                            <span class="menu-text"><%=Provider.TR("CRM") %> </span>
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
 
+                        <ul class="submenu">
+                            <li>
+                                <a href="#/List/Feedback">
+                                    <i class="icon-comment"></i>
+                                    <%=Provider.TR("Feedback") %> 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#/List/CrmActivity">
+                                    <i class="icon-phone-sign"></i>
+                                    <%=Provider.TR("Tickets") %> 
+                                </a>
+                            </li>
+                        </ul>
+
+                    </li>
+
+                    <li>
                         <a href="#" class="dropdown-toggle">
                             <i class="icon-shopping-cart"></i>
                             <span class="menu-text"><%=Provider.TR("Orders") %> </span>
@@ -458,8 +421,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li>
 
+                    <li>
                         <a href="#" class="dropdown-toggle">
                             <i class="icon-gamepad"></i>
                             <span class="menu-text"><%=Provider.TR("Product") %> </span>
@@ -495,6 +458,13 @@
                                 <a href="#/List/PropertySet">
                                     <i class="icon-calendar"></i>
                                     <%=Provider.TR("Property Sets") %> 
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="#/List/JobScheduler">
+                                    <i class="icon-comment"></i>
+                                    <%=Provider.TR("Job Scheduler") %> 
                                 </a>
                             </li>
                         </ul>

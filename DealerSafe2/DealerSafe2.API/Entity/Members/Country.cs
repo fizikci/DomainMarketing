@@ -1,4 +1,6 @@
-﻿namespace DealerSafe2.API.Entity.Members
+﻿using System;
+
+namespace DealerSafe2.API.Entity.Members
 {
     public class Country : NamedEntity, ICriticalEntity
     {

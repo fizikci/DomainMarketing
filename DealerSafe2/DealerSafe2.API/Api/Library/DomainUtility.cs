@@ -8,10 +8,10 @@ namespace DealerSafe2.API.Api.Library
 {
     public static class DomainUtility
     {
-        public static Zone GetZoneFormDomainName(string domainName)
+        public static Product GetZoneFromDomainName(string domainName)
         {
             var extension = GetDomainExtension(domainName);
-            return Provider.Database.Read<Zone>("Id={0}", extension);
+            return Provider.Database.Read<Product>("Id={0}", extension);
         }
 
         public static string GetDomainExtension(string domainName)

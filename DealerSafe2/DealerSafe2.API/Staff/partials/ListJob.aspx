@@ -13,8 +13,10 @@
     <thead>
         <tr>
             <th></th>
+            <th column-header="Job Id" field="Id"></th>
             <th column-header="Name" field="Name"></th>
             <th column-header="Command" field="Command"></th>
+            <th column-header="Command Parameter" field="CommandParameter"></th>
             <th column-header="Executer Type" field="Executer"></th>
             <th column-header="Status" field="State"></th>
             <th column-header="Create Date" field="StartDate"></th>
@@ -25,8 +27,10 @@
     <tbody>
         <tr ng-repeat="entity in list" ng-class="{deleted:entity.IsDeleted}">
             <td indexer></td>
+            <td link-to-view>{{entity.Id}}</td>
             <td link-to-view>{{entity.Name}}</td>
             <td>{{entity.Command}}</td>
+            <td>{{entity.CommandParameter}}</td>
             <td>{{entity.Executer}}</td>
             <td>{{entity.State}}</td>
             <td>{{entity.StartDate | date:'yyyy.MM.dd HH:mm'}}</td>

@@ -40,7 +40,7 @@ namespace DealerSafe2.API
 
         public static Database GetNewDatabaseInstance()
         {
-            return new Database(ConfigurationManager.AppSettings["dbConnStr"], DatabaseProvider.SQLServer, "c:\\temp\\domainmarketing.schema", false, false);
+            return new Database(ConfigurationManager.AppSettings["dbConnStr"], DatabaseProvider.SQLServer, "c:\\temp\\db.schema", false, false);
         }
 
         public static ApiJson Api
@@ -148,14 +148,17 @@ namespace DealerSafe2.API
         }
 
 
-        public static T ReadEntityWithRequestCache<T>(string id, string idFieldName = "Id") where T : BaseEntity, new()
+        public static T ReadEntityWithRequestCache<T>(string id, string idFieldName = "Id") where T : BaseEntity
         {
+            if (id.IsEmpty())
+                return default(T);
+
             var key = typeof (T).Name + "_" + id;
             if (!HttpContext.Current.Items.Contains(key))
             {
                 var e = Provider.Database.Read<T>(idFieldName+"={0}", id);
                 if(e==null)
-                    return new T();
+                    return default(T);
                 HttpContext.Current.Items.Add(key, e);
             }
 

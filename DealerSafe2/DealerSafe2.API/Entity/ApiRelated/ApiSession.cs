@@ -42,6 +42,7 @@ namespace DealerSafe2.API.Entity.ApiRelated
 
     public class ListViewApiSession : ApiSession
     {
+        public string MemberId { get; set; }
         public string MemberName { get; set; }
     }
 }

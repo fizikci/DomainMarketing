@@ -1,10 +1,10 @@
-﻿using Cinar.Database;
-using DealerSafe2.DTO;
-using DealerSafe2.DTO.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
+using DealerSafe2.DTO;
+using DealerSafe2.DTO.Enums;
 
 namespace DealerSafe2.API.Entity.Members
 {

@@ -1,4 +1,6 @@
-﻿namespace DealerSafe2.API.Entity.Orders
+﻿using System;
+
+namespace DealerSafe2.API.Entity.Orders
 {
     public class InvoiceCompany : NamedEntity, ICriticalEntity
     {

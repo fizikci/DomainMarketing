@@ -8,7 +8,7 @@ using DealerSafe2.DTO.Enums;
 namespace DealerSafe2.API.Entity.Products.SSL
 {
 
-    public class MemberSSL : MemberProduct
+    public class MemberSSL : BaseEntity
     {
         [ColumnDetail(ColumnType = DbType.VarChar)]
         public SSLStates State { get; set; }

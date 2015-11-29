@@ -86,6 +86,9 @@
             <div class="widget-header">
                 <div class="widget-toolbar no-border">
                     <ul class="nav nav-tabs" id="recent-tab">
+                        <li class="{{tab=='domainDefs' ? 'active':''}}" ng-show="entity.ProductTypeId=='DOMAIN'">
+                            <a ng-click="tab='domainDefs'"><i class="icon-map-marker blue"></i>Domain Defaults</a>
+                        </li>
                         <li class="{{tab=='props' ? 'active':''}}">
                             <a ng-click="tab='props'"><i class="icon-map-marker blue"></i>Properties</a>
                         </li>
@@ -99,6 +102,34 @@
             <div class="widget-body">
                 <div class="widget-main padding-4">
                     <div class="tab-content padding-8 overflow-visible">
+
+                        <div ng-if="entity.ProductTypeId=='DOMAIN'" class="tab-pane{{tab=='domainDefs' ? 'active':''}}" ng-controller="EditDomainDefaultsForZoneController">
+
+
+                            <div class="row">
+                                <input type="text" ng-model="entity.Id" name="Id" style="display:none"/>
+                                <input-select label="Renewal Mode" model="entity.RenewalMode" options="i.Id as i.Name for i in RenewalModes"></input-select>
+                                <input-select label="Transfer Mode" model="entity.TransferMode" options="i.Id as i.Name for i in TransferModes"></input-select>
+                                <input-text label="Owner Contact Id" model="entity.OwnerDomainContactId"></input-text>
+                                <input-text label="Admin Contact Id" model="entity.AdminDomainContactId"></input-text>
+                                <input-text label="Tech Contact Id" model="entity.TechDomainContactId"></input-text>
+                                <input-text label="Billing Contact Id" model="entity.BillingDomainContactId"></input-text>
+                                <input-select label="Privacy Protection" model="entity.PrivacyProtection" options="i.Id as i.Name for i in PrivacyProtectionOptions"></input-select>
+                                <input-text label="Name Servers" model="entity.NameServers"></input-text>
+                            </div>
+
+                            <div class="clearfix form-actions">
+	                            <div class="text-right">
+		                            <button class="btn btn-xs btn-primary" type="button" ng-click="save()">
+			                            <i class="icon-ok bigger-110"></i>
+			                            Save
+		                            </button>
+	                            </div>
+                            </div>
+
+
+                        </div>
+
                             
                         <div class="tab-pane{{tab=='props' ? 'active':''}}" style="position:relative">
                             <table class="table table-bordered table-hover" aria-describedby="table-storage_info">
@@ -107,7 +138,11 @@
                                 <tr ng-repeat="p in groupProps | orderBy:'OrderNo'" ng-class="{deleted:p.IsDeleted}">
                                     <td> &nbsp; - &nbsp; {{p.PropertyName}}</td>
                                     <td>
-                                        <span ng-click="editProp(entity, p)">{{p.Value}} <i class="icon-pencil green"></i></span>
+                                        <span ng-click="editProp(entity, p)">
+                                            <b>{{p.Value}}</b>
+                                            <i ng-show="!p.Value">{{p.PropertyDefaultValue}}</i>
+                                            <i class="icon-pencil green"></i>
+                                        </span>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -129,12 +164,14 @@
                         <div class="tab-pane{{tab=='prices' ? 'active':''}}">
                             <table ng-if="!currPrice" class="table table-striped table-bordered table-hover dataTable" aria-describedby="table-storage_info">
                                 <tr>
+                                    <th>Id</th>
                                     <th>Amount-Unit</th>
                                     <th>Price-Currency</th>
                                     <th></th>
                                 </tr>
 
                                 <tr ng-repeat="p in prices | orderBy:'Amount'" ng-class="{deleted:p.IsDeleted}">
+                                    <td>{{p.Id}}</td>
                                     <td>{{p.Amount+' '+p.Unit}} of {{p.ProductPriceType}}</td>
                                     <td>{{p.Price/100 | currency:p.Currency}} <i ng-if="p.Recommended" class="icon-ok green bigger-110"></i></td>
                                     <td>

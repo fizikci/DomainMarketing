@@ -13,6 +13,7 @@ using DealerSafe2.API.Entity.Products;
 using DealerSafe2.DTO.Response;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using DealerSafe2.API.Entity.Properties;
 
 namespace DealerSafe2.API.Staff.Handlers
 {
@@ -146,6 +147,10 @@ namespace DealerSafe2.API.Staff.Handlers
             var fExp = readFilterExpression(pageSize, pageNo);
             modifyFilterByUserRights(fExp);
 
+            var res = getListByCustomCode(fExp);
+            if (res != null)
+                return res;
+
             // is there an avilable view for T
             var type = Type.GetType(T.Namespace + ".ListView" + T.Name) ?? T;
 
@@ -159,6 +164,24 @@ namespace DealerSafe2.API.Staff.Handlers
                 list = list,
                 count = count
             };
+        }
+
+        private ResList getListByCustomCode(FilterExpression fExp)
+        {
+            if (T.Name == "PropertyValue") {
+                string productId = fExp["ProductId"]==null ? "" : fExp["ProductId"].ColumnValue.ToString();
+                string productTypeId = fExp["ProductTypeId"] == null ? "" : fExp["ProductTypeId"].ColumnValue.ToString();
+                string supplierId = fExp["SupplierId"] == null ? "" : fExp["SupplierId"].ColumnValue.ToString();
+
+                List<ListViewPropertyValue> res = Product.GetProductProperties(productId, productTypeId, supplierId);
+
+                return new ResList { 
+                    count = res.Count,
+                    list = res
+                };
+            }
+
+            return null;
         }
 
         public IList GetIdNameList(int pageSize, int pageNo)

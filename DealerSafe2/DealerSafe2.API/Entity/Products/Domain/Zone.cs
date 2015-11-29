@@ -1,4 +1,6 @@
-﻿using Cinar.Database;
+﻿// bu öldü
+/*
+using Cinar.Database;
 using DealerSafe2.DTO.Enums;
 using System;
 using System.Collections.Generic;
@@ -102,3 +104,4 @@ namespace DealerSafe2.API.Entity.Products.Domain
         public string FeeCurrency { get; set; }
     }
 }
+*/

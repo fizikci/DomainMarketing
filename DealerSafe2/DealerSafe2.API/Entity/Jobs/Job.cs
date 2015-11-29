@@ -16,6 +16,10 @@ namespace DealerSafe2.API.Entity.Jobs
     /// </summary>
     public class Job : BaseEntity
     {
+        public Job() {
+            StartDate = Provider.Database.Now;
+        }
+
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 50)]
         public JobCommands Command { get; set; }
 
@@ -79,13 +83,5 @@ namespace DealerSafe2.API.Entity.Jobs
             }
         }
     }
-
-    public class ViewJob : Job
-    {
-        public string Request { get; set; }
-        public string Response { get; set; }
-        public string RequestUrl { get; set; }
-    }
-
 
 }

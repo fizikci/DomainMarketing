@@ -1,12 +1,11 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using Cinar.Database;
 using DealerSafe2.API.Entity.Jobs;
 using DealerSafe2.API.Entity.Members;
 using DealerSafe2.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using DealerSafe2.DTO.Enums;
 
 namespace DealerSafe2.API.Entity.Orders
@@ -33,7 +32,7 @@ namespace DealerSafe2.API.Entity.Orders
                 if (j != null && j.State != JobStates.Done)
                 {
                     j.State = JobStates.Done;
-                    j.ProcessTime = (DateTime.Now - j.StartDate).Milliseconds;
+                    j.ProcessTime = (Provider.Database.Now - j.StartDate).Milliseconds;
                     j.Save();
 
                     var res = Provider.Api == null ? Provider.CurrentApiClient : Provider.Api.ApiClient;

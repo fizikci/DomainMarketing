@@ -17,6 +17,13 @@ namespace DealerSafe2.API.Workers
             {
                 case JobCommands.DomainRegister:
                 case JobCommands.DomainRenewal:
+                case JobCommands.DomainDelete:
+                case JobCommands.DomainTransferRequest:
+                case JobCommands.DomainTransferQuery:
+                case JobCommands.DomainRestore:
+                case JobCommands.DomainCancel:
+                case JobCommands.ReadPollMessages:
+                case JobCommands.HandlePollMessage:
                     return new WorkerDomain();
 
                 case JobCommands.HostingCreate:
@@ -35,7 +42,7 @@ namespace DealerSafe2.API.Workers
                     return new WorkerCommunication();
 
                 default:
-                    return null;
+                    throw new Exception("Critical error: Please define the worker of this command (" + command + ") at BaseWorker.GetWorker method.");
             }
         }
 
@@ -56,10 +63,10 @@ namespace DealerSafe2.API.Workers
 
             if (job.State == JobStates.TryAgain)
             {
-                if (job.StartDate > DateTime.Now)
-                    return; // StartDate'e kadar bu job beklesin
+                if (job.StartDate > Provider.Database.Now)
+                    return; // let this job wait until StartDate
 
-                if (job.TryCount >= GetMaxTryCount(job.Command)) // eğer maximum deneme sayısı aşılmışsa bu job'ı teknik servise havale edelim
+                if (job.TryCount >= GetMaxTryCount(job.Command)) // we assign this Job to a staff if the MaxTryCount is reached.
                 {
                     job.Executer = JobExecuters.Staff;
                     job.State = JobStates.NotStarted;
@@ -67,14 +74,14 @@ namespace DealerSafe2.API.Workers
                     job.Save();
                     return;
                 }
-                else
-                    job.TryCount++;
             }
+
+            job.TryCount++;
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            Execute(job); // programmer code burada çalışır
+            Execute(job); // programmer code runs here
 
             sw.Stop();
 

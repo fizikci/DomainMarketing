@@ -98,6 +98,8 @@ function doAjaxCall(url, callback, postData) {
         success: function (res) {
             if (res.isError) {
                 alert(res.errorMessage);
+                if (res.errorMessage.indexOf('denied') > -1)
+                    location.href = '/Staff/Login.aspx';
                 return;
             }
 
@@ -109,6 +111,10 @@ function doAjaxCall(url, callback, postData) {
                 callback(d.data);
                 return;
             }
+
+            if (msg.statusText.indexOf('denied') > -1)
+                location.href = '/Staff/Login.aspx';
+
             alert("HATA: " + msg.statusText);
         }
     });

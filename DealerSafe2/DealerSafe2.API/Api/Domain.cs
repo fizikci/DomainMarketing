@@ -14,6 +14,7 @@ using rfl = System.Reflection;
 using System.Web;
 using DealerSafe2.DTO.EntityInfo.Products.Domain;
 using DealerSafe2.API.Entity.Products.Domain;
+using DealerSafe2.API.Entity.Products;
 
 namespace DealerSafe2.API
 {
@@ -25,19 +26,20 @@ namespace DealerSafe2.API
                         SELECT 
                             dom.Id,
                             dom.InsertDate,
-                            dom.OrderItemId,
+                            mp.OrderItemId,
                             oi.OrderId,
-                            dom.MemberId,
+                            mp.MemberId,
                             m.FirstName + ' ' + m.LastName as MemberName,
                             oi.DisplayName AS ProductName,
                             dom.RenewalMode,
-                            dom.StartDate,
-                            dom.EndDate,
+                            mp.StartDate,
+                            mp.EndDate,
                             dom.DomainName
                         FROM 
                             MemberDomain dom
-                            INNER JOIN Member m ON dom.MemberId = m.Id
-                            INNER JOIN OrderItem oi ON dom.OrderItemId = oi.Id
+                            INNER JOIN MemberProduct mp ON dom.Id = mp.Id
+                            INNER JOIN Member m ON o.MemberId = m.Id
+                            INNER JOIN OrderItem oi ON mp.OrderItemId = oi.Id
                             INNER JOIN [Order] o ON o.Id = oi.OrderId AND o.MemberId = {0} AND o.State = 'Order';", Session.MemberId)
                    .ToEntityList<ListViewMemberDomainInfo>();
         }
@@ -49,6 +51,12 @@ namespace DealerSafe2.API
             md.Id = req.DomainName.Trim();
 
             Provider.Database.Insert("MemberDomain", md);
+
+            MemberProduct mp = new MemberProduct();
+            req.CopyPropertiesWithSameName(mp);
+            mp.Id = md.Id;
+
+            Provider.Database.Insert("MemberProduct", mp);
 
             return md.Id;
         }

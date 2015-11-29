@@ -1,16 +1,22 @@
-﻿using Cinar.Database;
-using DealerSafe.DTO.Epp.Request;
-using DealerSafe2.DTO.Enums;
-using Epp.Protocol.Contacts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Cinar.Database;
+using DealerSafe.DTO.Epp.Request;
+using DealerSafe2.DTO.Enums;
+using Epp.Protocol.Contacts;
+using Epp.Protocol.Shared;
 
 namespace DealerSafe2.API.Entity.Products.Domain
 {
     public class DomainContact : NamedEntity
     {
+        [ColumnDetail(Length = 12)]
+        public string MemberId { get; set; }
+
+        public string Surname { get; set; }
+
         public string Organization { get; set; }
 
         public string Email { get; set; }
@@ -38,16 +44,28 @@ namespace DealerSafe2.API.Entity.Products.Domain
         [ColumnDetail(Length = 50)]
         public string Town { get; set; }
 
-        public ReqContactCreate ConvertToReqContactCreate()
-        {
-            var res = new ReqContactCreate();
+        [ColumnDetail(Length = 50)]
+        public string AuthInfo { get; set; }
 
-            res.ContactId = this.Id;
-            res.Email = this.Email;
-            res.Fax = this.Fax;
-            res.Postals = new List<PostalInfo>() 
+        public DomainContact() {
+            this.AuthInfo = Utility.CreatePassword(5) + "!1Fbs";
+        }
+
+        public ReqContactCreate ConvertToReqContactCreate(string domainName)
+        {
+            var req = new ReqContactCreate();
+
+            req.DomainName = domainName;
+            
+            req.ContactId = this.Id;
+            req.Email = this.Email;
+            if(!req.Fax.IsEmpty()) req.Fax = "+90." + this.Fax.Replace("+90","");
+            req.Postals = new List<PostalInfo>() 
             { 
                 new PostalInfo {
+                    Type = PostalInfo.PostalType.Int,
+                    Name = this.Name + " " + this.Surname,
+                    Organization = this.Organization,
                     Address = new AddressInfo{
                         City = this.City,
                         CountryCode = this.Country,
@@ -57,12 +75,17 @@ namespace DealerSafe2.API.Entity.Products.Domain
                     }
             }};
             if (!this.Phone.IsEmpty())
-                res.Voice = new VoiceInfo
+                req.Voice = new VoiceInfo
                 {
-                    Voice = this.Phone
+                    Voice = "+90." + this.Phone.Replace("+90","")
                 };
 
-            return res;
+            req.AuthInfo = new AuthInfo()
+                            {
+                                Password = this.AuthInfo
+                            };
+
+            return req;
         }
     }
 

@@ -32,4 +32,20 @@
         Transfer,
         Upgrade
     }
+
+    /// <summary>
+    /// Bir ürün oluşturulup müşteriye verildiği zaman "Active" statüsündedir.
+    /// Ürün StartDate-EndDate süresi boyunca Active statüsünde kalır.
+    /// Ürünün kullanım süresi dolduğunda WaitingForRenewal statüsüne alınır.
+    /// </summary>
+
+    public enum LifeCyclePhases
+    {
+        None,
+        Active,
+        WaitingForRenewal,
+        WaitingForRestore,
+        Deleted,
+        BackupAvailable
+    }
 }

@@ -42,7 +42,7 @@ namespace DealerSafe2.API
 
             Reseller r = new Reseller();
             rt.CopyPropertiesWithSameName(r);
-            r.ResellerEndDate = DateTime.Now.AddDays(rt.ValidityInDays);
+            r.ResellerEndDate = Provider.Database.Now.AddDays(rt.ValidityInDays);
             r.Id = Provider.CurrentMember.Id;
             r.ResellerTypeId = rt.Id;
             Provider.Database.Insert("Reseller", Provider.Database.EntityToHashtable(r), false);
@@ -88,7 +88,7 @@ namespace DealerSafe2.API
                     Name = "Confirm MDF application by " + Provider.CurrentMember.FullName,
                     RelatedEntityName = "MdfReseller",
                     RelatedEntityId = mr.Id,
-                    StartDate = DateTime.Now
+                    StartDate = Provider.Database.Now
                 };
             j.Save();
 

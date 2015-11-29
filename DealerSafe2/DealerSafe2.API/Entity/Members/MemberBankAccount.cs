@@ -1,4 +1,6 @@
-﻿using Cinar.Database;
+﻿using System;
+using Cinar.Database;
+
 namespace DealerSafe2.API.Entity.Members
 {
     public partial class MemberBankAccount : BaseEntity, ICriticalEntity

@@ -22,6 +22,7 @@
         <input-text label="Password" model="entity.Password"></input-text>
         <input-number label="Order No" model="entity.OrderNo"></input-number>
         <input-select label="Use Custom Life Cycle" model="entity.LifeCycleId" options="i.Id as i.Name for i in LifeCycles"></input-select>
+        <input-select label="Use Property Set" model="entity.PropertySetId" options="i.Id as i.Name for i in PropertySets"></input-select>
 		
 	</div>
     <div class="col-sm-3">

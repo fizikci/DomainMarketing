@@ -1,9 +1,10 @@
-﻿using DealerSafe2.API.Entity.ApiRelated;
-using DealerSafe2.DTO.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using DealerSafe2.API.Entity.ApiRelated;
+using DealerSafe2.DTO.Enums;
+
 
 namespace DealerSafe2.API.Entity.CommunicationChannel
 {

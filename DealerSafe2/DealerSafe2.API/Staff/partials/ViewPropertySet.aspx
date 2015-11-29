@@ -97,12 +97,13 @@
 			                <div ng-if="!currProp">
 			                    <table ng-if="props" class="table table-bordered table-hover" style="margin-top: 20px">
                                     <tbody ng-repeat="groupProps in props | groupBy: 'GroupName' | toArray:true | orderBy:min">
-                                    <tr style="background: honeydew;"><td colspan="2"><b>{{groupProps.$key || ''}}</b></td></tr>
+                                    <tr style="background: honeydew;"><td colspan="10"><b>{{groupProps.$key || ''}}</b></td></tr>
 			                        <tr ng-repeat="pp in groupProps | orderBy:'OrderNo'" ng-class="{deleted:pp.IsDeleted}">
 			                            <td>
 			                                <i class="icon-ok green"></i>
 			                                {{pp.Name}}
 			                            </td>
+                                        <td>{{pp.DefaultValue | limitTo:20}}</td>
 			                            <td>
 			                                <i class="icon-edit orange" ng-click="editProp(pp)"></i>
 			                                <i class="icon-trash red" ng-click="deleteProp(pp)"></i>
