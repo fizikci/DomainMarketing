@@ -631,9 +631,9 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Search
 
-        public List<DMAuctionSearchInfo> GetSearchResults(ReqSearchAuction req)
+        public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
-            return Call<List<DMAuctionSearchInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<List<DMItemInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<string> GetDMItemExtensions(ReqEmpty req)
@@ -655,9 +655,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<ViewAuctionInfo, string>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public DMAuctionSearchInfo SaveAuction(ReqAuction req)
+        public DMItemInfo SaveAuction(ReqAuction req)
         {
-            return Call<DMAuctionSearchInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<DMItemInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public ResAucUpdate GetAuctionUpdateInfo(string id)
@@ -670,24 +670,24 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionSearchInfo> GetOpenAuctionsList(ReqPager req)
+        public PagerResponse<DMItemInfo> GetOpenAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionSearchInfo> GetHotAuctionsList(ReqPager req)
+        public PagerResponse<DMItemInfo> GetHotAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionSearchInfo> GetHighestBiddedAuctionsList(ReqPager req)
+        public PagerResponse<DMItemInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMAuctionSearchInfo> GetNoBiddedAuctionsList(ReqPager req)
+        public PagerResponse<DMItemInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMAuctionSearchInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
         public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {

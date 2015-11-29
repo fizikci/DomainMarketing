@@ -8,6 +8,6 @@ namespace DealerSafe2.DTO.Request
     public class ReqBidsToggle
     {
         public string MemberId { get; set; }
-        public string AuctionId { get; set; }
+        public string DMItemId { get; set; }
     }
 }

@@ -11,7 +11,6 @@ namespace DealerSafe2.DTO.Request
         public string OffererMemberId {get;set;}
         public int OfferValue { get; set;}
         public string DMItemId{ get; set;}
-        public string DMAuctionId { get; set; }
         public string DMOfferId { get; set; }
     }
 }

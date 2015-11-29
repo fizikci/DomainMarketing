@@ -9,7 +9,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
     public class ViewMyBidsForItemsInfo : BaseEntityInfo
     {
         public string Id { get; set; }
-        public string DMAuctionId { get; set; }
+        public string DMItemId { get; set; }
         public string BidderMemberId { get; set; }
         public int BidValue { get; set; }
         public DateTime InsertDate { get; set; }
