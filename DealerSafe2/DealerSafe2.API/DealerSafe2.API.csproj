@@ -528,9 +528,7 @@
     <Compile Include="Entity\DomainMarketing\DMAutoBidder.cs" />
     <Compile Include="Entity\DomainMarketing\DMMessage.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
-    <Compile Include="Entity\DomainMarketing\ListViewWonAuctions.cs" />
     <Compile Include="Entity\DomainMarketing\DMPredefinedMessage.cs" />
-    <Compile Include="Entity\DomainMarketing\ViewAuction.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycle.cs" />
     <Compile Include="Entity\LifeCycles\LifeCycleJob.cs" />
     <Compile Include="Entity\LifeCycles\LifeCyclePhase.cs" />
@@ -545,7 +543,6 @@
     <Compile Include="Entity\DomainMarketing\DMBlackList.cs" />
     <Compile Include="Entity\DomainMarketing\DMSale.cs" />
     <Compile Include="Entity\DomainMarketing\DMBid.cs" />
-    <Compile Include="Entity\DomainMarketing\DMAuction.cs" />
     <Compile Include="Entity\DomainMarketing\DMItem.cs" />
     <Compile Include="Entity\DomainMarketing\DMCategory.cs" />
     <Compile Include="Entity\DomainMarketing\DMScreenshot.cs" />

@@ -11,16 +11,9 @@ namespace DealerSafe2.DTO.Enums
         WebProject
     }
 
-    public enum DMItemStates
-    {
-        None,
-        OnAuction,
-        NotOnAuction,
-        OfferAccepted
-    }
-
     public enum DMAuctionStates
     {
+        NotOnAuction,
         Open,
         Completed,
         DirectBuy,

@@ -13,7 +13,7 @@ namespace DealerSafe2.API.Entity.DomainMarketing
     {
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the auction")]
-        public string DMAuctionId { get; set; }
+        public string DMItemId { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the bidder member")]
         public string BidderMemberId { get; set; }

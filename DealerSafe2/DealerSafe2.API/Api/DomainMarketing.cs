@@ -460,13 +460,13 @@ namespace DealerSafe2.API
 
         #region Search
 
-        public List<DMAuctionSearchInfo> GetSearchResults(ReqSearchAuction req)
+        public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
             if (req == null)
-                return new List<DMAuctionSearchInfo>();
+                return new List<DMItemInfo>();
 
             var sql = @"SELECT 
-                            A.Id,
+                            I.Id,
                         -- DMItem Fields
 	                        I.[SellerMemberId],
 	                        I.[Type],
@@ -476,24 +476,21 @@ namespace DealerSafe2.API
 	                        L.[Name] as [Language],
 	                        I.[DescriptionShort],
 	                        I.[PageRank],
-                        -- DMAuction Fields
-	                        A.[DMItemId],
-	                        A.[StartDate],
-	                        A.[PlannedCloseDate],
-	                        A.[IsDeleted]
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+	                        I.[StartDate],
+	                        I.[PlannedCloseDate],
+	                        I.[IsDeleted]
+                        FROM DMItem I
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
 
                         WHERE COALESCE(I.IsDeleted, 0) = 0 AND COALESCE(I.IsPrivateSales, 0) = 0
-                        AND BiggestBid >= {0} AND BuyItNowPrice >= {0}
-                            AND ({1} = 0 OR BiggestBid < {1} OR BuyItNowPrice < {1})
-                            AND (Type = {2})
-                            AND ((SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {3})
-                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {4})
-                                AND (SUBSTRING ( DomainName ,0 , CHARINDEX ( '.' , DomainName )) LIKE {5}))
-                            AND (SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) = {6})";
+                        AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
+                            AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
+                            AND (I.Type = {2})
+                            AND ((SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {3})
+                                AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {4})
+                                AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {5}))
+                            AND (SUBSTRING ( I.DomainName ,CHARINDEX ( '.' , I.DomainName ), LEN(I.DomainName)) = {6})";
             var res = Provider.Database.GetDataTable(sql,
                     req.MinPrice, 
                     req.MaxPrice, 
@@ -502,7 +499,7 @@ namespace DealerSafe2.API
                     "%" + req.EndsWith, 
                     "%" + req.Including + "%", 
                     req.Extension
-                ).ToEntityList<DMAuctionSearchInfo>();
+                ).ToEntityList<DMItemInfo>();
             return res;
         }
 
@@ -522,64 +519,42 @@ namespace DealerSafe2.API
         #region Auctions
         public ViewAuctionInfo GetAuction(string req)
         {
-            var sql = @"select * from ViewAuction where  Id = {0} ";
-            var vauc = Provider.Database.Read<ViewAuction>(sql, req);
-            
-            if (vauc != null && vauc.PlannedCloseDate > DateTime.Now)
-            {
-                var auc = Provider.Database.Read<DMAuction>("select * from DMAuction where  Id = {0}", req);
-                auc.Status = DMAuctionStates.DueDateReached;
-                auc.Save();
-                return auc.ToEntityInfo<ViewAuctionInfo>();
+            var sql = @"select * from DMItem where  Id = {0} ";
+            return Provider.Database.Read<DMItem>(sql, req).ToEntityInfo<ViewAuctionInfo>();
             }
-            return vauc.ToEntityInfo<ViewAuctionInfo>();
-        }
 
-        public DMAuctionSearchInfo SaveAuction(ReqAuction req)
+        public DMItemInfo SaveAuction(ReqAuction req)
         {
-            var oldAuc = Provider.Database.Read<DMAuction>(@"select * from DMAuction where DMItemId = {0}", req.DMItemId);
-            if (oldAuc == null)
-            {
                 var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
-                item.Status = DMItemStates.OnAuction;
-                DMAuction auc = new DMAuction();
-                auc.PlannedCloseDate = auc.ActualCloseDate = req.PlannedCloseDate;
-                auc.DMItemId = req.DMItemId;
-                auc.Comments = req.Comments;
-                auc.PaymentDate = DateTime.MinValue;
-                auc.StartDate = DateTime.Now;
-                auc.Status = DMAuctionStates.Open;
-                auc.BiggestBid = 0;
-                auc.SmallestBid = 0;
-                auc.BuyItNowPrice = item.BuyItNowPrice;
-                auc.ShowBidlist = true;
-                auc.Save();
-                item.Save();
+            if (item == null)
+                item = new DMItem();
 
-                auc.Item.Status = DMItemStates.OnAuction;
+            req.CopyPropertiesWithSameName(item);
 
-                return auc.ToEntityInfo<DMAuctionSearchInfo>();
+            item.Status = DMAuctionStates.Open;
+            item.PlannedCloseDate = req.PlannedCloseDate;
+            item.Comments = req.Comments;
+            item.PaymentDate = DateTime.MinValue;
+            item.StartDate = DateTime.Now;
+            item.BiggestBid = 0;
+            item.SmallestBid = 0;
+            item.BuyItNowPrice = item.BuyItNowPrice;
+            item.Save();
+
+            return item.ToEntityInfo<DMItemInfo>();
             }
-            else
-            {
-                oldAuc.PlannedCloseDate = req.PlannedCloseDate;
-                oldAuc.Comments = req.Comments;
-                oldAuc.Status = DMAuctionStates.Open;
-                oldAuc.Save();
-                return oldAuc.ToEntityInfo<DMAuctionSearchInfo>();
-            }
-        }
 
         public bool DeleteAuction(string id) {
-            var sql = @"select * from DMAuction where Id = {0} And (IsDeleted is null or IsDeleted=0)";
-            var auc = Provider.Database.Read<DMAuction>(sql,id);
+            var sql = @"select * from DMItem where Id = {0} AND (IsDeleted is null or IsDeleted=0)";
+            var auc = Provider.Database.Read<DMItem>(sql,id);
 
-            if (Provider.Database.GetInt(@"select count(*) from DMBid where DMAuctionId = {0}", id) > 0)
+            if (Provider.Database.GetInt(@"select count(*) from DMBid where DMItemId = {0}", id) > 0)
             {
                 throw (new Exception(Provider.TR("There are bids on this auction, thus it cannot be deleted!")));
             }
             else {
                 auc.Status = DMAuctionStates.Cancelled;
+                auc.Save();
                 auc.Delete();
                 return true;
             }
@@ -588,162 +563,132 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewAuctionsInfo> GetOpenAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate],
                           S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        FROM DMItem I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.StartDate DESC";
+                        WHERE (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where (IsDeleted is null or IsDeleted=0)");
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+            var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
             return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
-
-
         public PagerResponse<ListViewAuctionsInfo> GetHotAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate],
                           S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        FROM DMItem I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id 
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                                 WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                AND (A.IsDeleted  = NULL OR A.IsDeleted =0)", Provider.CurrentMember.Id);
+                                AND (IsDeleted IS NULL OR IsDeleted =0)");
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+            var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
             return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
-
         public PagerResponse<ListViewAuctionsInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate],
                           S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        FROM DMItem I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id  
-                        WHERE (A.IsDeleted  = NULL OR A.IsDeleted =0)
-                        ORDER BY A.BiggestBid DESC";
+                        WHERE (I.IsDeleted IS NULL OR I.IsDeleted =0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where (IsDeleted is null or IsDeleted=0)");
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+            var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
             return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
-
         public PagerResponse<ListViewAuctionsInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
-                          S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
-                        LEFT JOIN DMSale S ON S.DMItemId = I.Id  
-                        WHERE (A.BiggestBid = 0 OR A.BiggestBid = NULL)
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate]
+                        FROM DMItem I
+                        WHERE I.Status = 'Open' AND (I.BiggestBid = 0 OR I.BiggestBid IS NULL)
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"
-                SELECT count(*) FROM DMAuction A
-                WHERE (A.BiggestBid = 0 or A.BiggestBid = NULL) 
-                AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+                SELECT count(*) FROM DMItem
+                WHERE (BiggestBid = 0 or BiggestBid IS NULL) 
+                AND (IsDeleted IS NULL OR IsDeleted=0)");
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
+            var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
             return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
-                          S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
-                        LEFT JOIN DMSale S ON S.DMItemId = I.Id  
-                        WHERE A.PlannedCloseDate < GetDate() AND SaleStatus = 'DueDateReached'
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate]
+                        FROM DMItem I
+                        WHERE I.Status = 'DueDateReached' AND I.SellerMemberId={0}
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction where BiggestBid = 0 and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = 20;
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -752,34 +697,29 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewAuctionsInfo> GetClosedAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
-                          S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
-                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'SuccessfullyClosed' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate]
+                        FROM DMItem I
+                        WHERE I.Status = 'Closed' AND I.SellerMemberId={0}
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"
-                        SELECT count(*) FROM DMAuction AS A
-                        LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'SuccessfullyClosed' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+                        SELECT count(*) FROM DMItem I
+                        WHERE I.Status = 'Closed' AND I.SellerMemberId={0}
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -788,33 +728,31 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewAuctionsInfo> GetWaitingPaymentAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate],
                           S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                        FROM DMItem AS I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForPayment' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                        WHERE I.PlannedCloseDate < GetDate() and S.Status = 'WaitingForPayment' AND I.SellerMemberId={0}
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction AS A
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem AS I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForPayment' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+                        WHERE I.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForPayment' 
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -823,33 +761,31 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewAuctionsInfo> GetWaitingTransferAuctionsList(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-                          A.[Id],
-                          A.[BiggestBid],
+                          I.[Id],
+                          I.[BiggestBid],
                           I.[Type],
                           I.[DomainName],
                           I.[MinimumBidInterval],
-                          A.[StartDate],
-                          A.[PlannedCloseDate],
-                          A.[BuyItNowPrice],
-                          A.[IsDeleted],
-                          A.[InsertDate],
-                          S.[Status] AS SaleStatus
-                        FROM DMAuction AS A
-                        INNER JOIN DMItem I ON I.Id = A.DMItemId
+                          I.[StartDate],
+                          I.[PlannedCloseDate],
+                          I.[BuyItNowPrice],
+                          I.[IsDeleted],
+                          I.[InsertDate],
+                          S.[Status]
+                        FROM DMItem AS I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() and SaleStatus = 'WaitingForTransfer' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)
-                        ORDER BY A.BiggestBid DESC";
+                        WHERE I.PlannedCloseDate < GetDate() and S.Status = 'WaitingForTransfer' AND I.SellerMemberId={0}
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMAuction AS A
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem AS I
                         LEFT JOIN DMSale S ON S.DMItemId = I.Id
-                        WHERE A.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForTransfer' 
-                        AND (A.IsDeleted = NULL OR A.IsDeleted=0)", Provider.CurrentMember.Id);
+                        WHERE I.PlannedCloseDate < GetDate() AND S.Status = 'WaitingForTransfer' 
+                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -864,26 +800,23 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-	                        I.[Id],
-	                        A.[Id] as DMAuctionId,
-	                        I.[MinimumBidPrice],
-	                        I.[MinimumBidInterval],
-	                        I.[VerificationAsked],
-	                        A.[BiggestBid],
-	                        I.[Type],
-	                        I.[DomainName],
-	                        A.[StartDate],
-	                        A.[PlannedCloseDate],
-	                        A.[BuyItNowPrice],
-	                        A.[Status],
-	                        I.[SellerMemberId],
-	                        I.IsDeleted,
-	                        I.InsertDate
-                        FROM DMItem as I
-                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
-                        WHERE I.SellerMemberId = {0}
-                            AND (I.IsDeleted is null or I.IsDeleted=0)
-                        ORDER BY A.StartDate DESC";
+	                        Id,
+	                        MinimumBidPrice,
+	                        MinimumBidInterval,
+	                        VerificationAsked,
+	                        BiggestBid,
+	                        Type,
+	                        DomainName,
+	                        StartDate,
+	                        PlannedCloseDate,
+	                        BuyItNowPrice,
+	                        Status,
+	                        SellerMemberId,
+	                        IsDeleted,
+	                        InsertDate
+                        FROM DMItem
+                        WHERE SellerMemberId = {0} AND (IsDeleted is null or IsDeleted=0)
+                        ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
 
@@ -899,33 +832,28 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             var sql = @"SELECT 
-	                        I.[Id],
-	                        A.[Id] as DMAuctionId,
-	                        I.[MinimumBidPrice],
-	                        I.[MinimumBidInterval],
-	                        I.[VerificationAsked],
-	                        A.[BiggestBid],
-	                        I.[Type],
-	                        I.[DomainName],
-	                        A.[StartDate],
-	                        A.[PlannedCloseDate],
-	                        A.[BuyItNowPrice],
-	                        A.[Status],
-	                        I.[SellerMemberId],
-	                        I.IsDeleted,
-	                        I.InsertDate
-                        FROM DMItem as I
-                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
-                        WHERE I.SellerMemberId = {0}
-                            AND (I.IsDeleted is null or I.IsDeleted=0)
-                            AND (A.Id IS NOT NULL OR A.Id <> '')
-                        ORDER BY A.StartDate DESC";
+	                        Id,
+	                        MinimumBidPrice,
+	                        MinimumBidInterval,
+	                        VerificationAsked,
+	                        BiggestBid,
+	                        Type,
+	                        DomainName,
+	                        StartDate,
+	                        PlannedCloseDate,
+	                        BuyItNowPrice,
+	                        Status,
+	                        SellerMemberId,
+	                        IsDeleted,
+	                        InsertDate
+                        FROM DMItem
+                        WHERE SellerMemberId = {0}
+                            AND (IsDeleted is null or IsDeleted=0)
+                            AND (Id IS NOT NULL OR Id <> '')
+                        ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem AS I
-                        LEFT JOIN DMAuction A on I.Id = A.DMItemId
-                        WHERE I.SellerMemberId = {0} 
-                            AND (I.IsDeleted IS NULL OR I.IsDeleted=0) 
-                            AND (A.Id IS NOT NULL OR A.Id <> '')", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
+                        WHERE SellerMemberId = {0} AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -941,9 +869,9 @@ namespace DealerSafe2.API
             var sql = @"SELECT
                             I.DomainName,
                             I.Type,
-                            A.StartDate,
+                            I.StartDate,
+                            I.BuyItNowPrice,
                             S.InsertDate AS CloseDate,
-                            A.BuyItNowPrice,
                             S.SaleValue,
                             S.BuyerMemberId,
                             S.SellerMemberId,
@@ -953,7 +881,6 @@ namespace DealerSafe2.API
                         FROM DMSale AS S
                         INNER JOIN Member as M ON M.Id = S.BuyerMemberId
                         INNER JOIN DMItem as I ON I.Id = S.DMItemId
-                        INNER JOIN DMAuction AS A ON A.DMItemId = S.DMItemId
                         WHERE S.SellerMemberId = {0} 
                             AND S.Status = 'WaitingForPayment' 
                             AND (S.IsDeleted IS NULL OR S.IsDeleted=0)";
@@ -968,7 +895,7 @@ namespace DealerSafe2.API
         public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
         {
             var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and ((VerificationAsked = 1 and IsVerified = 1) or VerificationAsked = 0)";
-            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
+            return Provider.Database.ReadList<DMItem>(sql, DMAuctionStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
         }
 
         public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
@@ -979,23 +906,21 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        I.Id AS DMItemId,
-	                        A.Id AS DMAuctionId,
 	                        I.DomainName,
 	                        I.Type,
-	                        A.StartDate,
-	                        S.InsertDate AS CloseDate,
-	                        A.InsertDate,
-	                        A.BuyItNowPrice,
+	                        I.StartDate,
+	                        I.InsertDate,
+	                        I.BuyItNowPrice,
+	                        I.IsDeleted,
 	                        S.SaleValue,
+	                        S.InsertDate AS CloseDate,
 	                        S.BuyerMemberId,
 	                        S.Status,
-	                        S.Id,
-	                        A.IsDeleted
+	                        S.Id
                         FROM DMSale AS S
                         INNER JOIN Member as M ON M.Id = S.BuyerMemberId
                         INNER JOIN DMItem as I ON I.Id = S.DMItemId
-                        LEFT JOIN DMAuction AS A ON A.DMItemId = S.DMItemId
-                        WHERE S.BuyerMemberId = {0} AND (A.IsDeleted IS NULL OR A.IsDeleted=0) ORDER BY S.InsertDate DESC";
+                        WHERE S.BuyerMemberId = {0} AND (I.IsDeleted IS NULL OR I.IsDeleted=0) ORDER BY S.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMSale WHERE BuyerMEmberId = {0} AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
 
@@ -1029,7 +954,7 @@ namespace DealerSafe2.API
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
             var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and COALESCE(IsDeleted, 0) = 0 and COALESCE(IsPrivateSales, 0) = 0 ";
-            return Provider.Database.ReadList<DMItem>(sql, DMItemStates.NotOnAuction.ToString(), Provider.CurrentMember.Id)
+            return Provider.Database.ReadList<DMItem>(sql, DMAuctionStates.NotOnAuction.ToString(), Provider.CurrentMember.Id)
                 .Select(x => new IdName() { Id = x.Id, Name = x.DomainName }).ToList();
         }
 
@@ -1080,7 +1005,7 @@ namespace DealerSafe2.API
 
             //if new record
             if (string.IsNullOrWhiteSpace(req.Id))
-                item.Status = DMItemStates.NotOnAuction;
+                item.Status = DMAuctionStates.NotOnAuction;
 
             req.CopyPropertiesWithSameName(item);
             item.SellerMemberId = Provider.CurrentMember.Id;
@@ -1107,7 +1032,6 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id] AS BidId,
-	                        B.[DMAuctionId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
@@ -1119,18 +1043,17 @@ namespace DealerSafe2.API
 	                        M.[UserName],
 	                        I.[DomainName],
 	                        I.[Type],
-	                        A.[BiggestBid],
+	                        I.[BiggestBid],
 	                        I.[SellerMemberId]
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
                         WHERE BidId = {0} AND (B.IsDeleted IS NULL OR B.IsDeleted=0)";
             var res = Provider.Database.GetDataTable(sql, id).ToEntityList<DMBidderMemberInfo>().FirstOrDefault();
             return res;
         }
 
-        public void AutoBidder(ReqBid req,DMAuction auction) {
+        public void AutoBidder(ReqBid req, DMItem auction) {
 
             DMBid newBid = new DMBid();
 
@@ -1138,7 +1061,7 @@ namespace DealerSafe2.API
             {
                 //if autobidding value is set first, 
                 //we are going to check if there is a higher autobidding value then, knock one out
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId, Provider.CurrentMember.Id);
+                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMItemId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMItemId, Provider.CurrentMember.Id);
 
                 DMAutoBidder autoBidder = new DMAutoBidder();
                 req.CopyPropertiesWithSameName(autoBidder);
@@ -1147,19 +1070,19 @@ namespace DealerSafe2.API
 
 
                 if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null) {
-                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from ListViewDMSearch where Id = {0}", req.DMAuctionId);
+                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from DMItem where Id = {0}", req.DMItemId);
 
                     if(auction.BiggestBid < highestAutoBid.MaxBidValue){
 
                         if (highestAutoBid.MaxBidValue > req.MaxBidValue) {
                             newBid.BidComments = "Automaticly bidded";
-                            newBid.DMAuctionId = req.DMAuctionId;
+                            newBid.DMItemId = req.DMItemId;
                             newBid.BidderMemberId = Provider.CurrentMember.Id;
                             newBid.BidValue = req.MaxBidValue;
                             newBid.Save();
                             newBid = new DMBid();
                             newBid.BidComments = "Automaticly bidded";
-                            newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                            newBid.DMItemId = highestAutoBid.DMItemId;
                             newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                             if (highestAutoBid.MaxBidValue >= (req.MaxBidValue + minBidInt))
                                 newBid.BidValue = req.MaxBidValue + minBidInt;
@@ -1171,13 +1094,13 @@ namespace DealerSafe2.API
                         else if (highestAutoBid.MaxBidValue < req.MaxBidValue)
                         {
                             newBid.BidComments = "Automaticly bidded";
-                            newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                            newBid.DMItemId = highestAutoBid.DMItemId;
                             newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                             newBid.BidValue = highestAutoBid.MaxBidValue;
                             newBid.Save();
                             newBid = new DMBid();
                             newBid.BidComments = "Automaticly bidded";
-                            newBid.DMAuctionId = req.DMAuctionId;
+                            newBid.DMItemId = req.DMItemId;
                             newBid.BidderMemberId = Provider.CurrentMember.Id;
                             if (req.MaxBidValue >= (highestAutoBid.MaxBidValue + minBidInt))
                                 newBid.BidValue = highestAutoBid.MaxBidValue + minBidInt;
@@ -1191,13 +1114,13 @@ namespace DealerSafe2.API
                 }
             }
             else if (req.MaxBidValue == 0) {//if autobidding value was not set then we are going to check if there is an autobid which has a bigger maxautobidvalue than our current bid value
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMAuctionId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMAuctionId,Provider.CurrentMember.Id);
+                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMItemId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMItemId,Provider.CurrentMember.Id);
                 if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null)
                 {
-                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from ListViewDMSearch where Id = {0}", req.DMAuctionId);
+                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from DMItem where Id = {0}", req.DMItemId);
                     if (highestAutoBid.MaxBidValue > req.BidValue) {
                         newBid.BidComments = "Automaticly bidded";
-                        newBid.DMAuctionId = highestAutoBid.DMAuctionId;
+                        newBid.DMItemId = highestAutoBid.DMItemId;
                         newBid.BidderMemberId = highestAutoBid.BidderMemberId;
                         newBid.BidValue = req.BidValue + minBidInt;
                         newBid.Save();
@@ -1216,7 +1139,7 @@ namespace DealerSafe2.API
             DMBid bid = new DMBid();
             bid.BidderMemberId = Provider.CurrentMember.Id;
             req.CopyPropertiesWithSameName(bid);
-            var auc = Provider.Database.Read<DMAuction>(@"select * from DMAuction where  Id = {0} And (IsDeleted is null or IsDeleted=0)", req.DMAuctionId);
+            var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} And (IsDeleted is null or IsDeleted=0)", req.DMItemId);
             var isAutoBidderSet = req.MaxBidValue != 0;
             if (auc != null)
             {
@@ -1260,25 +1183,25 @@ namespace DealerSafe2.API
         {
             var bid = Provider.Database.Read<DMBid>(@"select * from DMBid where Id = {0}", id);
             
-            var sql = @"select * from DMAuction where Id={0} And (IsDeleted is null or IsDeleted=0)";
-            var auc = Provider.Database.Read<DMAuction>(sql, bid.DMAuctionId);
+            var sql = @"select * from DMItem where Id={0} And (IsDeleted is null or IsDeleted=0)";
+            var item = Provider.Database.Read<DMItem>(sql, bid.DMItemId);
 
             var newSale = new DMSale();
-            newSale.SellerMemberId = Provider.Database.GetString(@"select SellerMemberId from DMItem where Id = {0}", auc.DMItemId);
+            newSale.SellerMemberId = Provider.Database.GetString(@"select SellerMemberId from DMItem where Id = {0}", item.Id);
             newSale.BuyerMemberId = bid.BidderMemberId;
             newSale.PaymentType = "NotDefinedYet";
             newSale.SaleValue = bid.BidValue;
             newSale.Status = DMSaleStates.WaitingForPayment;
             newSale.InsertDate = DateTime.Now;
-            newSale.DMItemId = auc.DMItemId;
+            newSale.DMItemId = item.Id;
 
-            auc.WinnerMemberId = bid.BidderMemberId;
-            auc.Status = DMAuctionStates.Completed;
+            item.WinnerMemberId = bid.BidderMemberId;
+            item.Status = DMAuctionStates.Completed;
             
 
             if (!String.IsNullOrEmpty(bid.BidderMemberId))
             {
-                auc.Save();
+                item.Save();
                 newSale.Save();
             }
 
@@ -1286,7 +1209,7 @@ namespace DealerSafe2.API
         
         }
 
-        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
+        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqGetBidsWithItemId req)
         {
             ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
@@ -1294,7 +1217,6 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id] AS BidId,
-	                        B.[DMAuctionId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
@@ -1306,21 +1228,21 @@ namespace DealerSafe2.API
 	                        M.[UserName],
 	                        I.[DomainName],
 	                        I.[Type],
-	                        A.[BiggestBid],
+	                        I.[BiggestBid],
 	                        I.[SellerMemberId]
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
                         INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
                         INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {1}) 
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
                         ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
                         INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
                         INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {1})", req.RelativeId, Provider.CurrentMember.Id);
+                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
 
-            var res = Provider.Database.GetDataTable(sql, req.RelativeId, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
 
             return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
@@ -1333,7 +1255,6 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id] AS BidId,
-	                        B.[DMAuctionId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
@@ -1345,18 +1266,16 @@ namespace DealerSafe2.API
 	                        M.[UserName],
 	                        I.[DomainName],
 	                        I.[Type],
-	                        A.[BiggestBid],
+	                        I.[BiggestBid],
 	                        I.[SellerMemberId]
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
                         WHERE I.SellerMemberId = {0} 
-                        ORDER BY A.BiggestBid DESC";
+                        ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
                         WHERE I.SellerMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
@@ -1373,25 +1292,23 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id],
-	                        B.[DMAuctionId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[InsertDate],
 	                        B.[IsDeleted],
 	                        I.[DomainName],
 	                        I.[Type],
-	                        A.[BiggestBid],
-	                        A.[PlannedCloseDate],
-	                        A.[BuyItNowPrice]
+	                        I.[BiggestBid],
+	                        I.[PlannedCloseDate],
+	                        I.[BuyItNowPrice]
                         FROM DMBid AS B
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE A.Status = 'Open' AND B.BidderMemberId = {0}
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
+                        WHERE I.Status = 'Open' AND B.BidderMemberId = {0}
                         ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMBid AS B
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        WHERE A.Status = 'Open' AND B.BidderMemberId = {0}", Provider.CurrentMember.Id);
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
+                        WHERE I.Status = 'Open' AND B.BidderMemberId = {0}", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ViewMyBidsForItemsInfo>();
 
@@ -1401,9 +1318,6 @@ namespace DealerSafe2.API
 
         public bool SaveOffer(ReqOffer req)
         {
-
-            //var auc = Provider.Database.Read<DMAuction>(@"select DMAuction")
-
             DMOffer offer = new DMOffer();
             req.CopyPropertiesWithSameName(offer);
             offer.OffererMemberId = Provider.CurrentMember.Id;
@@ -1418,8 +1332,8 @@ namespace DealerSafe2.API
         public bool AcceptOffer(ReqAcceptOffer req)
         {
 
-            var sql = @"select * from DMAuction where Id={0}";
-            var auc = Provider.Database.Read<DMAuction>(sql, req.DMAuctionId);
+            var sql = @"select * from DMItem where Id={0}";
+            var auc = Provider.Database.Read<DMItem>(sql, req.DMItemId);
 
             var newSale = new DMSale();
             newSale.SellerMemberId = req.MemberId;
@@ -1462,28 +1376,25 @@ namespace DealerSafe2.API
                             I.[Type],
                             I.[DomainName],
                             I.[BuyItNowPrice],
+                            I.[BiggestBid],
+                            I.[Status],
                             O.[Id] AS DMOfferId,
                             O.[OfferValue],
                             O.[OffererMemberId],
+                            O.[IsDeleted],
                             OM.[FirstName] AS OffererMemberFirstName,
-                            OM.[LastName] AS OffererMemberLastName,
-                            A.[BiggestBid],
-                            A.[Id] AS DMAuctionId,
-                            A.[Status],
-                            O.[IsDeleted]
+                            OM.[LastName] AS OffererMemberLastName
                         FROM DMOffer AS O
                         INNER JOIN DMItem AS I ON I.Id = O.DMItemId
                         INNER JOIN Member as M ON M.Id = I.SellerMemberId
                         INNER JOIN Member as OM ON OM.Id = O.OffererMemberId
-                        INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
-                        WHERE M.Id = {0} AND A.Status = 'Open' 
+                        WHERE M.Id = {0} AND I.Status = 'Open' 
                         ORDER BY OfferValue DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
                                     INNER JOIN DMItem AS I ON I.Id = O.DMItemId
                                     INNER JOIN Member as M ON M.Id = I.SellerMemberId
-                                    INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
-                                    WHERE M.Id = {0} AND A.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+                                    WHERE M.Id = {0} AND I.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
 
@@ -1507,27 +1418,24 @@ namespace DealerSafe2.API
                             I.[Type],
                             I.[DomainName],
                             I.[BuyItNowPrice],
+                            I.[BiggestBid],
+                            I.[Status],
                             O.[Id] AS DMOfferId,
                             O.[OfferValue],
                             O.[OffererMemberId],
+                            O.[IsDeleted],
                             OM.[FirstName] AS OffererMemberFirstName,
-                            OM.[LastName] AS OffererMemberLastName,
-                            A.[BiggestBid],
-                            A.[Id] AS DMAuctionId,
-                            A.[Status],
-                            O.[IsDeleted]
+                            OM.[LastName] AS OffererMemberLastName
                         FROM DMOffer AS O
                         INNER JOIN DMItem AS I ON I.Id = O.DMItemId
                         INNER JOIN Member as M ON M.Id = I.SellerMemberId
                         INNER JOIN Member as OM ON OM.Id = O.OffererMemberId
-                        INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
-                        WHERE O.OffererMemberId = {0} AND A.Status = 'Open' 
+                        WHERE O.OffererMemberId = {0} AND I.Status = 'Open' 
                         ORDER BY OfferValue DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
                                     INNER JOIN DMItem AS I ON I.Id = O.DMItemId
-                                    INNER JOIN DMAuction AS A ON I.Id = A.DMItemId
-                                    WHERE O.OffererMemberId = {0} AND A.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+                                    WHERE O.OffererMemberId = {0} AND I.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
 
@@ -1542,7 +1450,7 @@ namespace DealerSafe2.API
             }
             else 
             {
-                var auc = Provider.Database.Read<DMAuction>(@"select * from DMAuction where Id={0}", req.AuctionId);
+                var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
                 if (auc.ShowBidlist)
                     auc.ShowBidlist = false;
                 else
@@ -1633,7 +1541,7 @@ namespace DealerSafe2.API
 	                        I.Ownership,
 	                        I.IsVerified,
 	                        I.DescriptionShort,
-	                        S.IsPrivateSales,
+	                        I.IsPrivateSales,
 	                        S.IsDeleted,
 	                        S.SaleValue,
 	                        S.PaymentType,
@@ -1668,8 +1576,8 @@ namespace DealerSafe2.API
                                 CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
        		                        THEN M.Body ELSE PDM.Body END AS Body,
                                 M.SenderMemberId,
-                                (FM.FirstName + ' ' + FM.Lastname) AS FromMemberFullname,
-                                FM.Avatar AS FromMemberAvatar,
+                                (FM.FirstName + ' ' + FM.Lastname) AS SenderMemberFullName,
+                                FM.Avatar AS SenderMemberIdAvatar,
                                 M.ToMemberId,
                                 (TM.FirstName + ' ' + TM.Lastname) AS ToMemberFullname,
                                 TM.Avatar AS ToMemberAvatar,
@@ -1701,8 +1609,8 @@ namespace DealerSafe2.API
                                 CASE WHEN M.DMPredefinedMessageId IS NULL OR M.DMPredefinedMessageId = '' 
        		                        THEN M.Body ELSE PDM.Body END AS Body,
                                 M.SenderMemberId,
-                                (FM.FirstName + ' ' + FM.Lastname) AS FromMemberFullname,
-                                FM.Avatar AS FromMemberAvatar,
+                                (FM.FirstName + ' ' + FM.Lastname) AS SenderMemberFullname,
+                                FM.Avatar AS SenderMemberAvatar,
                                 M.ToMemberId,
                                 (TM.FirstName + ' ' + TM.Lastname) AS ToMemberFullname,
                                 TM.Avatar AS ToMemberAvatar,
@@ -1714,7 +1622,7 @@ namespace DealerSafe2.API
                         INNER JOIN Member AS TM ON M.TomemberId = TM.Id
                         LEFT JOIN DMPredefinedMessage AS PDM ON M.DMPredefinedMessageId = PDM.Id
                         WHERE SenderMemberId = {0} 
-                        ORDER BY InsertDate DESC";
+                        ORDER BY M.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where SenderMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
 

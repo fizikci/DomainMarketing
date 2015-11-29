@@ -9,6 +9,5 @@ namespace DealerSafe2.DTO.Request
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
-        public string RelativeId { get; set; }
     }
 }

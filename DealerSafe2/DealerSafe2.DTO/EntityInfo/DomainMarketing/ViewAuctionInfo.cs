@@ -8,7 +8,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
     public class ViewAuctionInfo : BaseEntityInfo
     {
-        public string DMItemId { get; set; }
         public int BuyItNowPrice { get; set; }
         public int PageRank { get; set; }
         public int BiggestBid { get; set; }
