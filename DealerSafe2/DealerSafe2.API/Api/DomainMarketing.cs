@@ -518,27 +518,29 @@ namespace DealerSafe2.API
         {
             var sql = @"select * from DMItem where  Id = {0} ";
             return Provider.Database.Read<DMItem>(sql, req).ToEntityInfo<ViewAuctionInfo>();
-            }
+        }
 
-        public DMItemInfo SaveAuction(ReqAuction req)
+        public bool SaveAuction(ReqAuction req)
         {
-            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.Id);
             if (item == null)
-                throw new APIException("There is no such an item with the ID: " + req.DMItemId);
+                throw new APIException("There is no such item with the ID: " + req.Id);
+
+            if(item.BiggestBid > 0)
+                throw new APIException("There are bids on this auction! Auction cannot be editted.");
 
             req.CopyPropertiesWithSameName(item);
 
             item.Status = DMAuctionStates.Open;
-            item.PlannedCloseDate = req.PlannedCloseDate;
-            item.Comments = req.Comments;
-            item.PaymentDate = DateTime.MinValue;
             item.StartDate = DateTime.Now;
             item.BiggestBid = 0;
             item.SmallestBid = 0;
-            item.BuyItNowPrice = item.BuyItNowPrice;
             item.Save();
 
-            return item.ToEntityInfo<DMItemInfo>();
+            return !string.IsNullOrEmpty(item.Id);
         }
 
         public bool DeleteAuction(string id) {
@@ -1207,15 +1209,13 @@ namespace DealerSafe2.API
 	                        I.[SellerMemberId]
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
+                        WHERE B.DMItemId = {0} AND (I.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
                         ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
-                        INNER JOIN DMAuction AS A ON A.Id = B.DMAuctionId
-                        INNER JOIN DMItem AS I ON I.Id = A.DMItemId
-                        WHERE B.DMAuctionId = {0} AND (A.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
+                        INNER JOIN DMItem AS I ON I.Id = B.DMItemId
+                        WHERE B.DMItemId = {0} AND (I.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
 

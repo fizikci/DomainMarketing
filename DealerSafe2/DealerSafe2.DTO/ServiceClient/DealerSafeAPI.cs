@@ -655,9 +655,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<ViewAuctionInfo, string>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public DMItemInfo SaveAuction(ReqAuction req)
+        public bool SaveAuction(ReqAuction req)
         {
-            return Call<DMItemInfo, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public ResAucUpdate GetAuctionUpdateInfo(string id)
