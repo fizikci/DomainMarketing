@@ -12,12 +12,11 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string SellerFullName { get; set; }
         public string BuyerMemberId { get; set; }
         public string BuyerFullName { get; set; }
-        public string DMItemId { get; set; }
-        public bool IsPrivateSale { get; set; }
-        public int SaleValue { get; set; }
+        public bool IsPrivateSales { get; set; }
+        public int PaymentAmount { get; set; }
         public string PaymentType { get; set; }
-        public DMSaleStates Status { get; set; }
-        public string Description { get; set; }
+        public DMSaleStates PaymentStatus { get; set; }
+        public string PaymentDescription { get; set; }
         public DMItemTypes Type { get; set; }
         public string DomainName { get; set; }
         public string Ownership { get; set; }

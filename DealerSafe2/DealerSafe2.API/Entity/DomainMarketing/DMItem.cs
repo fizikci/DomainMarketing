@@ -111,18 +111,37 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [Description("the successfull bid value accepted by the seller")]
         public int ActualSellingPrice { get; set; }
 
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 500), Description("comments about the auction")]
+        public string Comments { get; set; }
+
+
+        // sale fields
+
         [Description("total value of the payments made")]
         public int PaymentAmount { get; set; }
 
         [Description("date of the payment, if there is")]
         public DateTime PaymentDate { get; set; }
 
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the winner, fk referencing member table")]
-        public string WinnerMemberId { get; set; }
+        //[ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the seller")]
+        //public string SellerMemberId { get; set; }
 
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 500), Description("comments about the auction")]
-        public string Comments { get; set; }
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the buyer")]
+        public string BuyerMemberId { get; set; }
 
+        //[ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the item being sold")]
+        //public string DMItemId { get; set; }
+
+        public bool IsPrivateSale { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 20), Description("the payment type code (Will reference the codes defined in payment gateway)")]
+        public string PaymentType { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 20)]
+        public DMSaleStates PaymentStatus { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("comments")]
+        public string PaymentDescription { get; set; }
     }
 
 }

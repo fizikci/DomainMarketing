@@ -16,10 +16,10 @@ namespace DealerSafe2.DTO.Enums
         NotOnAuction,
         Open,
         Completed,
-        DirectBuy,
         Suspended,
-        Cancelled,
-        DueDateReached
+        Cancelled
+        //DirectBuy,
+        //DueDateReached
     }
 
     public enum DMMedals
