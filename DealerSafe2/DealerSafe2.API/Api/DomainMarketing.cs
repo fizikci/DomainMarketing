@@ -522,9 +522,9 @@ namespace DealerSafe2.API
 
         public DMItemInfo SaveAuction(ReqAuction req)
         {
-                var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
             if (item == null)
-                item = new DMItem();
+                throw new APIException("There is no such an item with the ID: " + req.DMItemId);
 
             req.CopyPropertiesWithSameName(item);
 
@@ -539,7 +539,7 @@ namespace DealerSafe2.API
             item.Save();
 
             return item.ToEntityInfo<DMItemInfo>();
-            }
+        }
 
         public bool DeleteAuction(string id) {
             var sql = @"select * from DMItem where Id = {0} AND (IsDeleted is null or IsDeleted=0)";
@@ -834,6 +834,7 @@ namespace DealerSafe2.API
 	                        InsertDate
                         FROM DMItem
                         WHERE SellerMemberId = {0}
+                            AND Status = 'Open'
                             AND (IsDeleted is null or IsDeleted=0)
                             AND (Id IS NOT NULL OR Id <> '')
                         ORDER BY StartDate DESC";
@@ -1461,7 +1462,6 @@ namespace DealerSafe2.API
 	                        (SM.FirstName + ' ' + SM.LastName) AS SellerFullName,
 	                        I.BuyerMemberId,
 	                        (BM.FirstName + ' ' + BM.LastName) AS BuyerFullName,
-	                        I.DMItemId,
 	                        I.DomainName,
 	                        I.Type,
 	                        I.Ownership,
@@ -1469,15 +1469,15 @@ namespace DealerSafe2.API
 	                        I.DescriptionShort,
 	                        I.IsPrivateSales,
 	                        I.IsDeleted,
-	                        I.SaleValue,
+	                        I.PaymentAmount,
 	                        I.PaymentType,
-	                        I.Status,
-	                        I.Description,
+	                        I.PaymentStatus,
+	                        I.PaymentDescription,
 	                        I.InsertDate
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.BuyerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND  AND (I.IsDeleted is null or I.IsDeleted=0)
+                        WHERE I.BuyerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND (I.IsDeleted is null or I.IsDeleted=0)
                         ORDER BY I.InsertDate";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where BuyerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
@@ -1499,7 +1499,6 @@ namespace DealerSafe2.API
 	                        (SM.FirstName + ' ' + SM.LastName) AS SellerFullName,
 	                        I.BuyerMemberId,
 	                        (BM.FirstName + ' ' + BM.LastName) AS BuyerFullName,
-	                        I.DMItemId,
 	                        I.DomainName,
 	                        I.Type,
 	                        I.Ownership,
@@ -1507,15 +1506,15 @@ namespace DealerSafe2.API
 	                        I.DescriptionShort,
 	                        I.IsPrivateSales,
 	                        I.IsDeleted,
-	                        I.SaleValue,
+	                        I.PaymentAmount,
 	                        I.PaymentType,
-	                        I.Status,
-	                        I.Description,
+	                        I.PaymentStatus,
+	                        I.PaymentDescription,
 	                        I.InsertDate
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.SellerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND  AND (I.IsDeleted is null or I.IsDeleted=0)
+                        WHERE I.SellerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND (I.IsDeleted is null or I.IsDeleted=0)
                         ORDER BY I.InsertDate";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
