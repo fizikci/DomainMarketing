@@ -584,26 +584,24 @@ namespace DealerSafe2.API
         public PagerResponse<ListViewAuctionsInfo> GetHotAuctionsList(ReqPager req)
         {
             var sql = @"SELECT 
-                          I.[Id],
-                          I.[BiggestBid],
-                          I.[Type],
-                          I.[DomainName],
-                          I.[MinimumBidInterval],
-                          I.[StartDate],
-                          I.[PlannedCloseDate],
-                          I.[BuyItNowPrice],
-                          I.[IsDeleted],
-                          I.[InsertDate],
-                          S.[Status] AS SaleStatus
+                          [Id],
+                          [BiggestBid],
+                          [Type],
+                          [DomainName],
+                          [MinimumBidInterval],
+                          [StartDate],
+                          [PlannedCloseDate],
+                          [BuyItNowPrice],
+                          [IsDeleted],
+                          [InsertDate]
                         FROM DMItem I
-                        LEFT JOIN DMSale S ON S.DMItemId = I.Id 
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        AND (IsDeleted IS NULL OR IsDeleted=0)
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                                 WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                AND (IsDeleted IS NULL OR IsDeleted =0)");
+                                AND (IsDeleted IS NULL OR IsDeleted=0)");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
