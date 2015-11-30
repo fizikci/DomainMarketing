@@ -541,7 +541,6 @@
     <Compile Include="Entity\DomainMarketing\DMBrokerage.cs" />
     <Compile Include="Entity\DomainMarketing\DMWatchList.cs" />
     <Compile Include="Entity\DomainMarketing\DMBlackList.cs" />
-    <Compile Include="Entity\DomainMarketing\DMSale.cs" />
     <Compile Include="Entity\DomainMarketing\DMBid.cs" />
     <Compile Include="Entity\DomainMarketing\DMItem.cs" />
     <Compile Include="Entity\DomainMarketing\DMCategory.cs" />
