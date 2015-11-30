@@ -996,15 +996,18 @@ namespace DealerSafe2.API
             return Provider.Database.ReadList<DMBlackList>(sql, Provider.CurrentMember.Id).ToEntityInfo<IdName>();
         }
 
-        public bool SaveMyItem(DMItemInfo req)
+        public bool SaveMyItem(ReqDMSaveItem req)
         {
+            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
+                throw new Exception(Provider.TR("Access denied."));
+
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
-                throw new Exception(Provider.TR("Domain name cannot be ") + req.DomainName);
+                throw new Exception(Provider.TR("Domain name is in blacklist. It cannot be ") + req.DomainName);
 
             DMItem item = new DMItem();
 
             //if new record
-            if (string.IsNullOrWhiteSpace(req.Id))
+            if (string.IsNullOrWhiteSpace(req.DMItemId))
                 item.Status = DMAuctionStates.NotOnAuction;
 
             req.CopyPropertiesWithSameName(item);

@@ -765,14 +765,17 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<DMItemInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+        
         public bool CreatePrivateSales(string id)
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+        
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
             return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
+       
         public bool SaveMyItem(DMItemInfo req)
         {
             return Call<bool, DMItemInfo>(req, MethodBase.GetCurrentMethod().Name);
