@@ -123,6 +123,11 @@ namespace DealerSafe2.API.Entity.Members
         }
         public bool HasRight(string rightName)
         {
+            if (this.Id.IsEmpty())
+                return false; // anonim user has no right
+            if (this.SuperUser)
+                return true; // super user has all rights
+
             try
             {
                 var right = (Rights) Enum.Parse(typeof (Rights), rightName);

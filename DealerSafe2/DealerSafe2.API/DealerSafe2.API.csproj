@@ -434,6 +434,12 @@
     <Content Include="Staff\Partials\ListCCMessageTemplate.aspx" />
     <Content Include="Staff\Partials\ListCCProfile.aspx" />
     <Content Include="Staff\Partials\ListCCSmsSocket.aspx" />
+    <Content Include="Staff\Partials\ListDMAuction.aspx" />
+    <Content Include="Staff\Partials\ListDMBid.aspx" />
+    <Content Include="Staff\Partials\ListDMBrokerage.aspx" />
+    <Content Include="Staff\Partials\ListDMExpertise.aspx" />
+    <Content Include="Staff\Partials\ListDMItem.aspx" />
+    <Content Include="Staff\Partials\ListDMOffer.aspx" />
     <Content Include="Staff\Partials\ListDMPredefinedMessage.aspx" />
     <Content Include="Staff\Partials\ListJobScheduler.aspx" />
     <Content Include="Staff\Partials\ListPropertySet.aspx" />

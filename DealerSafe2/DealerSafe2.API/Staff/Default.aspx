@@ -308,17 +308,47 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="#/List/DMItem">
+                                    <i class="icon-tag"></i>
+                                    <%=Provider.TR("Itemss") %> 
+                                </a>
+                            <li>
+                            <li>
+                                <a href="#/List/DMAuction">
+                                    <i class="icon-hammer"></i>
+                                    <%=Provider.TR("Auctions") %> 
+                                </a>
+                            <li>
+                            <li>
+                                <a href="#/List/DMBid">
+                                    <i class="icon-money"></i>
+                                    <%=Provider.TR("Bids") %> 
+                                </a>
+                            <li>
+                            <li>
+                                <a href="#/List/DMBrokerage">
+                                    <i class="icon-question"></i>
+                                    <%=Provider.TR("Brokerage") %> 
+                                </a>
+                            <li>
+                            <li>
+                                <a href="#/List/DMExpertise">
+                                    <i class="icon-information"></i>
+                                    <%=Provider.TR("Expertise") %> 
+                                </a>
+                            <li>
+                            <li>
+                                <a href="#/List/DMOffer">
+                                    <i class="icon-hand"></i>
+                                    <%=Provider.TR("Offers") %> 
+                                </a>
+                            <li>
+                            <li>
                                 <a href="#/List/DMPredefinedMessage">
                                     <i class="icon-dashboard"></i>
                                     <%=Provider.TR("Predefined") %> 
                                 </a>
                             </li>
-                            <li>
-                                <a href="#/List/DMMessage">
-                                    <i class="icon-user"></i>
-                                    <%=Provider.TR("Admin Message") %> 
-                                </a>
-                            <li>
                         </ul>
 
                     </li>

@@ -144,4 +144,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string PaymentDescription { get; set; }
     }
 
+    public class DMAuction : DMItem { }
+
 }
