@@ -18,6 +18,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 
         public int BuyItNowPrice { get; set; }
         public string LanguageId { get; set; }
+        public string Language { get; set; }
         public string DescriptionShort { get; set; }
         public string DescriptionLong { get; set; }
         public int MinimumBidPrice { get; set; }
@@ -42,7 +43,6 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public DateTime ActualCloseDate { get; set; }
         public int SmallestBid { get; set; }
         public int BiggestBid { get; set; }
-        public int ActualSellingPrice { get; set; }
         public int PaymentAmount { get; set; }
         public DateTime PaymentDate { get; set; }
         public string WinnerMemberId { get; set; }

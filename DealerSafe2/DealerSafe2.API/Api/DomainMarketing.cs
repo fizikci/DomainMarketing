@@ -22,7 +22,7 @@ namespace DealerSafe2.API
         public bool AddToWatchList(string id)
         {
             var watch = new DMWatchList();
-            if (Provider.Database.Read<DMWatchList>(@"select * from DMWatchList where DmItemId = {0} and (IsDeleted is null or IsDeleted=0) ", id) != null)
+            if (Provider.Database.Read<DMWatchList>(@"select * from DMWatchList where DmItemId = {0} and IsDeleted = 0 ", id) != null)
                 throw new Exception(Provider.TR("Cannot add to watchlist twice!"));
 
             watch.DMItemId = id;
@@ -32,7 +32,7 @@ namespace DealerSafe2.API
         }
         public bool RemoveFromWatchList(string id)
         {
-            var sql = @"select * from DMWatchList where MemberId = {0} and DMItemId = {1} and (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from DMWatchList where MemberId = {0} and DMItemId = {1} and IsDeleted = 0";
             var watch = Provider.Database.Read<DMWatchList>(sql, Provider.CurrentMember.Id, id);
             watch.Delete();
             return true;
@@ -142,10 +142,10 @@ namespace DealerSafe2.API
                         FROM EntityComment AS EC 
                         INNER JOIN Member F ON EC.MemberId = F.Id
                         INNER JOIN Member M ON EC.EntityId = M.Id
-                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND EC.IsDeleted = 0 
                         ORDER BY EC.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) ", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.MemberId = {0} AND EC.IsDeleted = 0 ", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
 
@@ -172,10 +172,10 @@ namespace DealerSafe2.API
                         FROM EntityComment AS EC 
                         INNER JOIN Member F ON EC.MemberId = F.Id
                         INNER JOIN Member M ON EC.EntityId = M.Id
-                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND EC.IsDeleted = 0 
                         ORDER BY EC.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.MemberId = {0} AND EC.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
 
@@ -225,10 +225,10 @@ namespace DealerSafe2.API
                         FROM DMExpertise AS E
                         INNER JOIN DMItem I on E.DMItemId = I.Id
                         INNER JOIN Member M on M.Id = E.ExpertMemberId
-                        WHERE E.RequesterMemberId = {0} and (E.IsDeleted is null or E.IsDeleted=0) 
+                        WHERE E.RequesterMemberId = {0} and E.IsDeleted = 0 
                         ORDER BY E.InsertDate, E.Status DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMExpertise AS E WHERE E.RequesterMemberId = {0} and (E.IsDeleted is null or E.IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMExpertise AS E WHERE E.RequesterMemberId = {0} and E.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMExpertiseInfo>();
 
@@ -253,7 +253,7 @@ namespace DealerSafe2.API
                         FROM DMExpertise AS E
                         INNER JOIN DMItem I on E.DMItemId = I.Id
                         INNER JOIN Member M on M.Id = E.ExpertMemberId
-                        WHERE E.RequesterMemberId = {0} and E.DMItemId = {1} AND E.Status = {2} AND (E.IsDeleted is null or E.IsDeleted=0) 
+                        WHERE E.RequesterMemberId = {0} and E.DMItemId = {1} AND E.Status = {2} AND E.IsDeleted = 0 
                         ORDER BY E.InsertDate, E.Status DESC";
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Processed.ToString())
                 .ToEntityList<DMExpertiseInfo>();
@@ -292,10 +292,10 @@ namespace DealerSafe2.API
                         FROM DMBrokerage AS B
                         INNER JOIN DMItem I ON B.DMItemId = I.Id
                         INNER JOIN Member M ON M.Id = B.BrokerMemberId 
-                        WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0) 
+                        WHERE B.RequesterMemberId = {0} AND B.IsDeleted = 0 
                         ORDER BY B.InsertDate, B.Status DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBrokerage B WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBrokerage B WHERE B.RequesterMemberId = {0} AND B.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBrokerageInfo>();
 
@@ -319,7 +319,7 @@ namespace DealerSafe2.API
                         FROM DMBrokerage AS B
                         INNER JOIN DMItem I ON B.DMItemId = I.Id
                         INNER JOIN Member M ON M.Id = B.BrokerMemberId 
-                        WHERE B.RequesterMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0) AND B.DMItemId = {1} AND B.Status = {2}
+                        WHERE B.RequesterMemberId = {0} AND B.IsDeleted = 0 AND B.DMItemId = {1} AND B.Status = {2}
                         ORDER BY B.InsertDate, B.Status DESC";
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Processed.ToString())
                 .ToEntityList<DMBrokerageInfo>().FirstOrDefault();
@@ -351,10 +351,10 @@ namespace DealerSafe2.API
                         FROM EntityComment AS EC 
                         INNER JOIN Member F ON EC.MemberId = F.Id
                         INNER JOIN Member M ON EC.EntityId = M.Id
-                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND EC.IsDeleted = 0 
                         ORDER BY EC.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) ", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND EC.IsDeleted = 0 ", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
 
@@ -382,10 +382,10 @@ namespace DealerSafe2.API
                         FROM EntityComment AS EC 
                         INNER JOIN Member F ON EC.MemberId = F.Id
                         INNER JOIN Member M ON EC.EntityId = M.Id
-                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0) 
+                        WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.EntityId = {0} AND EC.IsDeleted = 0 
                         ORDER BY EC.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND (EC.IsDeleted is null or EC.IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating < 0 AND EC.EntityId = {0} AND EC.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<EntityCommentInfo>();
 
@@ -421,16 +421,16 @@ namespace DealerSafe2.API
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
                         WHERE I.SellerMemberId = {0} 
                             AND I.PaymentStatus = 'SuccessfullyClosed' 
-                            AND COALESCE(I.IsPrivateSales, 0) = 0 
-                            AND COALESCE(I.IsDeleted, 0) = 0 
+                            AND I.IsPrivateSales = 0 
+                            AND I.IsDeleted = 0 
                             ORDER BY I.InsertDate, I.PaymentStatus DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) 
                         FROM DMItem
                         WHERE SellerMemberId = {0} 
                             AND PaymentStatus = 'SuccessfullyClosed' 
-                            AND COALESCE(IsPrivateSales, 0) = 0 
-                            AND COALESCE(IsDeleted, 0) = 0 ", Provider.CurrentMember.Id);
+                            AND IsPrivateSales = 0 
+                            AND IsDeleted = 0 ", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
 
@@ -480,7 +480,7 @@ namespace DealerSafe2.API
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
 
-                        WHERE COALESCE(I.IsDeleted, 0) = 0 AND COALESCE(I.IsPrivateSales, 0) = 0
+                        WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSales, 0) = 0
                         AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
                             AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
                             AND (I.Type = {2})
@@ -516,8 +516,37 @@ namespace DealerSafe2.API
         #region Auctions
         public ViewAuctionInfo GetAuction(string req)
         {
-            var sql = @"select * from DMItem where  Id = {0} ";
-            return Provider.Database.Read<DMItem>(sql, req).ToEntityInfo<ViewAuctionInfo>();
+            var sql = @"select  I.Type,
+                                I.SellerMemberId,
+                                (M.FirstName + ' ' + M.LastName) AS SellerMemberFullName,
+                                I.DomainName,
+                                I.BuyItNowPrice,
+                                I.DMCategoryId,
+                                C.Name AS CategoryName,
+                                I.LanguageId,
+                                L.Name AS Language,
+                                I.DescriptionShort,
+                                I.DescriptionLong,
+                                I.ExpiryDate,
+                                I.EnableDomainParking,
+                                I.VisibleInAdNetwork,
+                                I.PageRank,
+                                I.Ownership,
+                                I.VerificationAsked,
+                                I.Analytics,
+                                I.AdSense,
+                                I.Alexa,
+                                I.ShowBidList,
+                                I.Status,
+                                I.StartDate,
+                                I.PlannedCloseDate,
+                                I.Comments
+                        FROM DMItem I
+                        INNER JOIN Member AS M ON M.Id = I.SellerMemberId
+                        INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
+                        INNER JOIN [Language] L on L.Id = I.LanguageId
+                        where I.Id = {0} AND I.IsPrivateSales = 0";
+            return Provider.Database.GetDataTable(sql, req).ToEntityList<ViewAuctionInfo>().FirstOrDefault();
         }
 
         public bool SaveAuction(ReqAuction req)
@@ -544,7 +573,7 @@ namespace DealerSafe2.API
         }
 
         public bool DeleteAuction(string id) {
-            var sql = @"select * from DMItem where Id = {0} AND (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from DMItem where Id = {0} AND IsDeleted = 0";
             var auc = Provider.Database.Read<DMItem>(sql,id);
 
             if (Provider.Database.GetInt(@"select count(*) from DMBid where DMItemId = {0}", id) > 0)
@@ -574,10 +603,10 @@ namespace DealerSafe2.API
                           [IsDeleted],
                           [InsertDate]
                         FROM DMItem
-                        WHERE (IsDeleted IS NULL OR IsDeleted=0)
+                        WHERE IsDeleted = 0
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where (IsDeleted is null or IsDeleted=0)");
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -598,12 +627,12 @@ namespace DealerSafe2.API
                           [InsertDate]
                         FROM DMItem I
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        AND (IsDeleted IS NULL OR IsDeleted=0)
+                        AND IsDeleted = 0
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                                 WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                AND (IsDeleted IS NULL OR IsDeleted=0)");
+                                AND IsDeleted = 0");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -623,10 +652,10 @@ namespace DealerSafe2.API
                           [IsDeleted],
                           [InsertDate]
                         FROM DMItem
-                        WHERE (IsDeleted IS NULL OR IsDeleted =0)
+                        WHERE IsDeleted = 0
                         ORDER BY BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where (IsDeleted is null or IsDeleted=0)");
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -647,13 +676,13 @@ namespace DealerSafe2.API
                           I.[InsertDate]
                         FROM DMItem I
                         WHERE I.Status = 'Open' AND (I.BiggestBid = 0 OR I.BiggestBid IS NULL)
-                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        AND I.IsDeleted = 0
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"
                 SELECT count(*) FROM DMItem
                 WHERE (BiggestBid = 0 or BiggestBid IS NULL) 
-                AND (IsDeleted IS NULL OR IsDeleted=0)");
+                AND IsDeleted = 0");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -678,7 +707,7 @@ namespace DealerSafe2.API
                           I.[InsertDate]
                         FROM DMItem I
                         WHERE I.Status = 'DueDateReached' AND I.SellerMemberId={0}
-                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        AND I.IsDeleted = 0
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = 20;
@@ -706,13 +735,13 @@ namespace DealerSafe2.API
                           I.[InsertDate]
                         FROM DMItem I
                         WHERE I.Status = 'Closed' AND I.SellerMemberId={0}
-                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)
+                        AND I.IsDeleted = 0
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"
                         SELECT count(*) FROM DMItem I
                         WHERE I.Status = 'Closed' AND I.SellerMemberId={0}
-                        AND (I.IsDeleted IS NULL OR I.IsDeleted=0)", Provider.CurrentMember.Id);
+                        AND I.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -738,12 +767,12 @@ namespace DealerSafe2.API
                           [PaymentStatus]
                         FROM DMItem
                         WHERE PaymentStatus = 'WaitingForPayment' AND SellerMemberId={0}
-                        AND (IsDeleted IS NULL OR IsDeleted=0)
+                        AND IsDeleted = 0
                         ORDER BY InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                         WHERE PaymentStatus = 'WaitingForPayment' AND SellerMemberId={0}
-                        AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+                        AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -768,12 +797,12 @@ namespace DealerSafe2.API
                           [InsertDate]
                         FROM DMItem
                         WHERE PaymentStatus = 'WaitingForTransfer' AND SellerMemberId={0}
-                        AND (IsDeleted IS NULL OR IsDeleted=0)
+                        AND IsDeleted = 0
                         ORDER BY InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                         WHERE S.Status = 'WaitingForTransfer' AND SellerMemberId={0}
-                        AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+                        AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
 
@@ -803,10 +832,10 @@ namespace DealerSafe2.API
 	                        IsDeleted,
 	                        InsertDate
                         FROM DMItem
-                        WHERE SellerMemberId = {0} AND (IsDeleted is null or IsDeleted=0)
+                        WHERE SellerMemberId = {0} AND IsDeleted = 0
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -837,12 +866,12 @@ namespace DealerSafe2.API
                         FROM DMItem
                         WHERE SellerMemberId = {0}
                             AND Status = 'Open'
-                            AND (IsDeleted is null or IsDeleted=0)
+                            AND IsDeleted = 0
                             AND (Id IS NOT NULL OR Id <> '')
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
-                        WHERE SellerMemberId = {0} AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+                        WHERE SellerMemberId = {0} AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -871,9 +900,9 @@ namespace DealerSafe2.API
                         INNER JOIN Member as M ON M.Id = I.BuyerMemberId
                         WHERE I.SellerMemberId = {0} 
                             AND I.PaymentStatus = 'WaitingForPayment' 
-                            AND (IsDeleted IS NULL OR IsDeleted=0)";
+                            AND IsDeleted = 0";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMItem WHERE SellerMemberId = {0} AND PaymentStatus = 'WaitingForPayment' AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMItem WHERE SellerMemberId = {0} AND PaymentStatus = 'WaitingForPayment' AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<WaitingPaymentInfo>();
 
@@ -907,9 +936,9 @@ namespace DealerSafe2.API
 	                        I.Id
                         FROM DMItem AS I
                         LEFT JOIN Member as M ON M.Id = I.BuyerMemberId
-                        WHERE I.BuyerMemberId = {0} AND (I.IsDeleted IS NULL OR I.IsDeleted=0) ORDER BY I.InsertDate DESC";
+                        WHERE I.BuyerMemberId = {0} AND I.IsDeleted = 0 ORDER BY I.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMItem WHERE BuyerMemberId = {0} AND (IsDeleted IS NULL OR IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMItem WHERE BuyerMemberId = {0} AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewWonAuctionsInfo>();
 
@@ -922,7 +951,7 @@ namespace DealerSafe2.API
 
         public List<IdName> GetItemCategoryList(ReqEmpty req)
         {
-            return Provider.Database.ReadList<DMCategory>(@"select Id, Name from DMCategory where IsDeleted is null or IsDeleted=0 order by OrderNo, Name")
+            return Provider.Database.ReadList<DMCategory>(@"select Id, Name from DMCategory where IsDeleted = 0 order by OrderNo, Name")
                 .Select(x => new IdName { Id = x.Id, Name = x.Name }).ToList();
         }
 
@@ -940,14 +969,14 @@ namespace DealerSafe2.API
         }
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
-            var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and COALESCE(IsDeleted, 0) = 0 and COALESCE(IsPrivateSales, 0) = 0 ";
+            var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and IsDeleted = 0 and IsPrivateSales = 0 ";
             return Provider.Database.ReadList<DMItem>(sql, DMAuctionStates.NotOnAuction.ToString(), Provider.CurrentMember.Id)
                 .Select(x => new IdName() { Id = x.Id, Name = x.DomainName }).ToList();
         }
 
         public List<IdName> GetLanguageList(ReqEmpty req)
         {
-            return Provider.Database.ReadList<Language>(@"select Id, Name from Language where IsDeleted is null or IsDeleted=0 order by OrderNo, Name")
+            return Provider.Database.ReadList<Language>(@"select Id, Name from Language where IsDeleted = 0 order by OrderNo, Name")
                 .Select(x => new IdName() { Id = x.Id, Name = x.Name }).ToList();
         }
 
@@ -964,13 +993,13 @@ namespace DealerSafe2.API
 
         public DMItemInfo GetMyItem(string id)
         {
-            var sql = @"select * from DMItem where (IsDeleted is null or IsDeleted=0) and Id = {0} and SellerMemberId = {1}";
+            var sql = @"select * from DMItem where IsDeleted = 0 and Id = {0} and SellerMemberId = {1}";
             return Provider.Database.Read<DMItem>(sql, id, Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
         }
 
         public DMItemInfo GetItem(string id)
         {
-            var sql = @"select * from DMItem where (IsDeleted is null or IsDeleted=0) and Id = {0}";
+            var sql = @"select * from DMItem where IsDeleted = 0 and Id = {0}";
             var item = Provider.Database.Read<DMItem>(sql, id);
             if (item != null)
                 Provider.Database.ExecuteNonQuery("insert into DMBrowse( MemberId, DMItemId, InsertDate ) values ({0}, {1}, {2})", Provider.CurrentMember.Id, id, DateTime.Now);
@@ -979,7 +1008,7 @@ namespace DealerSafe2.API
 
         public List<IdName> GetDomainBlackList(ReqEmpty req)
         {
-            var sql = @"select * from DMBlackList where (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from DMBlackList where IsDeleted = 0";
             return Provider.Database.ReadList<DMBlackList>(sql, Provider.CurrentMember.Id).ToEntityInfo<IdName>();
         }
 
@@ -1008,7 +1037,7 @@ namespace DealerSafe2.API
 
         public bool DeleteMyItem(string id)
         {
-            var x = Provider.Database.Read<DMItem>(@"select * from DMItem where (IsDeleted is null or IsDeleted=0) and Id = {0} order by Type, DomainName", id);
+            var x = Provider.Database.Read<DMItem>(@"select * from DMItem where IsDeleted = 0 and Id = {0} order by Type, DomainName", id);
             x.Delete();
             return true;
         }
@@ -1038,7 +1067,7 @@ namespace DealerSafe2.API
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE BidId = {0} AND (B.IsDeleted IS NULL OR B.IsDeleted=0)";
+                        WHERE BidId = {0} AND B.IsDeleted = 0";
             var res = Provider.Database.GetDataTable(sql, id).ToEntityList<DMBidderMemberInfo>().FirstOrDefault();
             return res;
         }
@@ -1129,7 +1158,7 @@ namespace DealerSafe2.API
             DMBid bid = new DMBid();
             bid.BidderMemberId = Provider.CurrentMember.Id;
             req.CopyPropertiesWithSameName(bid);
-            var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} And (IsDeleted is null or IsDeleted=0)", req.DMItemId);
+            var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} And IsDeleted = 0", req.DMItemId);
             var isAutoBidderSet = req.MaxBidValue != 0;
             if (auc != null)
             {
@@ -1173,7 +1202,7 @@ namespace DealerSafe2.API
         {
             var bid = Provider.Database.Read<DMBid>(@"select * from DMBid where Id = {0}", id);
             
-            var sql = @"select * from DMItem where Id={0} And (IsDeleted is null or IsDeleted=0)";
+            var sql = @"select * from DMItem where Id={0} And IsDeleted = 0";
             var item = Provider.Database.Read<DMItem>(sql, bid.DMItemId);
 
             item.BuyerMemberId = bid.BidderMemberId;
@@ -1251,7 +1280,7 @@ namespace DealerSafe2.API
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE I.SellerMemberId = {0} AND (B.IsDeleted is null or B.IsDeleted=0)", Provider.CurrentMember.Id);
+                        WHERE I.SellerMemberId = {0} AND B.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
 
@@ -1361,7 +1390,7 @@ namespace DealerSafe2.API
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
                                     INNER JOIN DMItem AS I ON I.Id = O.DMItemId
                                     INNER JOIN Member as M ON M.Id = I.SellerMemberId
-                                    WHERE M.Id = {0} AND I.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+                                    WHERE M.Id = {0} AND I.Status = 'Open' AND O.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
 
@@ -1402,7 +1431,7 @@ namespace DealerSafe2.API
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMOffer AS O
                                     INNER JOIN DMItem AS I ON I.Id = O.DMItemId
-                                    WHERE O.OffererMemberId = {0} AND I.Status = 'Open' AND (O.IsDeleted IS NULL OR O.IsDeleted=0)", Provider.CurrentMember.Id);
+                                    WHERE O.OffererMemberId = {0} AND I.Status = 'Open' AND O.IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMOfferItemMemberInfo>();
 
@@ -1480,10 +1509,10 @@ namespace DealerSafe2.API
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.BuyerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND (I.IsDeleted is null or I.IsDeleted=0)
+                        WHERE I.BuyerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND I.IsDeleted = 0
                         ORDER BY I.InsertDate";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where BuyerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where BuyerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
 
@@ -1517,10 +1546,10 @@ namespace DealerSafe2.API
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.SellerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND (I.IsDeleted is null or I.IsDeleted=0)
+                        WHERE I.SellerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND I.IsDeleted = 0
                         ORDER BY I.InsertDate";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
 
@@ -1555,7 +1584,7 @@ namespace DealerSafe2.API
                         WHERE M.ToMemberId = {0} 
                         ORDER BY M.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where ToMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where ToMemberId = {0} and IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewDMMessagesInfo>();
 
@@ -1588,7 +1617,7 @@ namespace DealerSafe2.API
                         WHERE SenderMemberId = {0} 
                         ORDER BY M.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where SenderMemberId = {0} and (IsDeleted is null or IsDeleted=0)", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMMessage where SenderMemberId = {0} and IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewDMMessagesInfo>();
 
