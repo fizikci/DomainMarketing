@@ -11,18 +11,6 @@
     if(number == -4) return "Very Bad";
     if(number == -5) return "Worst";
 };
-var sweetConfirm = function(callback, options) {
-    var defaults = {
-        title: "Are you sure?",
-        text: "You will not be able to recover this record!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, delete it!"
-    }
-    options = jQuery.extend(defaults, options);
-    swal(options, callback);
-}
 
 if(location.href.indexOf('domainmarketing.com')>-1)
     document.domain = "domainmarketing.com";

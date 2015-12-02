@@ -59,9 +59,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [Description("the seller may ask for a verification")]
         public bool VerificationAsked { get; set; }
 
-        [Description("")]
-        public bool IsVerified { get; set; }
-
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("describes the verification channel if verified. The verification could be both automatic and manual. A fee may be requested from the members if a verification is requested for any domain.")]
         public string VerifiedBy { get; set; }
 
@@ -78,10 +75,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string Alexa { get; set; }
 
         // auction starts from here
-
-        [Description("just a toggle")]
-        public bool ShowBidlist { get; set; }
-
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller; 5:due date reached but no successful bid available")]
         public DMAuctionStates Status { get; set; }
 
@@ -96,9 +89,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [Description("direct buy price without participating in the auction, namely reserve price")]
         public int BuyItNowPrice { get; set; }
-
-        [Description("the smallest bid so far")]
-        public int SmallestBid { get; set; }
 
         [Description("the biggest bid so far")]
         public int BiggestBid { get; set; }

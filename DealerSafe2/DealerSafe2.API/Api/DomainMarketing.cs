@@ -19,17 +19,19 @@ namespace DealerSafe2.API
     {
         #region WatchList & Browse
 
+        
         public bool AddToWatchList(string id)
         {
             var watch = new DMWatchList();
             if (Provider.Database.Read<DMWatchList>(@"select * from DMWatchList where DmItemId = {0} and IsDeleted = 0 ", id) != null)
-                throw new Exception(Provider.TR("Cannot add to watchlist twice!"));
+                throw new APIException(Provider.TR("Cannot add to watchlist twice!"));
 
             watch.DMItemId = id;
             watch.MemberId = Provider.CurrentMember.Id;
             watch.Save();
             return true;
         }
+
         public bool RemoveFromWatchList(string id)
         {
             var sql = @"select * from DMWatchList where MemberId = {0} and DMItemId = {1} and IsDeleted = 0";
@@ -100,9 +102,9 @@ namespace DealerSafe2.API
 
             // validation
             if (req.ToMemberId == Provider.CurrentMember.Id)
-                throw new Exception(Provider.TR("You cannot comment to yourself!"));
+                throw new APIException(Provider.TR("You cannot comment to yourself!"));
             if (req.Rating > 5 || req.Rating == 0 || req.Rating < -5)
-                throw new Exception(Provider.TR("Invalid Rating."));
+                throw new APIException(Provider.TR("Invalid Rating."));
 
 
 
@@ -332,7 +334,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -363,7 +364,6 @@ namespace DealerSafe2.API
         
         public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -394,7 +394,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -504,19 +503,15 @@ namespace DealerSafe2.API
             return Provider.Database.GetStringList("select distinct SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) from DMItem");
         }
 
-        public DMItemInfo GetPrivateSale(string id)
-        {
-            var sql = @"select * from DMItem where Id = {0}";
-            var item = Provider.Database.Read<DMItem>(sql, id);
-            return item.ToEntityInfo<DMItemInfo>();
-        }
-
         #endregion
 
         #region Auctions
         public ViewAuctionInfo GetAuction(string req)
         {
-            var sql = @"select  I.Type,
+            var sql = @"select  I.Id,
+                                I.IsDeleted,
+                                I.InsertDate,
+                                I.Type,
                                 I.SellerMemberId,
                                 (M.FirstName + ' ' + M.LastName) AS SellerMemberFullName,
                                 I.DomainName,
@@ -533,10 +528,10 @@ namespace DealerSafe2.API
                                 I.PageRank,
                                 I.Ownership,
                                 I.VerificationAsked,
+                                I.IsVerified,
                                 I.Analytics,
                                 I.AdSense,
                                 I.Alexa,
-                                I.ShowBidList,
                                 I.Status,
                                 I.StartDate,
                                 I.PlannedCloseDate,
@@ -545,7 +540,7 @@ namespace DealerSafe2.API
                         INNER JOIN Member AS M ON M.Id = I.SellerMemberId
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
-                        where I.Id = {0} AND I.IsPrivateSales = 0";
+                        where I.Id = {0} AND I.IsPrivateSales = 0 AND I.Status = 'Open'";
             return Provider.Database.GetDataTable(sql, req).ToEntityList<ViewAuctionInfo>().FirstOrDefault();
         }
 
@@ -566,7 +561,6 @@ namespace DealerSafe2.API
             item.Status = DMAuctionStates.Open;
             item.StartDate = DateTime.Now;
             item.BiggestBid = 0;
-            item.SmallestBid = 0;
             item.Save();
 
             return !string.IsNullOrEmpty(item.Id);
@@ -578,7 +572,7 @@ namespace DealerSafe2.API
 
             if (Provider.Database.GetInt(@"select count(*) from DMBid where DMItemId = {0}", id) > 0)
             {
-                throw (new Exception(Provider.TR("There are bids on this auction, thus it cannot be deleted!")));
+                throw (new APIException(Provider.TR("There are bids on this auction, thus it cannot be deleted!")));
             }
             else {
                 auc.Status = DMAuctionStates.Cancelled;
@@ -603,10 +597,10 @@ namespace DealerSafe2.API
                           [IsDeleted],
                           [InsertDate]
                         FROM DMItem
-                        WHERE IsDeleted = 0
+                        WHERE IsDeleted = 0 AND Status = 'Open'
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0");
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0 AND Status = 'Open'");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -627,12 +621,12 @@ namespace DealerSafe2.API
                           [InsertDate]
                         FROM DMItem I
                         WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                        AND IsDeleted = 0
+                        AND IsDeleted = 0 AND Status = 'Open'
                         ORDER BY I.BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
                                 WHERE StartDate >= DATEADD(day, -1, GETDATE())
-                                AND IsDeleted = 0");
+                                AND IsDeleted = 0 AND Status = 'Open'");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -652,10 +646,10 @@ namespace DealerSafe2.API
                           [IsDeleted],
                           [InsertDate]
                         FROM DMItem
-                        WHERE IsDeleted = 0
+                        WHERE IsDeleted = 0 AND Status = 'Open'
                         ORDER BY BiggestBid DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0");
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where IsDeleted = 0 AND Status = 'Open'");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -682,7 +676,7 @@ namespace DealerSafe2.API
             var totalCount = Provider.Database.GetInt(@"
                 SELECT count(*) FROM DMItem
                 WHERE (BiggestBid = 0 or BiggestBid IS NULL) 
-                AND IsDeleted = 0");
+                AND IsDeleted = 0 AND Status = 'Open'");
 
             var res = Provider.Database.GetDataTable(sql).ToEntityList<ListViewAuctionsInfo>();
 
@@ -801,7 +795,7 @@ namespace DealerSafe2.API
                         ORDER BY InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
-                        WHERE S.Status = 'WaitingForTransfer' AND SellerMemberId={0}
+                        WHERE PaymentStatus = 'WaitingForTransfer' AND SellerMemberId={0}
                         AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewAuctionsInfo>();
@@ -809,10 +803,9 @@ namespace DealerSafe2.API
             return new PagerResponse<ListViewAuctionsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
-        
+
         public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -834,8 +827,39 @@ namespace DealerSafe2.API
                         FROM DMItem
                         WHERE SellerMemberId = {0} AND IsDeleted = 0
                         ORDER BY StartDate DESC";
-            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and IsDeleted = 0", Provider.CurrentMember.Id);
+
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
+
+            return new PagerResponse<ListViewItemsInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
+        }
+
+        public PagerResponse<ListViewItemsInfo> GetPrivateItems(ReqPager req)
+        {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var sql = @"SELECT 
+	                        Id,
+	                        MinimumBidPrice,
+	                        MinimumBidInterval,
+	                        VerificationAsked,
+	                        BiggestBid,
+	                        Type,
+	                        DomainName,
+	                        StartDate,
+	                        PlannedCloseDate,
+	                        BuyItNowPrice,
+	                        Status,
+	                        SellerMemberId,
+	                        IsDeleted,
+	                        InsertDate
+                        FROM DMItem
+                        WHERE SellerMemberId = {0} AND IsDeleted = 0 AND IsPrivateSales = 1
+                        ORDER BY StartDate DESC";
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and IsDeleted = 0 AND IsPrivateSales = 1", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -844,7 +868,6 @@ namespace DealerSafe2.API
         
         public PagerResponse<ListViewItemsInfo> GetMyItemsOnAuction(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -880,7 +903,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<WaitingPaymentInfo> AuctionsWaitingPayment(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -917,7 +939,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewWonAuctionsInfo> AuctionsIWon(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -967,6 +988,13 @@ namespace DealerSafe2.API
             item.Save();
             return true;
         }
+        public bool RemoveFromPrivateSales(string id)
+        {
+            var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
+            item.IsPrivateSales = false;
+            item.Save();
+            return true;
+        }
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
             var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and IsDeleted = 0 and IsPrivateSales = 0 ";
@@ -999,11 +1027,16 @@ namespace DealerSafe2.API
 
         public DMItemInfo GetItem(string id)
         {
-            var sql = @"select * from DMItem where IsDeleted = 0 and Id = {0}";
-            var item = Provider.Database.Read<DMItem>(sql, id);
+            var sql = @"SELECT 
+	                        (M.FirstName + ' ' + M.LastName) AS SellerFullName ,
+	                        I.*
+                        FROM DMItem AS I 
+                        INNER JOIN Member AS M ON M.Id = I.SellerMemberId
+                        WHERE I.IsDeleted = 0 AND I.Id = {0}";
+            var item = Provider.Database.GetDataTable(sql, id).ToEntityList<DMItemInfo>().FirstOrDefault();
             if (item != null)
                 Provider.Database.ExecuteNonQuery("insert into DMBrowse( MemberId, DMItemId, InsertDate ) values ({0}, {1}, {2})", Provider.CurrentMember.Id, id, DateTime.Now);
-            return item.ToEntityInfo<DMItemInfo>();
+            return item;
         }
 
         public List<IdName> GetDomainBlackList(ReqEmpty req)
@@ -1015,21 +1048,26 @@ namespace DealerSafe2.API
         public bool SaveMyItem(ReqDMSaveItem req)
         {
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
-                throw new Exception(Provider.TR("Access denied."));
+                throw new APIException(Provider.TR("Access denied."));
+
+            //TODO: check if user is saving his own item?
 
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
-                throw new Exception(Provider.TR("Domain name is in blacklist. It cannot be ") + req.DomainName);
+                throw new APIException(Provider.TR("Domain name is in blacklist. It cannot be ") + req.DomainName);
 
-            DMItem item = new DMItem();
-
-            //if new record
-            if (string.IsNullOrWhiteSpace(req.DMItemId))
-                item.Status = DMAuctionStates.NotOnAuction;
-
+            DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id) ?? new DMItem();
             req.CopyPropertiesWithSameName(item);
             item.SellerMemberId = Provider.CurrentMember.Id;
             item.DomainRegistrar = getDomainRegistrarWith(req.DomainName);
             item.DomainRegistrationDate = getDomainRegistrationDateWith(req.DomainName);
+
+            //if new record
+            if (item.BiggestBid == 0)
+            {
+                item.Status = DMAuctionStates.NotOnAuction;
+                item.PaymentStatus = DMSaleStates.None;
+            }
+
             item.Save();
 
             return !String.IsNullOrEmpty(item.Id);
@@ -1037,7 +1075,17 @@ namespace DealerSafe2.API
 
         public bool DeleteMyItem(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
             var x = Provider.Database.Read<DMItem>(@"select * from DMItem where IsDeleted = 0 and Id = {0} order by Type, DomainName", id);
+            if (x.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot delete auctions that are not yours!");
+            if (x.Status == DMAuctionStates.Open && x.BiggestBid > 0)
+                throw new APIException("This item has an auction with bids. It cannot be deleted!");
+            if (x.PaymentStatus == DMSaleStates.WaitingForPayment || x.PaymentStatus == DMSaleStates.WaitingForTransfer)
+                throw new APIException("This item has an unstable payment status, wait until it is resolved!");
+
             x.Delete();
             return true;
         }
@@ -1046,17 +1094,22 @@ namespace DealerSafe2.API
 
         #region Biddings & Offers
 
+        public ResponseDMAuctionBidDetails GetBidInfoForAuction(string id)
+        {
+            var sql = "select Id, BiggestBid, MinimumBidPrice, MinimumBidInterval, DomainName, BuyItNowPrice from DMItem where Id = {0}";
+            return Provider.Database.GetDataTable(sql, id).ToEntityList<ResponseDMAuctionBidDetails>().FirstOrDefault();
+        }
+
         public DMBidderMemberInfo GetBid(string id)
         {
-
             var sql = @"SELECT
-	                        B.[Id] AS BidId,
+	                        B.[Id],
+	                        B.[DMItemId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
 	                        B.[InsertDate],
-	                        B.[IsDeleted],
-	                        M.[Id],
+	                        M.[Id] AS BidderMemberId,
 	                        M.[FirstName],
 	                        M.[LastName],
 	                        M.[UserName],
@@ -1067,7 +1120,7 @@ namespace DealerSafe2.API
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE BidId = {0} AND B.IsDeleted = 0";
+                        WHERE B.Id = {0} AND B.IsDeleted = 0";
             var res = Provider.Database.GetDataTable(sql, id).ToEntityList<DMBidderMemberInfo>().FirstOrDefault();
             return res;
         }
@@ -1155,80 +1208,81 @@ namespace DealerSafe2.API
         }
 
         public bool SaveBid(ReqBid req) {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
             DMBid bid = new DMBid();
             bid.BidderMemberId = Provider.CurrentMember.Id;
             req.CopyPropertiesWithSameName(bid);
-            var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} And IsDeleted = 0", req.DMItemId);
+
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} and Status = {1} and IsDeleted = 0", req.DMItemId, DMAuctionStates.Open.ToString());
+            var minimumPossible = (item.BiggestBid == 0 ? item.MinimumBidPrice : item.BiggestBid) + item.MinimumBidInterval;
             var isAutoBidderSet = req.MaxBidValue != 0;
-            if (auc != null)
+
+            if (item == null)
+                throw new APIException(Provider.TR("Auction is closed or there is no such auction."));
+            if (bid.BidValue < minimumPossible)
+                throw new APIException(Provider.TR(string.Format("New offers have to be bigger than {0}"), minimumPossible));
+            if (isAutoBidderSet && req.MaxBidValue < req.BidValue)
+                throw new APIException(Provider.TR("Auto Bidding Value has to be bigger than bid value!"));
+            if (isAutoBidderSet && req.MaxBidValue > item.BuyItNowPrice)
+                throw new APIException(Provider.TR("Auto Bidding Value has to be smaller than Buy It Now Price!"));
+            if (item.SellerMemberId == Provider.CurrentMember.Id)
+                throw new APIException(Provider.TR("You cannot bid on your own item."));
+
+            var latestBidByCurrentMember = Provider.Database.Read<DMBid>("select TOP 1 * from DMBid where BidderMemberId = {0} and DMItemId = {1} order by BidValue desc", Provider.CurrentMember.Id, bid.DMItemId);
+            if (latestBidByCurrentMember != null && latestBidByCurrentMember.BidValue == item.BiggestBid)
+                throw new APIException(Provider.TR("You have already made a bid."));
+
+            //In compliance with page 24...
+            if (bid.BidValue >= item.BuyItNowPrice)
             {
-                if (bid.BidValue < auc.BiggestBid)
-                    throw (new Exception(Provider.TR("New bids have to be bigger")));
-                else
-                {
-                    if (isAutoBidderSet)
-                    {
-                        if (req.MaxBidValue < req.BidValue)
-                            throw (new Exception(Provider.TR("Auto Bidding Value has to be bigger than bid value!")));
-                        if (req.MaxBidValue > auc.BuyItNowPrice)
-                            throw (new Exception(Provider.TR("Auto Bidding Value has to be smaller than Buy It Now Price!")));
-                    }
-                    if (auc.BiggestBid == 0 && bid.BidValue >= (auc.SmallestBid))
-                        throw (new Exception(Provider.TR("First bid has to be bigger then or equal to Mininmum Bid Value that is ") + auc.SmallestBid.ToString() ));
+                bid.BidValue = item.BuyItNowPrice;
+                bid.Save();
+                AcceptBid(bid.Id);
 
-                    if (bid.BidValue >= auc.BuyItNowPrice)
-                    {
-                        bid.BidValue = auc.BuyItNowPrice;
-                        bid.Save();
-                        AcceptBid(bid.Id);
-
-                        return true;
-
-                    }
-                    auc.BiggestBid = bid.BidValue;
-                }
+                return true;
             }
-            else throw (new Exception(Provider.TR("There is no such auction to bid on")));
+            item.BiggestBid = bid.BidValue;
 
-            auc.Save();
+            item.Save();
             bid.Save();
             if (isAutoBidderSet)
-                AutoBidder(req, auc);
+                AutoBidder(req, item);
 
-            return !String.IsNullOrEmpty(bid.BidderMemberId);
+            return !String.IsNullOrEmpty(bid.Id);
         }
 
         public bool AcceptBid(string id)
         {
-            var bid = Provider.Database.Read<DMBid>(@"select * from DMBid where Id = {0}", id);
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var bid = Provider.Database.Read<DMBid>("select * from DMBid where Id = {0}", id);
             
-            var sql = @"select * from DMItem where Id={0} And IsDeleted = 0";
+            var sql = "select * from DMItem where Id = {0} And IsDeleted = 0";
             var item = Provider.Database.Read<DMItem>(sql, bid.DMItemId);
 
             item.BuyerMemberId = bid.BidderMemberId;
-            item.PaymentType = "ByBid";
             item.PaymentAmount = bid.BidValue;
             item.PaymentStatus = DMSaleStates.WaitingForPayment;
             item.Status = DMAuctionStates.Completed;
             item.Save();
 
-            return !String.IsNullOrEmpty(bid.BidderMemberId);
+            return !String.IsNullOrEmpty(bid.Id);
         }
 
         public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqGetBidsWithItemId req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = @"SELECT
-	                        B.[Id] AS BidId,
+	                        B.[Id],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
 	                        B.[InsertDate],
-	                        B.[IsDeleted],
-	                        M.[Id],
 	                        M.[FirstName],
 	                        M.[LastName],
 	                        M.[UserName],
@@ -1239,21 +1293,20 @@ namespace DealerSafe2.API
                         FROM DMBid AS B
                         INNER JOIN Member AS M ON M.Id = B.BidderMemberId
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE B.DMItemId = {0} AND (I.ShowBidlist = 1 OR I.SellerMemberId = {0}) 
+                        WHERE B.DMItemId = {0} AND I.IsDeleted <> 1
                         ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE B.DMItemId = {0} AND (I.ShowBidlist = 1 OR I.SellerMemberId = {0})", Provider.CurrentMember.Id);
+                        WHERE B.DMItemId = {0} AND I.IsDeleted <> 1", req.DMItemId, Provider.CurrentMember.Id);
 
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+            var res = Provider.Database.GetDataTable(sql, req.DMItemId, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
 
             return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
         public PagerResponse<DMBidderMemberInfo> BidsForMyItems(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1287,10 +1340,8 @@ namespace DealerSafe2.API
             return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
-
         public PagerResponse<ViewMyBidsForItemsInfo> MyBidsForItems(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1322,42 +1373,115 @@ namespace DealerSafe2.API
 
         public bool SaveOffer(ReqOffer req)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
             DMOffer offer = new DMOffer();
             req.CopyPropertiesWithSameName(offer);
             offer.OffererMemberId = Provider.CurrentMember.Id;
 
-            if(!String.IsNullOrEmpty(offer.OffererMemberId))
-                offer.Save();
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} and Status = {1} and IsDeleted = 0", req.DMItemId, DMAuctionStates.Open.ToString());
 
-            return !String.IsNullOrEmpty(offer.OffererMemberId);
+            if (item == null)
+                throw new APIException(Provider.TR("Auction is closed or there is no such auction."));
+            var minimumPossible = (item.BiggestBid == 0 ? item.MinimumBidPrice : item.BiggestBid ) + item.MinimumBidInterval;
+            if (offer.OfferValue < minimumPossible)
+                throw new APIException(Provider.TR(string.Format("New offers have to be bigger than {0}"), minimumPossible));
+            if (item.SellerMemberId == Provider.CurrentMember.Id)
+                throw new APIException(Provider.TR("You cannot offer on your own item."));
+
+            var latestOfferByCurrentMember = Provider.Database.Read<DMOffer>("select TOP 1 * from DMOffer where OffererMemberId = {0} and DMItemId = {1} and Status = {2} order by OfferValue desc", Provider.CurrentMember.Id, offer.DMItemId, DMOfferStatus.None);
+            if (latestOfferByCurrentMember != null) throw new APIException(Provider.TR("You have already made an offer."));
+
+            offer.Save();
+
+            return !String.IsNullOrEmpty(offer.Id);
         }
-
 
         public bool AcceptOffer(ReqAcceptOffer req)
         {
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
-            var sql = @"select * from DMItem where Id={0}";
-            var auc = Provider.Database.Read<DMItem>(sql, req.DMItemId);
+            var sql = "select * from DMItem where Id={0}";
+            var item = Provider.Database.Read<DMItem>(sql, req.DMItemId);
 
-            if (req.OfferValue < auc.BiggestBid)
-                throw new APIException("You cannot offer less than the current bid ($" + auc.BiggestBid + ")");
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException(Provider.TR("You cannot accept other's offers."));
+            if (req.OfferValue < item.BiggestBid)
+                throw new APIException(string.Format("You cannot offer less than the current bid {0}", item.BiggestBid));
 
-            auc.BuyerMemberId = Provider.CurrentMember.Id;
-            auc.PaymentType = "ByOffer";
-            auc.PaymentAmount = req.OfferValue;
-            auc.PaymentStatus = DMSaleStates.WaitingForPayment;
-            auc.Status = DMAuctionStates.Completed;
-            auc.Save();
+            item.BuyerMemberId = Provider.CurrentMember.Id;
+            item.PaymentAmount = req.OfferValue;
+            item.PaymentStatus = DMSaleStates.WaitingForPayment;
+            item.Status = DMAuctionStates.Completed;
+            item.Save();
 
             return true;
         }
 
+        public bool BuyItemNow(string id)
+        {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var sql = "select * from DMItem where Id={0}";
+            var item = Provider.Database.Read<DMItem>(sql, id);
+
+            if (item.SellerMemberId == Provider.CurrentMember.Id)
+                throw new APIException(Provider.TR("You cannot buy your own item."));
+
+            item.BuyerMemberId = Provider.CurrentMember.Id;
+            item.PaymentAmount = item.BuyItNowPrice;
+
+            item.PaymentStatus = DMSaleStates.WaitingForPayment;
+            item.Status = DMAuctionStates.Completed;
+            item.Save();
+
+            return true;
+        }
+
+        public bool GetPaymentForItem(ReqPaymentInfo req)
+        {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            // check if item is still available for #buyitnow
+            var item = Provider.Database.Read<DMItem>(
+                "select * from DMItem where Id = {0} and Status = {1} and PaymentStatus = {2}",
+                req.Id, DMAuctionStates.Open.ToString(), DMSaleStates.None.ToString());
+            if (item == null) 
+                throw new APIException(Provider.TR("No such item is on sale."));
+
+            if (item.SellerMemberId == Provider.CurrentMember.Id)
+                throw new APIException(Provider.TR("You cannot buy your own item."));
+
+            // if withrawal was made continue...
+            // TODO: send the item as parameter as well
+            if (!makeWithdrawal(req))
+                throw new APIException(Provider.TR("An error occured on withdrawal process. Retry please."));
+
+            // set items status
+            item.Status = DMAuctionStates.Completed;
+            item.PaymentStatus = DMSaleStates.WaitingForTransfer;
+            item.BuyerMemberId = Provider.CurrentMember.Id;
+            item.PaymentAmount = item.BuyItNowPrice;
+            item.PaymentDate = DateTime.Now;
+            item.PaymentDescription = req.PaymentDescription;
+            item.Save();
+
+            return true;
+        }
+
+        private bool makeWithdrawal(ReqPaymentInfo req)
+        {
+            return true;
+        }
+
+        
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1399,7 +1523,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<DMOfferItemMemberInfo> MyOffersForItems(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1438,23 +1561,19 @@ namespace DealerSafe2.API
             return new PagerResponse<DMOfferItemMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
 
-        public bool showBidsToggle(ReqBidsToggle req) {
+        //public bool showBidsToggle(string id) {
+            
+        //    if (Provider.CurrentMember.Id.IsEmpty())
+        //        throw new APIException("Access denied");
 
-            if (Provider.CurrentMember.Id != req.MemberId)
-            {
-                return false;
-            }
-            else 
-            {
-                var auc = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.DMItemId);
-                if (auc.ShowBidlist)
-                    auc.ShowBidlist = false;
-                else
-                    auc.ShowBidlist = true;
-                auc.Save();
-                return true;
-            }
-        }
+        //    var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", id);
+        //    if (item.SellerMemberId != Provider.CurrentMember.Id)
+        //        throw new APIException("Access denied");
+
+        //    item.ShowBidlist = !item.ShowBidlist;
+        //    item.Save();
+        //    return item.ShowBidlist;
+        //}
         
         
         #endregion
@@ -1484,7 +1603,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1504,15 +1622,18 @@ namespace DealerSafe2.API
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
+	                        I.PaymentDate,
 	                        I.PaymentDescription,
 	                        I.InsertDate
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.BuyerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND I.IsDeleted = 0
+                        WHERE I.BuyerMemberId = {0} AND I.IsDeleted = 0
+                        AND (I.PaymentStatus = 'SuccessfullyClosed' OR I.PaymentStatus = 'WaitingForTransfer')
                         ORDER BY I.InsertDate";
+        
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where BuyerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND IsDeleted = 0", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where BuyerMemberId = {0} AND (PaymentStatus = 'SuccessfullyClosed' OR PaymentStatus = 'WaitingForTransfer') AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
 
@@ -1521,7 +1642,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewSalesInfo> PaymentsIReceive(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1541,15 +1661,17 @@ namespace DealerSafe2.API
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
+	                        I.PaymentDate,
 	                        I.PaymentDescription,
 	                        I.InsertDate
                         FROM DMItem I
                         LEFT JOIN Member SM ON SM.Id = I.SellerMemberId
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
-                        WHERE I.SellerMemberId = {0} AND I.PaymentStatus = 'SuccessfullyClosed' AND I.IsDeleted = 0
+                        WHERE I.SellerMemberId = {0} AND I.IsDeleted = 0
+                        AND (I.PaymentStatus = 'SuccessfullyClosed' OR I.PaymentStatus = 'WaitingForTransfer')
                         ORDER BY I.InsertDate";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} AND PaymentStatus = 'SuccessfullyClosed' AND IsDeleted = 0", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} AND (PaymentStatus = 'SuccessfullyClosed' OR PaymentStatus = 'WaitingForTransfer') AND IsDeleted = 0", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
 
@@ -1560,7 +1682,6 @@ namespace DealerSafe2.API
         //Messages...
         public PagerResponse<ListViewDMMessagesInfo> GetInbox(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -1593,7 +1714,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewDMMessagesInfo> GetSentMessage(ReqPager req)
         {
-            ///////////////////////////////////////////////////////////////////////
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 

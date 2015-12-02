@@ -4,9 +4,6 @@
     margin-left:10px;
     font-size:1.1em;
 }
-form.ng-invalid.ng-submitted .required-star {
-    display:inline;
-}
 li.active a {
     color: orange !important;
     font-weight: bold !important;
@@ -16,8 +13,9 @@ li.active a {
     outline: none;
 }
 
-a {
+a, .pointer {
     cursor:pointer;
+    text-decoration: none !important;
 }
 .inlineBlock{
     display: inline-block;
@@ -45,8 +43,10 @@ select, textarea, input[type="text"], input[type="password"], input[type="dateti
 }
 
 .modal-dialog{z-index: 10000;}
-
-form.ng-invalid.ng-submitted select.ng-invalid, form.ng-invalid.ng-submitted input.ng-invalid, form.ng-invalid.ng-submitted textarea.ng-invalid {
+form.ng-invalid.ng-submitted .ng-invalid + .required-star {
+    display: inline;
+}
+form.ng-invalid.ng-submitted .ng-invalid {
     border: 1px solid red;
 }
 .width100{

@@ -14,6 +14,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string BuyerFullName { get; set; }
         public bool IsPrivateSales { get; set; }
         public int PaymentAmount { get; set; }
+        public DateTime PaymentDate { get; set; }
         public string PaymentType { get; set; }
         public DMSaleStates PaymentStatus { get; set; }
         public string PaymentDescription { get; set; }
