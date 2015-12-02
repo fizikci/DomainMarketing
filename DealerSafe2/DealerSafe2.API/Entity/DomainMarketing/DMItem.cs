@@ -51,7 +51,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [Description("0-not verified")]
         public int PageRank { get; set; }
-        public bool IsVerified { get; set; }
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("owner of the domain")]
         public string Ownership { get; set; }
