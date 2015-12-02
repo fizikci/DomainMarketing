@@ -530,22 +530,27 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region WatchList & Browse
 
+
         public bool RemoveFromWatchList(string id)
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+        
         public bool AddToWatchList(string id)
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+        
         public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
             return Call<PagerResponse<ListViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
+        
         public PagerResponse<ViewDMBrowseItemInfo> GetMyBrowseList(ReqPager req)
         {
             return Call<PagerResponse<ViewDMBrowseItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
+
 
         #endregion
 
@@ -641,11 +646,6 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<List<string>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public DMItemInfo GetPrivateSale(string id)
-        {
-            return Call<DMItemInfo, string>(id, MethodBase.GetCurrentMethod().Name);
-        }
-
         #endregion
 
         #region Auctions
@@ -660,34 +660,29 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public ResAucUpdate GetAuctionUpdateInfo(string id)
-        {
-            return Call<ResAucUpdate, string>(id, MethodBase.GetCurrentMethod().Name);
-        }
-
         public bool DeleteAuction(string id) 
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMItemInfo> GetOpenAuctionsList(ReqPager req)
+        public PagerResponse<ListViewAuctionsInfo> GetOpenAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMItemInfo> GetHotAuctionsList(ReqPager req)
+        public PagerResponse<ListViewAuctionsInfo> GetHotAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMItemInfo> GetHighestBiddedAuctionsList(ReqPager req)
+        public PagerResponse<ListViewAuctionsInfo> GetHighestBiddedAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMItemInfo> GetNoBiddedAuctionsList(ReqPager req)
+        public PagerResponse<ListViewAuctionsInfo> GetNoBiddedAuctionsList(ReqPager req)
         {
-            return Call<PagerResponse<DMItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewAuctionsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
         public PagerResponse<ListViewAuctionsInfo> GetExpiredAuctionsList(ReqPager req)
         {
@@ -707,6 +702,11 @@ namespace DealerSafe2.DTO.ServiceClient
         }
 
         public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
+        {
+            return Call<PagerResponse<ListViewItemsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<ListViewItemsInfo> GetPrivateItems(ReqPager req)
         {
             return Call<PagerResponse<ListViewItemsInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
@@ -770,15 +770,19 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
+        public bool RemoveFromPrivateSales(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
         
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
             return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
-       
-        public bool SaveMyItem(DMItemInfo req)
+
+        public bool SaveMyItem(ReqDMSaveItem req)
         {
-            return Call<bool, DMItemInfo>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, ReqDMSaveItem>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public bool DeleteMyItem(string id)
@@ -789,6 +793,11 @@ namespace DealerSafe2.DTO.ServiceClient
         #endregion
 
         #region Bids & Offers
+
+        public ResponseDMAuctionBidDetails GetBidInfoForAuction(string id)
+        {
+            return Call<ResponseDMAuctionBidDetails, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
 
         public DMBidderMemberInfo GetBid(string id)
         {
@@ -805,7 +814,12 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqBid>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqPager req)
+        public bool GetPaymentForItem(ReqPaymentInfo req)
+        {
+            return Call<bool, ReqPaymentInfo>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqGetBidsWithItemId req)
         {
             return Call<PagerResponse<DMBidderMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
@@ -826,9 +840,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqOffer>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool AcceptOffer(string id)
+        public bool AcceptOffer(ReqAcceptOffer id)
         {
-            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, ReqAcceptOffer>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
@@ -840,16 +854,21 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<PagerResponse<DMOfferItemMemberInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool showBidsToggle(ReqBidsToggle req) 
-        {
-            return Call<bool, ReqBidsToggle>(req, MethodBase.GetCurrentMethod().Name);
-        }
+        //public bool showBidsToggle(string id) 
+        //{
+        //    return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        //}
 
         #endregion
 
 
         #region Payments & Messages
 
+
+        public bool CancelPayment(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
         public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
         {
             return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);

@@ -108,12 +108,12 @@
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\ReqAcceptOffer.cs" />
     <Compile Include="Request\ReqGetBidsWithItemId.cs" />
+    <Compile Include="Request\ReqPaymentInfo.cs" />
     <Compile Include="Request\ReqSaveItem.cs" />
     <Compile Include="Request\ReqUpdateDomainNameServers.cs" />
     <Compile Include="Request\ReqAuction.cs" />
     <Compile Include="Request\ReqPlaceOrderForDomain.cs" />
     <Compile Include="Request\ReqBid.cs" />
-    <Compile Include="Request\ReqBidsToggle.cs" />
     <Compile Include="Request\ReqOffer.cs" />
     <Compile Include="Request\ReqPager.cs" />
     <Compile Include="Request\ReqComment.cs" />
@@ -148,6 +148,7 @@
     <Compile Include="Response\ResCertificateKeyMatcher.cs" />
     <Compile Include="Response\ResConvertCertificate.cs" />
     <Compile Include="Response\IdNameValue.cs" />
+    <Compile Include="Response\ResponseDMAuctionBidDetails.cs" />
     <Compile Include="Response\ResSSLCertificateInfo.cs" />
     <Compile Include="Response\ResCheckCRCCode.cs" />
     <Compile Include="Response\IdName.cs" />

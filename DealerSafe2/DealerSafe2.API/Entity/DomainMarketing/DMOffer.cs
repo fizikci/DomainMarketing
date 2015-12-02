@@ -1,4 +1,5 @@
 ﻿using Cinar.Database;
+using DealerSafe2.DTO.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,6 +21,8 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 500), Description("comments")]
         public string OfferComments { get; set; }
+        public DateTime ReviewedAt { get; set; }
+        public DMOfferStatus Status { get; set; }
 
     }
 }

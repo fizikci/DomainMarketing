@@ -13,8 +13,9 @@ li.active a {
     outline: none;
 }
 
-a {
+a, .pointer {
     cursor:pointer;
+    text-decoration: none !important;
 }
 .inlineBlock{
     display: inline-block;

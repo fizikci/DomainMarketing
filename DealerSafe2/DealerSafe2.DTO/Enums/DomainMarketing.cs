@@ -22,6 +22,13 @@ namespace DealerSafe2.DTO.Enums
         //DueDateReached
     }
 
+    public enum DMOfferStatus
+    {
+        None,
+        Accepted,
+        Rejected
+    }
+
     public enum DMMedals
     {
         New,
@@ -33,6 +40,7 @@ namespace DealerSafe2.DTO.Enums
 
     public enum DMSaleStates
     {
+        None,
         WaitingForPayment,
         WaitingForTransfer,
         SuccessfullyClosed,
@@ -44,14 +52,14 @@ namespace DealerSafe2.DTO.Enums
     public enum DMExpertiseStates
     {
         Open,
-        BeingEdited,
+        Processing,
         Processed
     }
 
     public enum DMBrokerageStates
     {
         Open,
-        BeingEdited,
+        Processing,
         Processed
     }
 }
