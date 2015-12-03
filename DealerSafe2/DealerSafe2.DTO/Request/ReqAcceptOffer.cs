@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqAcceptOffer
+    public class ReqAcceptOffer : BaseRequest
     {
         public string MemberId { get; set; }
         public string OffererMemberId {get;set;}

@@ -22,9 +22,12 @@ namespace DealerSafe2.API
         
         public bool AddToWatchList(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied.");
+
             var watch = new DMWatchList();
             if (Provider.Database.Read<DMWatchList>(@"select * from DMWatchList where DmItemId = {0} and IsDeleted = 0 ", id) != null)
-                throw new APIException(Provider.TR("Cannot add to watchlist twice!"));
+                throw new APIException("Cannot add to watchlist twice!");
 
             watch.DMItemId = id;
             watch.MemberId = Provider.CurrentMember.Id;
@@ -34,6 +37,9 @@ namespace DealerSafe2.API
 
         public bool RemoveFromWatchList(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied.");
+
             var sql = @"select * from DMWatchList where MemberId = {0} and DMItemId = {1} and IsDeleted = 0";
             var watch = Provider.Database.Read<DMWatchList>(sql, Provider.CurrentMember.Id, id);
             watch.Delete();
@@ -97,14 +103,18 @@ namespace DealerSafe2.API
         #region Member Comment / Rating
 
         public bool CreateComment(ReqComment req) {
+
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied.");
+
             var comment = new EntityComment();
             comment.EntityName = "Member";
 
             // validation
             if (req.ToMemberId == Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot comment to yourself!"));
+                throw new APIException("You cannot comment to yourself!");
             if (req.Rating > 5 || req.Rating == 0 || req.Rating < -5)
-                throw new APIException(Provider.TR("Invalid Rating."));
+                throw new APIException("Invalid Rating.");
 
 
 
@@ -190,6 +200,9 @@ namespace DealerSafe2.API
 
         public bool AskForExpertise(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied.");
+
             var expertise = new DMExpertise();
             expertise.RequesterMemberId = Provider.CurrentMember.Id;
             expertise.Status = DMExpertiseStates.Open;
@@ -334,9 +347,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
         {
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT
 	                        EC.Id,
                             (M.FirstName + M.LastName) AS ToFullName,
@@ -364,9 +374,6 @@ namespace DealerSafe2.API
         
         public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
         {
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT
 	                        EC.Id,
                             (M.FirstName + M.LastName) AS ToFullName,
@@ -377,8 +384,7 @@ namespace DealerSafe2.API
 	                        EC.EntityId AS ToMemberId,
                             EC.Rating,
                             EC.Comment,
-                            EC.InsertDate,
-                            EC.IsDeleted
+                            EC.InsertDate
                         FROM EntityComment AS EC 
                         INNER JOIN Member F ON EC.MemberId = F.Id
                         INNER JOIN Member M ON EC.EntityId = M.Id
@@ -394,9 +400,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
         {
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
-
             var sql = @"SELECT
 	                        I.Id,
 	                        I.SellerMemberId,
@@ -409,7 +412,6 @@ namespace DealerSafe2.API
 	                        I.IsVerified,
 	                        I.DescriptionShort,
 	                        I.IsPrivateSales,
-	                        I.IsDeleted,
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
@@ -550,11 +552,12 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.Id);
-            if (item == null)
-                throw new APIException("There is no such item with the ID: " + req.Id);
-
+            if (item == null) 
+                throw new APIException("No such auction.");
             if(item.BiggestBid > 0)
                 throw new APIException("There are bids on this auction! Auction cannot be editted.");
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot create or edit other's auctions.");
 
             req.CopyPropertiesWithSameName(item);
 
@@ -567,19 +570,22 @@ namespace DealerSafe2.API
         }
 
         public bool DeleteAuction(string id) {
-            var sql = @"select * from DMItem where Id = {0} AND IsDeleted = 0";
-            var auc = Provider.Database.Read<DMItem>(sql,id);
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            if (Provider.Database.GetInt(@"select count(*) from DMBid where DMItemId = {0}", id) > 0)
-            {
-                throw (new APIException(Provider.TR("There are bids on this auction, thus it cannot be deleted!")));
-            }
-            else {
-                auc.Status = DMAuctionStates.Cancelled;
-                auc.Save();
-                auc.Delete();
-                return true;
-            }
+            var sql = @"select * from DMItem where Id = {0} AND IsDeleted = 0";
+            var item = Provider.Database.Read<DMItem>(sql,id);
+
+            if (item == null)
+                throw new APIException("No such auction.");
+            if (item.BiggestBid > 0)
+                throw new APIException("There are bids on this auction, thus it cannot be deleted!");
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot delete other's auctions.");
+            
+            item.Status = DMAuctionStates.NotOnAuction;
+            item.Save();
+            return true;
         }
 
 
@@ -983,6 +989,9 @@ namespace DealerSafe2.API
 
         public bool CreatePrivateSales(string id)
         {
+            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
+                throw new APIException("Access denied.");
+
             var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
             item.IsPrivateSales = true;
             item.Save();
@@ -990,6 +999,9 @@ namespace DealerSafe2.API
         }
         public bool RemoveFromPrivateSales(string id)
         {
+            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
+                throw new APIException("Access denied.");
+
             var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
             item.IsPrivateSales = false;
             item.Save();
@@ -1021,12 +1033,18 @@ namespace DealerSafe2.API
 
         public DMItemInfo GetMyItem(string id)
         {
+            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
+                throw new APIException("Access denied.");
+
             var sql = @"select * from DMItem where IsDeleted = 0 and Id = {0} and SellerMemberId = {1}";
             return Provider.Database.Read<DMItem>(sql, id, Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
         }
 
         public DMItemInfo GetItem(string id)
         {
+            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
+                throw new APIException("Access denied.");
+
             var sql = @"SELECT 
 	                        (M.FirstName + ' ' + M.LastName) AS SellerFullName ,
 	                        I.*
@@ -1048,12 +1066,12 @@ namespace DealerSafe2.API
         public bool SaveMyItem(ReqDMSaveItem req)
         {
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
-                throw new APIException(Provider.TR("Access denied."));
+                throw new APIException("Access denied.");
 
             //TODO: check if user is saving his own item?
 
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
-                throw new APIException(Provider.TR("Domain name is in blacklist. It cannot be ") + req.DomainName);
+                throw new APIException("Domain name is in blacklist. It cannot be " + req.DomainName);
 
             DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id) ?? new DMItem();
             req.CopyPropertiesWithSameName(item);
@@ -1096,12 +1114,20 @@ namespace DealerSafe2.API
 
         public ResponseDMAuctionBidDetails GetBidInfoForAuction(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+            
             var sql = "select Id, BiggestBid, MinimumBidPrice, MinimumBidInterval, DomainName, BuyItNowPrice from DMItem where Id = {0}";
-            return Provider.Database.GetDataTable(sql, id).ToEntityList<ResponseDMAuctionBidDetails>().FirstOrDefault();
+            var item = Provider.Database.GetDataTable(sql, id).ToEntityList<ResponseDMAuctionBidDetails>().FirstOrDefault();
+
+            return item;
         }
 
         public DMBidderMemberInfo GetBid(string id)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
             var sql = @"SELECT
 	                        B.[Id],
 	                        B.[DMItemId],
@@ -1122,10 +1148,13 @@ namespace DealerSafe2.API
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
                         WHERE B.Id = {0} AND B.IsDeleted = 0";
             var res = Provider.Database.GetDataTable(sql, id).ToEntityList<DMBidderMemberInfo>().FirstOrDefault();
+            if (res.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You are not the seller of this auction! Access denied.");
+
             return res;
         }
 
-        public void AutoBidder(ReqBid req, DMItem auction) {
+        private void AutoBidder(ReqBid req, DMItem auction) {
 
             DMBid newBid = new DMBid();
 
@@ -1220,19 +1249,19 @@ namespace DealerSafe2.API
             var isAutoBidderSet = req.MaxBidValue != 0;
 
             if (item == null)
-                throw new APIException(Provider.TR("Auction is closed or there is no such auction."));
+                throw new APIException("Auction is closed or there is no such auction.");
             if (bid.BidValue < minimumPossible)
-                throw new APIException(Provider.TR(string.Format("New offers have to be bigger than {0}"), minimumPossible));
+                throw new APIException(string.Format("New offers have to be bigger than {0}", minimumPossible));
             if (isAutoBidderSet && req.MaxBidValue < req.BidValue)
-                throw new APIException(Provider.TR("Auto Bidding Value has to be bigger than bid value!"));
+                throw new APIException("Auto Bidding Value has to be bigger than bid value!");
             if (isAutoBidderSet && req.MaxBidValue > item.BuyItNowPrice)
-                throw new APIException(Provider.TR("Auto Bidding Value has to be smaller than Buy It Now Price!"));
+                throw new APIException("Auto Bidding Value has to be smaller than Buy It Now Price!");
             if (item.SellerMemberId == Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot bid on your own item."));
+                throw new APIException("You cannot bid on your own item.");
 
             var latestBidByCurrentMember = Provider.Database.Read<DMBid>("select TOP 1 * from DMBid where BidderMemberId = {0} and DMItemId = {1} order by BidValue desc", Provider.CurrentMember.Id, bid.DMItemId);
             if (latestBidByCurrentMember != null && latestBidByCurrentMember.BidValue == item.BiggestBid)
-                throw new APIException(Provider.TR("You have already made a bid."));
+                throw new APIException("You have already made a bid.");
 
             //In compliance with page 24...
             if (bid.BidValue >= item.BuyItNowPrice)
@@ -1383,15 +1412,15 @@ namespace DealerSafe2.API
             var item = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} and Status = {1} and IsDeleted = 0", req.DMItemId, DMAuctionStates.Open.ToString());
 
             if (item == null)
-                throw new APIException(Provider.TR("Auction is closed or there is no such auction."));
+                throw new APIException("Auction is closed or there is no such auction.");
             var minimumPossible = (item.BiggestBid == 0 ? item.MinimumBidPrice : item.BiggestBid ) + item.MinimumBidInterval;
             if (offer.OfferValue < minimumPossible)
-                throw new APIException(Provider.TR(string.Format("New offers have to be bigger than {0}"), minimumPossible));
+                throw new APIException(string.Format("New offers have to be bigger than {0}", minimumPossible));
             if (item.SellerMemberId == Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot offer on your own item."));
+                throw new APIException("You cannot offer on your own item.");
 
             var latestOfferByCurrentMember = Provider.Database.Read<DMOffer>("select TOP 1 * from DMOffer where OffererMemberId = {0} and DMItemId = {1} and Status = {2} order by OfferValue desc", Provider.CurrentMember.Id, offer.DMItemId, DMOfferStatus.None);
-            if (latestOfferByCurrentMember != null) throw new APIException(Provider.TR("You have already made an offer."));
+            if (latestOfferByCurrentMember != null) throw new APIException("You have already made an offer.");
 
             offer.Save();
 
@@ -1407,7 +1436,7 @@ namespace DealerSafe2.API
             var item = Provider.Database.Read<DMItem>(sql, req.DMItemId);
 
             if (item.SellerMemberId != Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot accept other's offers."));
+                throw new APIException("You cannot accept other's offers.");
             if (req.OfferValue < item.BiggestBid)
                 throw new APIException(string.Format("You cannot offer less than the current bid {0}", item.BiggestBid));
 
@@ -1429,7 +1458,7 @@ namespace DealerSafe2.API
             var item = Provider.Database.Read<DMItem>(sql, id);
 
             if (item.SellerMemberId == Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot buy your own item."));
+                throw new APIException("You cannot buy your own item.");
 
             item.BuyerMemberId = Provider.CurrentMember.Id;
             item.PaymentAmount = item.BuyItNowPrice;
@@ -1451,15 +1480,15 @@ namespace DealerSafe2.API
                 "select * from DMItem where Id = {0} and Status = {1} and PaymentStatus = {2}",
                 req.Id, DMAuctionStates.Open.ToString(), DMSaleStates.None.ToString());
             if (item == null) 
-                throw new APIException(Provider.TR("No such item is on sale."));
+                throw new APIException("No such item is on sale.");
 
             if (item.SellerMemberId == Provider.CurrentMember.Id)
-                throw new APIException(Provider.TR("You cannot buy your own item."));
+                throw new APIException("You cannot buy your own item.");
 
             // if withrawal was made continue...
             // TODO: send the item as parameter as well
             if (!makeWithdrawal(req))
-                throw new APIException(Provider.TR("An error occured on withdrawal process. Retry please."));
+                throw new APIException("An error occured on withdrawal process. Retry please.");
 
             // set items status
             item.Status = DMAuctionStates.Completed;
@@ -1560,21 +1589,6 @@ namespace DealerSafe2.API
 
             return new PagerResponse<DMOfferItemMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
-
-        //public bool showBidsToggle(string id) {
-            
-        //    if (Provider.CurrentMember.Id.IsEmpty())
-        //        throw new APIException("Access denied");
-
-        //    var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", id);
-        //    if (item.SellerMemberId != Provider.CurrentMember.Id)
-        //        throw new APIException("Access denied");
-
-        //    item.ShowBidlist = !item.ShowBidlist;
-        //    item.Save();
-        //    return item.ShowBidlist;
-        //}
-        
         
         #endregion
 
@@ -1582,23 +1596,27 @@ namespace DealerSafe2.API
 
         public bool CancelPayment(string id)
         {
-            throw new APIException("You cannot cancel a payment");
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
 
-            //var sql = @"SELECT * FROM DMItem WHERE Id = {0}";
-            //var item = Provider.Database.Read<DMItem>(sql, id);
+            var sql = @"SELECT * FROM DMItem WHERE Id = {0}";
+            var item = Provider.Database.Read<DMItem>(sql, id);
 
-            //if (item.InsertDate.AddDays(14) > DateTime.Now)
-            //{
-            //    item.Status = DMSaleStates.TimeoutForPayment;
-            //    item.Save();
-            //    //rethink the next line...
-            //    return item.IsDeleted;
-            //}
-            //if (item.SellerMemberId == Provider.CurrentMember.Id)
-            //    item.Status = DMSaleStates.CancelledBySeller;
-            //else item.Status = DMSaleStates.CancelledByBuyer;
-            //item.Delete();
-            //return item == null || item.IsDeleted;
+            if (item.InsertDate.AddDays(14) > DateTime.Now)
+            {
+                item.Status = DMAuctionStates.Cancelled;
+                item.PaymentStatus = DMSaleStates.TimeoutForPayment;
+                item.Save();
+
+                return true;
+            }
+
+            item.Status = DMAuctionStates.Cancelled;
+            if (item.SellerMemberId == Provider.CurrentMember.Id)
+                item.PaymentStatus = DMSaleStates.CancelledBySeller;
+            else item.PaymentStatus = DMSaleStates.CancelledByBuyer;
+            item.Save();
+            return true;
         }
 
         public PagerResponse<ListViewSalesInfo> PaymentsISent(ReqPager req)
@@ -1746,13 +1764,22 @@ namespace DealerSafe2.API
 
         public List<ListDMPredefinedMessageInfo> GetDMPredefinedMessages(ReqEmpty req)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
             return Provider.Database.ReadList<DMPredefinedMessage>("select * from DMPredefinedMessage").ToEntityInfo<ListDMPredefinedMessageInfo>();
         }
 
-        public bool SendMessage(ReqSendDMMessage req)
+        public bool SendDMMessage(ReqSendDMMessage req)
         {
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+            if (Provider.CurrentMember.Id == req.ToMemberId)
+                throw new APIException("You cannot send message to yourself!");
+
             var dmmessage = new DMMessage();
-            dmmessage.CopyPropertiesWithSameName(req);
+            req.CopyPropertiesWithSameName(dmmessage);
+            dmmessage.SenderMemberId = Provider.CurrentMember.Id;
 
             // ensure that users are using pdm to send messages to each other.
             if (!string.IsNullOrEmpty(dmmessage.DMPredefinedMessageId))

@@ -884,7 +884,7 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<List<ListDMPredefinedMessageInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool SendMessage(ReqSendDMMessage req)
+        public bool SendDMMessage(ReqSendDMMessage req)
         {
             return Call<bool, ReqSendDMMessage>(req, MethodBase.GetCurrentMethod().Name);
         }
