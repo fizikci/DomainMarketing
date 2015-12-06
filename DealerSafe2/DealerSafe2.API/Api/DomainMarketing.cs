@@ -57,7 +57,7 @@ namespace DealerSafe2.API
                                I.DomainName,
                                I.Status,
                                I.Type,
-                               I.IsPrivateSales,
+                               I.IsPrivateSale,
                                I.Ownership
                         FROM DMWatchList AS W
                         LEFT JOIN DMItem AS I ON W.DMItemId = I.Id
@@ -84,11 +84,11 @@ namespace DealerSafe2.API
                             I.DomainName,
                             I.Status,
                             I.Type,
-                            I.IsPrivateSales,
+                            I.IsPrivateSale,
                             I.Ownership
                         FROM DMBrowse AS B
                         INNER JOIN DMItem AS I ON B.DMItemId = I.Id 
-                        ORDER BY B.InsertDate, I.Status DESC";
+                        ORDER BY B.InsertDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBrowse where MemberId = {0}", Provider.CurrentMember.Id);
 
@@ -239,7 +239,7 @@ namespace DealerSafe2.API
 	                        E.InsertDate
                         FROM DMExpertise AS E
                         INNER JOIN DMItem I on E.DMItemId = I.Id
-                        INNER JOIN Member M on M.Id = E.ExpertMemberId
+                        LEFT JOIN Member M on M.Id = E.ExpertMemberId
                         WHERE E.RequesterMemberId = {0} and E.IsDeleted = 0 
                         ORDER BY E.InsertDate, E.Status DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
@@ -411,7 +411,6 @@ namespace DealerSafe2.API
 	                        I.Ownership,
 	                        I.IsVerified,
 	                        I.DescriptionShort,
-	                        I.IsPrivateSales,
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
@@ -422,7 +421,7 @@ namespace DealerSafe2.API
                         LEFT JOIN Member BM ON BM.Id = I.BuyerMemberId 
                         WHERE I.SellerMemberId = {0} 
                             AND I.PaymentStatus = 'SuccessfullyClosed' 
-                            AND I.IsPrivateSales = 0 
+                            AND I.IsPrivateSale = 0 
                             AND I.IsDeleted = 0 
                             ORDER BY I.InsertDate, I.PaymentStatus DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber-1);
@@ -430,7 +429,7 @@ namespace DealerSafe2.API
                         FROM DMItem
                         WHERE SellerMemberId = {0} 
                             AND PaymentStatus = 'SuccessfullyClosed' 
-                            AND IsPrivateSales = 0 
+                            AND IsPrivateSale = 0 
                             AND IsDeleted = 0 ", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewSalesInfo>();
@@ -456,7 +455,7 @@ namespace DealerSafe2.API
 
         #endregion
 
-        #region Search
+        #region Search & Sharing
 
         public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
@@ -481,7 +480,7 @@ namespace DealerSafe2.API
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
 
-                        WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSales, 0) = 0
+                        WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0
                         AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
                             AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
                             AND (I.Type = {2})
@@ -503,6 +502,29 @@ namespace DealerSafe2.API
 
         public List<string> GetDMItemExtensions(ReqEmpty req) {
             return Provider.Database.GetStringList("select distinct SUBSTRING ( DomainName ,CHARINDEX ( '.' , DomainName ), LEN(DomainName)) from DMItem");
+        }
+
+        public List<DMFaqInfo> GetDMFaqSearchResults(string keyword)
+        {
+            var searchIncludingKeyword = "%" + (keyword ?? "") + "%";
+            return Provider.Database.ReadList<DMFaq>("select * from DMFaq where Question LIKE {0} OR Answer LIKE {1}", searchIncludingKeyword, searchIncludingKeyword).ToEntityInfo<DMFaqInfo>();
+        }
+
+        public bool RecommendItem(ReqShareItem req)
+        {
+            if (string.IsNullOrEmpty(req.DMItemId) || !Provider.Database.GetBool("select 1 from DMItem where id = {0}", req.DMItemId))
+                throw new APIException("No such item.");
+
+            var reqMail = new ReqSendMessage()
+            {
+                Email = req.ToEmail,
+                AddSubject = "New Message From " + Provider.CurrentMember.FullName,
+                AddMessage = req.Message,
+                SendDate = DateTime.Now,
+                TemplateId = "" // TODO: set the proper id
+            };
+
+            return Provider.Api.SendMessage(reqMail); ;
         }
 
         #endregion
@@ -542,7 +564,7 @@ namespace DealerSafe2.API
                         INNER JOIN Member AS M ON M.Id = I.SellerMemberId
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
-                        where I.Id = {0} AND I.IsPrivateSales = 0 AND I.Status = 'Open'";
+                        where I.Id = {0} AND I.IsPrivateSale = 0 AND I.Status = 'Open'";
             return Provider.Database.GetDataTable(sql, req).ToEntityList<ViewAuctionInfo>().FirstOrDefault();
         }
 
@@ -556,9 +578,20 @@ namespace DealerSafe2.API
                 throw new APIException("No such auction.");
             if(item.BiggestBid > 0)
                 throw new APIException("There are bids on this auction! Auction cannot be editted.");
+            if (item.IsPrivateSale)
+                throw new APIException("This item is private, remove from private items to create an auction.");
+            
             if (item.SellerMemberId != Provider.CurrentMember.Id)
-                throw new APIException("You cannot create or edit other's auctions.");
-
+                throw new APIException("You cannot create or edit auctions from somebody else's item.");
+            if (req.MinimumBidInterval < 10)
+                throw new APIException("Minimum bid interval has to be bigger than 9.");
+            if (req.MinimumBidPrice <= 0)
+                throw new APIException("Minimum bid interval has to be bigger than 0.");
+            if (req.BuyItNowPrice <= req.MinimumBidPrice + req.MinimumBidInterval)
+                throw new APIException("Buy it now price has to be higher than the minimum placeable bid.");
+            if (req.PlannedCloseDate <= DateTime.Now.AddDays(1))
+                throw new APIException("Planned close date of auction should be at least 1 day later.");
+            
             req.CopyPropertiesWithSameName(item);
 
             item.Status = DMAuctionStates.Open;
@@ -828,6 +861,7 @@ namespace DealerSafe2.API
 	                        BuyItNowPrice,
 	                        Status,
 	                        SellerMemberId,
+                            IsPrivateSale,
 	                        IsDeleted,
 	                        InsertDate
                         FROM DMItem
@@ -862,10 +896,10 @@ namespace DealerSafe2.API
 	                        IsDeleted,
 	                        InsertDate
                         FROM DMItem
-                        WHERE SellerMemberId = {0} AND IsDeleted = 0 AND IsPrivateSales = 1
+                        WHERE SellerMemberId = {0} AND IsDeleted = 0 AND IsPrivateSale = 1
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
-            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and IsDeleted = 0 AND IsPrivateSales = 1", Provider.CurrentMember.Id);
+            var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem where SellerMemberId = {0} and IsDeleted = 0 AND IsPrivateSale = 1", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -896,11 +930,10 @@ namespace DealerSafe2.API
                         WHERE SellerMemberId = {0}
                             AND Status = 'Open'
                             AND IsDeleted = 0
-                            AND (Id IS NOT NULL OR Id <> '')
                         ORDER BY StartDate DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMItem
-                        WHERE SellerMemberId = {0} AND IsDeleted = 0", Provider.CurrentMember.Id);
+                        WHERE SellerMemberId = {0} AND IsDeleted = 0 AND Status = 'Open'", Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ListViewItemsInfo>();
 
@@ -939,7 +972,7 @@ namespace DealerSafe2.API
         
         public List<IdName> GetMyItemsNameIdNotOnAuction(ReqEmpty req)
         {
-            var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and ((VerificationAsked = 1 and IsVerified = 1) or VerificationAsked = 0)";
+            var sql = @"select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1}";
             return Provider.Database.ReadList<DMItem>(sql, DMAuctionStates.NotOnAuction.ToString(), Provider.CurrentMember.Id).Select(item => new IdName() { Id = item.Id, Name = item.DomainName }).ToList();
         }
 
@@ -993,7 +1026,7 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied.");
 
             var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
-            item.IsPrivateSales = true;
+            item.IsPrivateSale = true;
             item.Save();
             return true;
         }
@@ -1003,13 +1036,13 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied.");
 
             var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", id);
-            item.IsPrivateSales = false;
+            item.IsPrivateSale = false;
             item.Save();
             return true;
         }
         public List<IdName> GetMyItemsIdNotOnSale(ReqEmpty req)
         {
-            var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and IsDeleted = 0 and IsPrivateSales = 0 ";
+            var sql = "select Id, DomainName from DMItem where Status = {0} and SellerMemberId = {1} and IsDeleted = 0 and IsPrivateSale = 0 ";
             return Provider.Database.ReadList<DMItem>(sql, DMAuctionStates.NotOnAuction.ToString(), Provider.CurrentMember.Id)
                 .Select(x => new IdName() { Id = x.Id, Name = x.DomainName }).ToList();
         }
@@ -1069,11 +1102,15 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied.");
 
             //TODO: check if user is saving his own item?
+            DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id);
+            if (item != null && item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot edit somebody else's item!");
+            else item = new DMItem();
 
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
-                throw new APIException("Domain name is in blacklist. It cannot be " + req.DomainName);
+                throw new APIException(string.Format("Domain name is in blacklist. It cannot be {0}", req.DomainName));
 
-            DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id) ?? new DMItem();
+            
             req.CopyPropertiesWithSameName(item);
             item.SellerMemberId = Provider.CurrentMember.Id;
             item.DomainRegistrar = getDomainRegistrarWith(req.DomainName);
@@ -1602,14 +1639,8 @@ namespace DealerSafe2.API
             var sql = @"SELECT * FROM DMItem WHERE Id = {0}";
             var item = Provider.Database.Read<DMItem>(sql, id);
 
-            if (item.InsertDate.AddDays(14) > DateTime.Now)
-            {
-                item.Status = DMAuctionStates.Cancelled;
-                item.PaymentStatus = DMSaleStates.TimeoutForPayment;
-                item.Save();
-
-                return true;
-            }
+            if (item.BuyerMemberId != Provider.CurrentMember.Id && item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("Cannot cancel payment that does not belong to you.");
 
             item.Status = DMAuctionStates.Cancelled;
             if (item.SellerMemberId == Provider.CurrentMember.Id)
@@ -1635,7 +1666,7 @@ namespace DealerSafe2.API
 	                        I.Ownership,
 	                        I.IsVerified,
 	                        I.DescriptionShort,
-	                        I.IsPrivateSales,
+	                        I.IsPrivateSale,
 	                        I.IsDeleted,
 	                        I.PaymentAmount,
 	                        I.PaymentType,
@@ -1674,7 +1705,7 @@ namespace DealerSafe2.API
 	                        I.Ownership,
 	                        I.IsVerified,
 	                        I.DescriptionShort,
-	                        I.IsPrivateSales,
+	                        I.IsPrivateSale,
 	                        I.IsDeleted,
 	                        I.PaymentAmount,
 	                        I.PaymentType,

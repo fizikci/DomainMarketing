@@ -634,7 +634,7 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #endregion
 
-        #region Search
+        #region Search & Sharing
 
         public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
@@ -644,6 +644,16 @@ namespace DealerSafe2.DTO.ServiceClient
         public List<string> GetDMItemExtensions(ReqEmpty req)
         {
             return Call<List<string>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<DMFaqInfo> GetDMFaqSearchResults(string keyword)
+        {
+            return Call<List<DMFaqInfo>, string>(keyword, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool RecommendItem(ReqShareItem req)
+        {
+            return Call<bool, ReqShareItem>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion

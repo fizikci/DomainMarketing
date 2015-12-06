@@ -61,9 +61,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("describes the verification channel if verified. The verification could be both automatic and manual. A fee may be requested from the members if a verification is requested for any domain.")]
         public string VerifiedBy { get; set; }
 
-        [Description("")]
-        public bool IsPrivateSales { get; set; }
-
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("holds the analtics value of the web site if available")]
         public string Analytics { get; set; }
 
