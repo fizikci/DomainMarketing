@@ -46,16 +46,26 @@ function defaultFailCallback(res) {
     var msg = trError(res.ErrorMessage);
     
     var btn = '';
-    if(res.ErrorMessage.indexOf('Access denied')>-1)
-        btn = '<a href="/Default.aspx" class="btn btn-success">'+langRes.HomePage+'</a>';
+    if(res.ErrorMessage.indexOf('Access denied') > -1)
+        btn = '<a href="/Default.aspx" class="btn btn-success">' + langRes.HomePage + '</a>';
         
-    alertNice(msg, '',  btn);
+    sweetConfirm(null, {
+        title: "Error",
+        text: msg,
+        type: "error",
+        buttonText: langRes.HomePage,
+        buttonType: "success"
+    });
 }
 
 langRes.HomePage = currLang=='tr' ? 'Ana Sayfa' : 'Home';
 
 function defaultSuccessCallback(res) {
-    alertNice(JSON.stringify(res, null, '\t'));
+    sweetAlert({
+        title: "Error",
+        text: JSON.stringify(res, null, '\t'),
+        type: "error"
+    });
 }
 
 function trError(msg){
@@ -367,7 +377,7 @@ app.directive('inputNumber', function () {
                                     + (attr.disabled ? ' disabled="' + attr.disabled + '"' : '') 
                                     + (attr.required ? ' required' : '')
                                     + customAttrs
-                                    + ' class="input-mini bkspinner" />' +
+                                    + ' class="input-mini bkspinner ' + (attr.addClass ? attr.addClass : '') + '" />' +
                         elm.html() +
                         (attr.required ? ' <span class="required-star">*</span> ' : '') +
                     '       </div>' +
