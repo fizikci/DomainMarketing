@@ -18,8 +18,15 @@ namespace DealerSafe2.DTO.Enums
         Completed,
         Suspended,
         Cancelled
-        //DirectBuy,
-        //DueDateReached
+    }
+
+    public enum DMAuctionStateReasons
+    {
+        None,
+        BuyItNow,
+        Offer,
+        DueDate,
+        LessThanBuyItNow
     }
 
     public enum DMOfferStatus
