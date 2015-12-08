@@ -622,8 +622,6 @@ namespace DealerSafe2.API
             var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.Id);
             if (item == null)
                 throw new APIException("No such auction.");
-            if (item.BiggestBid > 0)
-                throw new APIException("There are bids on this auction! Auction cannot be editted.");
             if (item.IsPrivateSale)
                 throw new APIException("This item is private, remove from private items to create an auction.");
 
@@ -637,6 +635,11 @@ namespace DealerSafe2.API
                 throw new APIException("Buy it now price has to be higher than the minimum placeable bid.");
             if (req.PlannedCloseDate <= DateTime.Now.AddDays(1))
                 throw new APIException("Planned close date of auction should be at least 1 day later.");
+
+            if (item.Status == DMAuctionStates.Open && item.BiggestBid > 0)
+                throw new APIException("There are bids on this auction! Auction cannot be editted.");
+            if (item.Status != DMAuctionStates.NotOnAuction)
+                throw new APIException("Cannot create auction! Because it was already on auction.");
 
             req.CopyPropertiesWithSameName(item);
 
@@ -1262,15 +1265,14 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id],
-	                        B.[DMItemId],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
 	                        B.[InsertDate],
-	                        M.[Id] AS BidderMemberId,
-	                        M.[FirstName],
-	                        M.[LastName],
-	                        M.[UserName],
+	                        M.[FirstName] AS BidderFirstName,
+                            M.[LastName] AS BidderLastName,
+                            M.[UserName] AS BidderUserName,
+                            I.[Id] AS DMItemId,
 	                        I.[DomainName],
 	                        I.[Type],
 	                        I.[BiggestBid],
@@ -1447,6 +1449,8 @@ namespace DealerSafe2.API
 
             if (item.SellerMemberId != Provider.CurrentMember.Id)
                 throw new APIException("You cannot accept bid if you are not the owner!");
+            if (item.Status != DMAuctionStates.Open)
+                throw new APIException("This auction is not open! Cannot accept the bid.");
 
             item.BuyerMemberId = bid.BidderMemberId;
             item.PaymentAmount = bid.BidValue;
@@ -1470,9 +1474,10 @@ namespace DealerSafe2.API
 	                        B.[BidValue],
 	                        B.[BidComments],
 	                        B.[InsertDate],
-	                        M.[FirstName],
-	                        M.[LastName],
-	                        M.[UserName],
+	                        M.[FirstName] AS BidderFirstName,
+                            M.[LastName] AS BidderLastName,
+                            M.[UserName] AS BidderUserName,
+                            I.[Id] AS DMItemId,
 	                        I.[DomainName],
 	                        I.[Type],
 	                        I.[BiggestBid],
@@ -1610,6 +1615,9 @@ namespace DealerSafe2.API
             item.PaymentAmount = offer.OfferValue;
             item.PaymentStatus = DMSaleStates.WaitingForPayment;
             item.Status = DMAuctionStates.Completed;
+            offer.Status = DMOfferStatus.Accepted;
+            offer.ReviewedAt = DateTime.Now;
+            offer.Save();
             item.Save();
 
             return true;
