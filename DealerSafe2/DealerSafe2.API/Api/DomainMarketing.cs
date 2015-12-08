@@ -581,7 +581,7 @@ namespace DealerSafe2.API
                                 I.InsertDate,
                                 I.Type,
                                 I.SellerMemberId,
-                                (M.FirstName + ' ' + M.LastName) AS SellerMemberFullName,
+                                (M.FirstName + ' ' + M.LastName) AS SellerFullName,
                                 I.DomainName,
                                 I.BuyItNowPrice,
                                 I.DMCategoryId,
@@ -608,8 +608,8 @@ namespace DealerSafe2.API
                         INNER JOIN Member AS M ON M.Id = I.SellerMemberId
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId
-                        where I.Id = {0} AND I.IsPrivateSale = 0 AND I.Status = 'Open'";
-            return Provider.Database.GetDataTable(sql, req).ToEntityList<ViewAuctionInfo>().FirstOrDefault();
+                        where I.Id = {0} AND I.IsPrivateSale = 0 AND (I.Status = 'Open' OR I.SellerMemberId = {1})";
+            return Provider.Database.GetDataTable(sql, req, Provider.CurrentMember.Id).ToEntityList<ViewAuctionInfo>().FirstOrDefault();
         }
 
         public bool SaveAuction(ReqAuction req)
@@ -1500,16 +1500,15 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             var sql = @"SELECT
-	                        B.[Id] AS BidId,
+	                        B.[Id],
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[BidComments],
 	                        B.[InsertDate],
-	                        B.[IsDeleted],
-	                        M.[Id],
-	                        M.[FirstName],
-	                        M.[LastName],
-	                        M.[UserName],
+	                        M.[FirstName] AS BidderFirstName,
+                            M.[LastName] AS BidderLastName,
+                            M.[UserName] AS BidderUserName,
+                            I.[Id] AS DMItemId,
 	                        I.[DomainName],
 	                        I.[Type],
 	                        I.[BiggestBid],
@@ -1591,23 +1590,24 @@ namespace DealerSafe2.API
             return !String.IsNullOrEmpty(offer.Id);
         }
 
-        public bool AcceptOffer(ReqAcceptOffer req)
+        public bool AcceptOffer(string id)
         {
-            if (req == null)
+            if (id == null)
                 throw new APIException("Parameter null. Access denied");
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
             var sql = "select * from DMItem where Id={0}";
-            var item = Provider.Database.Read<DMItem>(sql, req.DMItemId);
+            var offer = Provider.Database.Read<DMOffer>("select * from DMOffer where Id = {0}", id);
+            var item = Provider.Database.Read<DMItem>(sql, offer.DMItemId);
 
             if (item.SellerMemberId != Provider.CurrentMember.Id)
                 throw new APIException("You cannot accept other's offers.");
-            if (req.OfferValue < item.BiggestBid)
+            if (offer.OfferValue < item.BiggestBid)
                 throw new APIException(string.Format("You cannot offer less than the current bid {0}", item.BiggestBid));
 
             item.BuyerMemberId = Provider.CurrentMember.Id;
-            item.PaymentAmount = req.OfferValue;
+            item.PaymentAmount = offer.OfferValue;
             item.PaymentStatus = DMSaleStates.WaitingForPayment;
             item.Status = DMAuctionStates.Completed;
             item.Save();
@@ -1679,7 +1679,7 @@ namespace DealerSafe2.API
                             I.[BuyItNowPrice],
                             I.[BiggestBid],
                             I.[Status],
-                            O.[Id] AS DMOfferId,
+                            O.[Id],
                             O.[OfferValue],
                             O.[OffererMemberId],
                             O.[IsDeleted],

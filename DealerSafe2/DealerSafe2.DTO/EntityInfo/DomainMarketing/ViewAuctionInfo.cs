@@ -10,7 +10,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
     {
         public string Type { get; set; }
         public string SellerMemberId { get; set; }
-        public string SellerMemberFullName { get; set; }
+        public string SellerFullName { get; set; }
         public string DomainName { get; set; }
         public int BuyItNowPrice { get; set; }
         public string DMCategoryId { get; set; }

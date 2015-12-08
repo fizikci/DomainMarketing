@@ -850,9 +850,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqOffer>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool AcceptOffer(ReqAcceptOffer id)
+        public bool AcceptOffer(string id)
         {
-            return Call<bool, ReqAcceptOffer>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
