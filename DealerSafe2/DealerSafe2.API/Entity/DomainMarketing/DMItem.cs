@@ -71,8 +71,11 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string Alexa { get; set; }
 
         // auction starts from here
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller; 5:due date reached but no successful bid available")]
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller")]
         public DMAuctionStates Status { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 16), Description("")]
+        public DMAuctionStateReasons StatusReason { get; set; }
 
         [Description("starting date of the auction")]
         public DateTime StartDate { get; set; }
