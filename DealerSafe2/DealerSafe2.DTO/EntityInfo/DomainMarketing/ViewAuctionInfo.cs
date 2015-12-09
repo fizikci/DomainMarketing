@@ -31,6 +31,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string Alexa { get; set; }
         public bool ShowBidList { get; set; }
         public DMAuctionStates Status { get; set; }
+        public DMAuctionStateReasons StatusReason { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime PlannedCloseDate { get; set; }
         public string Comments { get; set; }

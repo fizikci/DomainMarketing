@@ -16,7 +16,8 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public int SaleValue { get; set; }
         public string SellerMemberId { get; set; }
         public string BuyerMemberId { get; set; }
-        public string Status { get; set; }
+        public DMAuctionStates Status { get; set; }
+        public DMAuctionStateReasons StatusReason { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 

@@ -62,6 +62,7 @@ namespace DealerSafe2.API
                                W.InsertDate,
                                I.DomainName,
                                I.Status,
+                               I.StatusReason,
                                I.Type,
                                I.IsPrivateSale,
                                I.Ownership
@@ -91,6 +92,7 @@ namespace DealerSafe2.API
                             B.InsertDate,
                             I.DomainName,
                             I.Status,
+                            I.StatusReason,
                             I.Type,
                             I.IsPrivateSale,
                             I.Ownership
@@ -494,10 +496,10 @@ namespace DealerSafe2.API
 
         #region Search & Sharing
 
-        public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
+        public PagerResponse<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
             if (req == null)
-                return new List<DMItemInfo>();
+                return new PagerResponse<DMItemInfo>();
 
             var sql = @"SELECT 
                             I.Id,
@@ -515,17 +517,20 @@ namespace DealerSafe2.API
 	                        I.[IsDeleted]
                         FROM DMItem I
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
-                        INNER JOIN [Language] L on L.Id = I.LanguageId
-
-                        WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0
+                        INNER JOIN [Language] L on L.Id = I.LanguageId ";
+            var where = @" WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0
                         AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
                             AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
                             AND (I.Type = {2})
                             AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {3}
-                                AND SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {4}
-                                AND I.DomainName LIKE {5})
-                            --AND (SUBSTRING ( I.DomainName ,CHARINDEX ( '.' , I.DomainName ), LEN(I.DomainName)) = {6})";
-            var res = Provider.Database.GetDataTable(sql,
+                                AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {4} OR SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {6})
+                                AND I.DomainName LIKE {5})";
+            sql += where;
+            var countSql = "select count(*) from DMItem I " + where;
+            sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
+            //extention check, sql:
+            //AND (SUBSTRING ( I.DomainName ,CHARINDEX ( '.' , I.DomainName ), LEN(I.DomainName)) = {6})
+            var itemsInPage = Provider.Database.GetDataTable(sql,
                     req.MinPrice,
                     req.MaxPrice,
                     req.Type.ToString(),
@@ -534,6 +539,8 @@ namespace DealerSafe2.API
                     "%" + req.Including + "%",
                     req.Extension
                 ).ToEntityList<DMItemInfo>();
+            var count = Provider.Database.GetInt(countSql, req.MinPrice, req.MaxPrice, req.Type.ToString(), req.StartsWith + "%", "%" + req.EndsWith, "%" + req.Including + "%", req.Extension);
+            var res = new PagerResponse<DMItemInfo>() { ItemsInPage = itemsInPage, NumberOfItemsInTotal = count };
             return res;
         }
 
@@ -544,8 +551,6 @@ namespace DealerSafe2.API
 
         public List<DMFaqInfo> GetDMFaqSearchResults(string keyword)
         {
-            if (keyword == null)
-                throw new APIException("Parameter null. Access denied");
             var searchIncludingKeyword = "%" + (keyword ?? "") + "%";
             return Provider.Database.ReadList<DMFaq>("select * from DMFaq where Question LIKE {0} OR Answer LIKE {1}", searchIncludingKeyword, searchIncludingKeyword).ToEntityInfo<DMFaqInfo>();
         }
@@ -601,6 +606,7 @@ namespace DealerSafe2.API
                                 I.AdSense,
                                 I.Alexa,
                                 I.Status,
+                                I.StatusReason,
                                 I.StartDate,
                                 I.PlannedCloseDate,
                                 I.Comments
@@ -667,6 +673,10 @@ namespace DealerSafe2.API
                 throw new APIException("There are bids on this auction, thus it cannot be deleted!");
             if (item.SellerMemberId != Provider.CurrentMember.Id)
                 throw new APIException("You cannot delete other's auctions.");
+            if (item.PaymentStatus == DMSaleStates.TimeoutForPayment || item.PaymentStatus == DMSaleStates.CancelledByBuyer 
+                || (item.Status == DMAuctionStates.Cancelled && item.StatusReason == DMAuctionStateReasons.DueDate))
+                Provider.Database.ExecuteNonQuery("delete from DMBid where DMItemId = {0}", item.Id);
+            else throw new APIException("Cannot remove auction.");
 
             item.Status = DMAuctionStates.NotOnAuction;
             item.Save();
@@ -913,8 +923,6 @@ namespace DealerSafe2.API
 
         public PagerResponse<ListViewItemsInfo> GetItems(ReqPager req)
         {
-            if (req == null)
-                throw new APIException("Parameter null. Access denied");
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
@@ -930,6 +938,7 @@ namespace DealerSafe2.API
 	                        PlannedCloseDate,
 	                        BuyItNowPrice,
 	                        Status,
+	                        StatusReason,
 	                        SellerMemberId,
                             IsPrivateSale,
 	                        IsDeleted,
@@ -964,6 +973,7 @@ namespace DealerSafe2.API
 	                        PlannedCloseDate,
 	                        BuyItNowPrice,
 	                        Status,
+                            StatusReason,
 	                        SellerMemberId,
 	                        IsDeleted,
 	                        InsertDate
@@ -997,6 +1007,7 @@ namespace DealerSafe2.API
 	                        PlannedCloseDate,
 	                        BuyItNowPrice,
 	                        Status,
+                            StatusReason,
 	                        SellerMemberId,
 	                        IsDeleted,
 	                        InsertDate
@@ -1031,6 +1042,7 @@ namespace DealerSafe2.API
                             I.BuyerMemberId,
                             I.SellerMemberId,
                             I.Status,
+                            I.StatusReason,
                             M.FirstName,
                             M.LastName
                         FROM DMItem AS I
@@ -1060,21 +1072,18 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             var sql = @"SELECT
-	                        I.Id AS DMItemId,
+	                        I.Id,
 	                        I.DomainName,
 	                        I.Type,
 	                        I.StartDate,
-	                        I.InsertDate,
+	                        I.ActualCloseDate AS CloseDate,
 	                        I.BuyItNowPrice,
-	                        I.IsDeleted,
 	                        I.PaymentAmount,
-	                        I.InsertDate AS CloseDate,
 	                        I.BuyerMemberId,
-	                        I.PaymentStatus,
-	                        I.Id
+	                        I.PaymentStatus
                         FROM DMItem AS I
-                        LEFT JOIN Member as M ON M.Id = I.BuyerMemberId
-                        WHERE I.BuyerMemberId = {0} AND I.IsDeleted = 0 ORDER BY I.InsertDate DESC";
+                        INNER JOIN Member as M ON M.Id = I.BuyerMemberId
+                        WHERE I.BuyerMemberId = {0} AND I.IsDeleted = 0 ORDER BY I.InsertDate DESC, I.PaymentStatus DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMItem WHERE BuyerMemberId = {0} AND IsDeleted = 0", Provider.CurrentMember.Id);
 
@@ -1416,11 +1425,7 @@ namespace DealerSafe2.API
                 bid.Save();
 
                 // accept bid
-                item.BuyerMemberId = Provider.CurrentMember.Id;
-                item.PaymentAmount = bid.BidValue;
-                item.PaymentStatus = DMSaleStates.WaitingForPayment;
-                item.Status = DMAuctionStates.Completed;
-
+                acceptBidAndSetItemWithoutValidation(bid, item);
             }
             item.BiggestBid = bid.BidValue;
 
@@ -1452,13 +1457,21 @@ namespace DealerSafe2.API
             if (item.Status != DMAuctionStates.Open)
                 throw new APIException("This auction is not open! Cannot accept the bid.");
 
+
+            acceptBidAndSetItemWithoutValidation(bid, item);
+
+            item.Save();
+            return !String.IsNullOrEmpty(bid.Id);
+        }
+
+        private static void acceptBidAndSetItemWithoutValidation(DMBid bid, DMItem item)
+        {
             item.BuyerMemberId = bid.BidderMemberId;
             item.PaymentAmount = bid.BidValue;
             item.PaymentStatus = DMSaleStates.WaitingForPayment;
             item.Status = DMAuctionStates.Completed;
-            item.Save();
-
-            return !String.IsNullOrEmpty(bid.Id);
+            item.StatusReason = DMAuctionStateReasons.Bid;
+            item.ActualCloseDate = DateTime.Now;
         }
 
         public PagerResponse<DMBidderMemberInfo> GetBidsWithAuctionId(ReqGetBidsWithItemId req)
@@ -1611,14 +1624,17 @@ namespace DealerSafe2.API
             if (offer.OfferValue < item.BiggestBid)
                 throw new APIException(string.Format("You cannot offer less than the current bid {0}", item.BiggestBid));
 
-            item.BuyerMemberId = Provider.CurrentMember.Id;
+            item.BuyerMemberId = offer.OffererMemberId;
             item.PaymentAmount = offer.OfferValue;
             item.PaymentStatus = DMSaleStates.WaitingForPayment;
             item.Status = DMAuctionStates.Completed;
+            item.StatusReason = DMAuctionStateReasons.Offer;
+            item.ActualCloseDate = DateTime.Now;
+            item.Save();
+
             offer.Status = DMOfferStatus.Accepted;
             offer.ReviewedAt = DateTime.Now;
             offer.Save();
-            item.Save();
 
             return true;
         }
@@ -1650,8 +1666,10 @@ namespace DealerSafe2.API
             // set items status
             item.Status = DMAuctionStates.Completed;
             item.PaymentStatus = DMSaleStates.WaitingForTransfer;
+            item.StatusReason = DMAuctionStateReasons.BuyItNow;
             item.BuyerMemberId = Provider.CurrentMember.Id;
             item.PaymentAmount = item.BuyItNowPrice;
+            item.ActualCloseDate = DateTime.Now;
             item.PaymentType = "Credit Card";
             item.PaymentDate = DateTime.Now;
             item.PaymentDescription = req.PaymentDescription;

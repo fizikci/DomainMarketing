@@ -12,6 +12,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string DMItemId { get; set; }
         public string DomainName { get; set; }
         public DMAuctionStates Status { get; set; }
+        public DMAuctionStateReasons StatusReason { get; set; }
         public bool IsPrivateSale { get; set; }
         public string Ownership { get; set; }
         public DateTime InsertDate { get; set; }

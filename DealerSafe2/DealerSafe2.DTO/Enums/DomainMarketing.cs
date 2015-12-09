@@ -25,6 +25,7 @@ namespace DealerSafe2.DTO.Enums
         None,
         BuyItNow,
         Offer,
+        Bid,
         DueDate,
         LessThanBuyItNow
     }
