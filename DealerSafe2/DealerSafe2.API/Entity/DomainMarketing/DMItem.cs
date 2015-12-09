@@ -132,6 +132,11 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("comments")]
         public string PaymentDescription { get; set; }
+
+
+        public int Monthlyvisitors { get; set; }
+        public int MonthlyPageViews { get; set; }
+        public int MonthlyRevenue { get; set; }
     }
 
     public class DMAuction : DMItem { }

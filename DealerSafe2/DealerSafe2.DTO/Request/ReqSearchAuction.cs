@@ -14,6 +14,12 @@ namespace DealerSafe2.DTO.Request
         public string Extension { get; set; }
         public string CategoryId { get; set; }
         public string Type { get; set; }
+
+        public int PageRank { get; set; }
+        public int Monthlyvisitors { get; set; }
+        public int MonthlyPageViews { get; set; }
+        public int MonthlyRevenue { get; set; }
+
         public int MinPrice { get; set; }
         public int MaxPrice { get; set; }
     }

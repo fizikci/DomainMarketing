@@ -497,10 +497,10 @@ namespace DealerSafe2.API
 
         #region Search & Sharing
 
-        public PagerResponse<DMItemInfo> GetSearchResults(ReqSearchAuction req)
+        public PagerResponse<ResGetSearchResults> GetSearchResults(ReqSearchAuction req)
         {
             if (req == null)
-                return new PagerResponse<DMItemInfo>();
+                return new PagerResponse<ResGetSearchResults>();
 
             var sql = @"SELECT 
                             I.Id,
@@ -510,15 +510,17 @@ namespace DealerSafe2.API
 	                        I.[DomainName],
 	                        C.[Name] AS CategoryName,
 	                        I.[BuyItNowPrice],
+	                        I.[BiggestBid],
 	                        L.[Name] as [Language],
 	                        I.[DescriptionShort],
 	                        I.[PageRank],
 	                        I.[StartDate],
-	                        I.[PlannedCloseDate]
+	                        I.[PlannedCloseDate],
+	                        I.[Status]
                         FROM DMItem I
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId ";
-            var where = @" WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0
+            var where = @" WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0 AND I.Status IN ('Open', 'NotOnAuction')
                         AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
                             AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
                             AND (I.Type LIKE {2})
@@ -538,9 +540,9 @@ namespace DealerSafe2.API
                     "%" + req.EndsWith,
                     "%" + req.Including + "%",
                     req.Extension};
-            var itemsInPage = Provider.Database.GetDataTable(sql, paramss).ToEntityList<DMItemInfo>();
+            var itemsInPage = Provider.Database.GetDataTable(sql, paramss).ToEntityList<ResGetSearchResults>();
             var count = Provider.Database.GetInt(countSql, paramss);
-            var res = new PagerResponse<DMItemInfo>() { ItemsInPage = itemsInPage, NumberOfItemsInTotal = count };
+            var res = new PagerResponse<ResGetSearchResults>() { ItemsInPage = itemsInPage, NumberOfItemsInTotal = count };
             return res;
         }
 

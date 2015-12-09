@@ -47,5 +47,10 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public DateTime PaymentDate { get; set; }
         public string WinnerMemberId { get; set; }
         public string Comments { get; set; }
+
+
+        public int Monthlyvisitors { get; set; }
+        public int MonthlyPageViews { get; set; }
+        public int MonthlyRevenue { get; set; }
     }
 }
