@@ -17,6 +17,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public DateTime PaymentDate { get; set; }
         public string PaymentType { get; set; }
         public DMSaleStates PaymentStatus { get; set; }
+        public DMAuctionStateReasons StatusReason { get; set; }
         public string PaymentDescription { get; set; }
         public DMItemTypes Type { get; set; }
         public string DomainName { get; set; }

@@ -451,6 +451,7 @@ namespace DealerSafe2.API
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
+	                        I.StatusReason,
 	                        I.PaymentDescription,
 	                        I.InsertDate
                         FROM DMItem I
@@ -513,33 +514,32 @@ namespace DealerSafe2.API
 	                        I.[DescriptionShort],
 	                        I.[PageRank],
 	                        I.[StartDate],
-	                        I.[PlannedCloseDate],
-	                        I.[IsDeleted]
+	                        I.[PlannedCloseDate]
                         FROM DMItem I
                         INNER JOIN DMCategory AS C ON C.Id = I.DMCategoryId
                         INNER JOIN [Language] L on L.Id = I.LanguageId ";
             var where = @" WHERE I.IsDeleted = 0 AND COALESCE(I.IsPrivateSale, 0) = 0
                         AND I.BiggestBid >= {0} AND I.BuyItNowPrice >= {0}
                             AND ({1} = 0 OR I.BiggestBid < {1} OR I.BuyItNowPrice < {1})
-                            AND (I.Type = {2})
+                            AND (I.Type LIKE {2})
                             AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {3}
                                 AND (SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {4} OR SUBSTRING ( I.DomainName ,0 , CHARINDEX ( '.' , I.DomainName )) LIKE {6})
                                 AND I.DomainName LIKE {5})";
-            sql += where;
+            var orderBy = " ORDER BY I.[BuyItNowPrice], I.[DomainName]";
+            sql += where + orderBy;
             var countSql = "select count(*) from DMItem I " + where;
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             //extention check, sql:
             //AND (SUBSTRING ( I.DomainName ,CHARINDEX ( '.' , I.DomainName ), LEN(I.DomainName)) = {6})
-            var itemsInPage = Provider.Database.GetDataTable(sql,
-                    req.MinPrice,
+            var paramss = new Object[]{req.MinPrice,
                     req.MaxPrice,
-                    req.Type.ToString(),
+                    req.Type == "Any" ? "%" : req.Type,
                     req.StartsWith + "%",
                     "%" + req.EndsWith,
                     "%" + req.Including + "%",
-                    req.Extension
-                ).ToEntityList<DMItemInfo>();
-            var count = Provider.Database.GetInt(countSql, req.MinPrice, req.MaxPrice, req.Type.ToString(), req.StartsWith + "%", "%" + req.EndsWith, "%" + req.Including + "%", req.Extension);
+                    req.Extension};
+            var itemsInPage = Provider.Database.GetDataTable(sql, paramss).ToEntityList<DMItemInfo>();
+            var count = Provider.Database.GetInt(countSql, paramss);
             var res = new PagerResponse<DMItemInfo>() { ItemsInPage = itemsInPage, NumberOfItemsInTotal = count };
             return res;
         }
@@ -1818,6 +1818,7 @@ namespace DealerSafe2.API
 	                        I.PaymentAmount,
 	                        I.PaymentType,
 	                        I.PaymentStatus,
+	                        I.StatusReason,
 	                        I.PaymentDate,
 	                        I.PaymentDescription,
 	                        I.InsertDate
@@ -1858,6 +1859,7 @@ namespace DealerSafe2.API
 	                        I.IsDeleted,
 	                        I.PaymentAmount,
 	                        I.PaymentType,
+	                        I.StatusReason,
 	                        I.PaymentStatus,
 	                        I.PaymentDate,
 	                        I.PaymentDescription,

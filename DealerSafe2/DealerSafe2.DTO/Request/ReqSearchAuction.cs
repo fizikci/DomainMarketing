@@ -13,7 +13,7 @@ namespace DealerSafe2.DTO.Request
         public string Including { get; set; }
         public string Extension { get; set; }
         public string CategoryId { get; set; }
-        public DMItemTypes Type { get; set; }
+        public string Type { get; set; }
         public int MinPrice { get; set; }
         public int MaxPrice { get; set; }
     }

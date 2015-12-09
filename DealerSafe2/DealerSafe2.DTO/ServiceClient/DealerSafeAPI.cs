@@ -636,9 +636,9 @@ namespace DealerSafe2.DTO.ServiceClient
 
         #region Search & Sharing
 
-        public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
+        public PagerResponse<DMItemInfo> GetSearchResults(ReqSearchAuction req)
         {
-            return Call<List<DMItemInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<DMItemInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<string> GetDMItemExtensions(ReqEmpty req)
