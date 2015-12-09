@@ -1170,8 +1170,6 @@ namespace DealerSafe2.API
         {
             if (id == null)
                 throw new APIException("Parameter null. Access denied");
-            if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
-                throw new APIException("Access denied.");
 
             var sql = @"SELECT 
 	                        (M.FirstName + ' ' + M.LastName) AS SellerFullName,
@@ -1184,7 +1182,7 @@ namespace DealerSafe2.API
                         LEFT JOIN Language AS L ON L.Id = I.LanguageId
                         WHERE I.IsDeleted = 0 AND I.Id = {0}";
             var item = Provider.Database.GetDataTable(sql, id).ToEntityList<DMItemInfo>().FirstOrDefault();
-            if (item != null)
+            if (item != null && !Provider.CurrentMember.Id.IsEmpty())
                 Provider.Database.ExecuteNonQuery("insert into DMBrowse( MemberId, DMItemId, InsertDate ) values ({0}, {1}, {2})", Provider.CurrentMember.Id, id, DateTime.Now);
             return item;
         }
@@ -1648,28 +1646,35 @@ namespace DealerSafe2.API
 
             // check if item is still available for #buyitnow
             var item = Provider.Database.Read<DMItem>(
-                "select * from DMItem where Id = {0} and Status = {1} and PaymentStatus = {2}",
-                req.Id, DMAuctionStates.Open.ToString(), DMSaleStates.None.ToString());
+                "select * from DMItem where Id = {0} and PaymentStatus = {1}",
+                req.Id, DMSaleStates.None.ToString());
             if (item == null)
                 throw new APIException("No such item is on sale.");
 
-            if (item.PaymentStatus != DMSaleStates.None)
-                throw new APIException("Cannot buy item. It was either cancelled or bought by somebody else.");
+            //if (item.PaymentStatus != DMSaleStates.None)
+            //    throw new APIException("Cannot buy item. It was either cancelled or bought by somebody else.");
             if (item.SellerMemberId == Provider.CurrentMember.Id)
                 throw new APIException("You cannot buy your own item.");
 
-            // if withrawal was made continue...
+            if (item.Status == DMAuctionStates.Cancelled || item.Status == DMAuctionStates.Suspended)
+                throw new APIException("Canceled or Suspended items cannot be sold");
+            if (item.Status == DMAuctionStates.Completed)
+                throw new APIException("Payment for this item has already been completed. Please contact your customer representative.");
+
+            // if withdrawal was made continue...
             // TODO: send the item as parameter as well
-            if (!makeWithdrawal(req))
-                throw new APIException("An error occured on withdrawal process. Retry please.");
+            var paymentRes = makeWithdrawal(req);
+            if (!paymentRes.IsEmpty())
+                throw new APIException(paymentRes);
 
             // set items status
             item.Status = DMAuctionStates.Completed;
+
             item.PaymentStatus = DMSaleStates.WaitingForTransfer;
             item.StatusReason = DMAuctionStateReasons.BuyItNow;
             item.BuyerMemberId = Provider.CurrentMember.Id;
             item.PaymentAmount = item.BuyItNowPrice;
-            item.ActualCloseDate = DateTime.Now;
+            item.ActualCloseDate = Provider.Database.Now;
             item.PaymentType = "Credit Card";
             item.PaymentDate = DateTime.Now;
             item.PaymentDescription = req.PaymentDescription;
@@ -1678,9 +1683,9 @@ namespace DealerSafe2.API
             return true;
         }
 
-        private bool makeWithdrawal(ReqPaymentInfo req)
+        private string makeWithdrawal(ReqPaymentInfo req)
         {
-            return true;
+            return "";
         }
 
 
