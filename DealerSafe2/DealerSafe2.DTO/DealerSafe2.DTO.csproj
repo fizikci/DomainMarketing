@@ -108,6 +108,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request\BaseRequest.cs" />
     <Compile Include="Request\ReqGetBidsWithItemId.cs" />
+    <Compile Include="Request\ReqGetProfileComplaints.cs" />
     <Compile Include="Request\ReqPaymentInfo.cs" />
     <Compile Include="Request\ReqSaveItem.cs" />
     <Compile Include="Request\ReqShareItem.cs" />

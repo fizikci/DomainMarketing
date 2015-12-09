@@ -540,7 +540,11 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-        
+
+        public bool IsOnMyWatchList(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
         public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
             return Call<PagerResponse<ListViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
@@ -616,19 +620,19 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
+        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<EntityCommentInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
+        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<EntityCommentInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
+        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewSalesInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
 

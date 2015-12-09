@@ -45,16 +45,17 @@ function callAPIMethod(method, data, successCallback, failCallback) {
 function defaultFailCallback(res) {
     var msg = trError(res.ErrorMessage);
     
-    var btn = '';
-    if(res.ErrorMessage.indexOf('Access denied') > -1)
-        btn = '<a href="/Default.aspx" class="btn btn-success">' + langRes.HomePage + '</a>';
+    // var btn = '';
+    // if(res.ErrorMessage.indexOf('Access denied') > -1)
+    //     btn = '<a href="/Default.aspx" class="btn btn-success">' + langRes.HomePage + '</a>';
         
     sweetConfirm(null, {
         title: "Error",
         text: msg,
         type: "error",
-        buttonText: langRes.HomePage,
-        buttonType: "success"
+        showCancelButton: false,
+        buttonText: "OK",
+        buttonType: "info"
     });
 }
 

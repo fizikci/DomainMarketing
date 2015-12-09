@@ -25,15 +25,10 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public int MinimumBidPrice { get; set; }
         public int MinimumBidInterval { get; set; }
         public DateTime ExpiryDate { get; set; }
-        public bool EnableDomainParking { get; set; }
-        public bool VisibleInAdNetwork { get; set; }
         public int PageRank { get; set; }
         public string Ownership { get; set; }
         public bool VerificationAsked { get; set; }
         public bool IsPrivateSale { get; set; }
-        public string Analytics { get; set; }
-        public string AdSense { get; set; }
-        public string Alexa { get; set; }
 
         // Auction Fields
         public DMAuctionStates Status { get; set; }
@@ -49,7 +44,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string Comments { get; set; }
 
 
-        public int Monthlyvisitors { get; set; }
+        public int MonthlyVisitors { get; set; }
         public int MonthlyPageViews { get; set; }
         public int MonthlyRevenue { get; set; }
     }
