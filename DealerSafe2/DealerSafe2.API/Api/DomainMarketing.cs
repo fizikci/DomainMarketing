@@ -653,10 +653,8 @@ namespace DealerSafe2.API
             if (req.PlannedCloseDate <= DateTime.Now.AddDays(1))
                 throw new APIException("Planned close date of auction should be at least 1 day later.");
 
-            if (item.Status == DMAuctionStates.Open && item.BiggestBid > 0)
+            if (item.BiggestBid > 0)
                 throw new APIException("There are bids on this auction! Auction cannot be editted.");
-            if (item.Status != DMAuctionStates.NotOnAuction)
-                throw new APIException("Cannot create auction! Because it was already on auction.");
 
             req.CopyPropertiesWithSameName(item);
 
@@ -684,12 +682,12 @@ namespace DealerSafe2.API
                 throw new APIException("There are bids on this auction, thus it cannot be deleted!");
             if (item.SellerMemberId != Provider.CurrentMember.Id)
                 throw new APIException("You cannot delete other's auctions.");
-            if (item.PaymentStatus == DMSaleStates.TimeoutForPayment || item.PaymentStatus == DMSaleStates.CancelledByBuyer 
-                || (item.Status == DMAuctionStates.Cancelled && item.StatusReason == DMAuctionStateReasons.DueDate))
-                Provider.Database.ExecuteNonQuery("delete from DMBid where DMItemId = {0}", item.Id);
-            else throw new APIException("Cannot remove auction.");
 
             item.Status = DMAuctionStates.NotOnAuction;
+            item.StatusReason = DMAuctionStateReasons.None;
+            item.BiggestBid = 0;
+            item.MinimumBidInterval = 0;
+            item.MinimumBidPrice = 0;
             item.Save();
             return true;
         }
@@ -1564,6 +1562,7 @@ namespace DealerSafe2.API
 
             var sql = @"SELECT
 	                        B.[Id],
+                            B.DMItemId,
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[InsertDate],
