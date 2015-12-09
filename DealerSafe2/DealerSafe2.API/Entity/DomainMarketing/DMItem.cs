@@ -135,5 +135,4 @@ namespace DealerSafe2.API.Entity.DomainMarketing
     }
 
     public class DMAuction : DMItem { }
-
 }
