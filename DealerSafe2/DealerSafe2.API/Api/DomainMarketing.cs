@@ -11,6 +11,7 @@ using DealerSafe2.DTO.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace DealerSafe2.API
@@ -1209,6 +1210,9 @@ namespace DealerSafe2.API
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
                 throw new APIException("Access denied.");
 
+            if (!Regex.Match(req.DomainName, @"[a-z0-9\-]+(\.[a-z0-9]+)+").Success)
+                throw new APIException("Invalid domain name");
+
             //TODO: check if user is saving his own item?
             DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id);
             if (item != null && item.SellerMemberId != Provider.CurrentMember.Id)
@@ -1485,8 +1489,6 @@ namespace DealerSafe2.API
         {
             if (req == null)
                 throw new APIException("Parameter null. Access denied");
-            if (Provider.CurrentMember.Id.IsEmpty())
-                throw new APIException("Access denied");
 
             var sql = @"SELECT
 	                        B.[Id],
@@ -1510,9 +1512,9 @@ namespace DealerSafe2.API
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM DMBid AS B
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE B.DMItemId = {0} AND I.IsDeleted <> 1", req.DMItemId, Provider.CurrentMember.Id);
+                        WHERE B.DMItemId = {0} AND I.IsDeleted <> 1", req.DMItemId);
 
-            var res = Provider.Database.GetDataTable(sql, req.DMItemId, Provider.CurrentMember.Id).ToEntityList<DMBidderMemberInfo>();
+            var res = Provider.Database.GetDataTable(sql, req.DMItemId).ToEntityList<DMBidderMemberInfo>();
 
             return new PagerResponse<DMBidderMemberInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
