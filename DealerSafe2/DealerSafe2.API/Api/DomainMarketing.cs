@@ -1210,7 +1210,7 @@ namespace DealerSafe2.API
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
                 throw new APIException("Access denied.");
 
-            if (!Regex.Match(req.DomainName, @"[a-z0-9\-]+(\.[a-z0-9]+)+").Success)
+            if (!Regex.Match(req.DomainName, @"^[a-z0-9\-]+(\.[a-z0-9]+)+$").Success)
                 throw new APIException("Invalid domain name");
 
             //TODO: check if user is saving his own item?
