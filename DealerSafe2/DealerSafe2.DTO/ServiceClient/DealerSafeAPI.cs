@@ -540,7 +540,11 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-        
+
+        public bool IsOnMyWatchList(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
         public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
         {
             return Call<PagerResponse<ListViewDMWatchListItemInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
@@ -616,34 +620,44 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<DMMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqPager req)
+        public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<EntityCommentInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqPager req)
+        public PagerResponse<EntityCommentInfo> GetProfileComments(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<EntityCommentInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<EntityCommentInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqPager req)
+        public PagerResponse<ListViewSalesInfo> GetProfileSales(ReqGetProfileComplaints req)
         {
-            return Call<PagerResponse<ListViewSalesInfo>, ReqPager>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ListViewSalesInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
         }
 
 
         #endregion
 
-        #region Search
+        #region Search & Sharing
 
-        public List<DMItemInfo> GetSearchResults(ReqSearchAuction req)
+        public PagerResponse<ResGetSearchResults> GetSearchResults(ReqSearchAuction req)
         {
-            return Call<List<DMItemInfo>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<PagerResponse<ResGetSearchResults>, ReqSearchAuction>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         public List<string> GetDMItemExtensions(ReqEmpty req)
         {
             return Call<List<string>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public List<DMFaqInfo> GetDMFaqSearchResults(string keyword)
+        {
+            return Call<List<DMFaqInfo>, string>(keyword, MethodBase.GetCurrentMethod().Name);
+        }
+
+        public bool RecommendItem(ReqShareItem req)
+        {
+            return Call<bool, ReqShareItem>(req, MethodBase.GetCurrentMethod().Name);
         }
 
         #endregion
@@ -840,9 +854,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, ReqOffer>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool AcceptOffer(ReqAcceptOffer id)
+        public bool AcceptOffer(string id)
         {
-            return Call<bool, ReqAcceptOffer>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public PagerResponse<DMOfferItemMemberInfo> OffersForMyItems(ReqPager req)
@@ -884,7 +898,7 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<List<ListDMPredefinedMessageInfo>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public bool SendMessage(ReqSendDMMessage req)
+        public bool SendDMMessage(ReqSendDMMessage req)
         {
             return Call<bool, ReqSendDMMessage>(req, MethodBase.GetCurrentMethod().Name);
         }

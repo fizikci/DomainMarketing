@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqBid
+    public class ReqBid : BaseRequest
     {
         public string DMItemId { get; set; }
 

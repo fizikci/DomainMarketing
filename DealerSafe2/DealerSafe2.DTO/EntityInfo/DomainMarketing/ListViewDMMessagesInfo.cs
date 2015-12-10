@@ -11,10 +11,10 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string Body { get; set; }
         public string SenderMemberId { get; set; }
         public string SenderMemberAvatar { get; set; }
-        public string SenderMemberFullname { get; set; }
-        public string Tomemberid { get; set; }
+        public string SenderMemberFullName { get; set; }
+        public string ToMemberId { get; set; }
         public string ToMemberAvatar { get; set; }
-        public string ToMemberFullname { get; set; }
+        public string ToMemberFullName { get; set; }
         public string InsertDate { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqSendDMMessage
+    public class ReqSendDMMessage : BaseRequest
     {
         public string ToMemberId { get; set; }
         public string DMPredefinedMessageId { get; set; }

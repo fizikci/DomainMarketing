@@ -10,7 +10,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
     {
         public string Type { get; set; }
         public string SellerMemberId { get; set; }
-        public string SellerMemberFullName { get; set; }
+        public string SellerFullName { get; set; }
         public string DomainName { get; set; }
         public int BuyItNowPrice { get; set; }
         public string DMCategoryId { get; set; }
@@ -31,6 +31,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string Alexa { get; set; }
         public bool ShowBidList { get; set; }
         public DMAuctionStates Status { get; set; }
+        public DMAuctionStateReasons StatusReason { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime PlannedCloseDate { get; set; }
         public string Comments { get; set; }

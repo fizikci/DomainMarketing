@@ -532,6 +532,7 @@
     <Compile Include="Entity\CommunicationChannel\CCSentMessage.cs" />
     <Compile Include="Entity\CommunicationChannel\CCSmsSocket.cs" />
     <Compile Include="Entity\DomainMarketing\DMAutoBidder.cs" />
+    <Compile Include="Entity\DomainMarketing\DMFaq.cs" />
     <Compile Include="Entity\DomainMarketing\DMMessage.cs" />
     <Compile Include="Entity\DomainMarketing\DMOffer.cs" />
     <Compile Include="Entity\DomainMarketing\DMPredefinedMessage.cs" />

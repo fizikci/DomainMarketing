@@ -11,6 +11,7 @@
 
     public enum MemberTypes
     {
+        Admin,
         Individual,
         Corporate,
         Reseller

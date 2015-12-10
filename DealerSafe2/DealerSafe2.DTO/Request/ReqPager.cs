@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqPager
+    public class ReqPager : BaseRequest
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

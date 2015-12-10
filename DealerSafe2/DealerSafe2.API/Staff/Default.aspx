@@ -310,7 +310,7 @@
                             <li>
                                 <a href="#/List/DMItem">
                                     <i class="icon-tag"></i>
-                                    <%=Provider.TR("Itemss") %> 
+                                    <%=Provider.TR("Items") %> 
                                 </a>
                             <li>
                             <li>

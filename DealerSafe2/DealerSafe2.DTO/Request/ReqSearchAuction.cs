@@ -6,14 +6,20 @@ using System.Text;
 
 namespace DealerSafe2.DTO.Request
 {
-    public class ReqSearchAuction : BaseRequest
+    public class ReqSearchAuction : ReqPager
     {
         public string StartsWith { get; set; }
         public string EndsWith { get; set; }
         public string Including { get; set; }
         public string Extension { get; set; }
         public string CategoryId { get; set; }
-        public DMItemTypes Type { get; set; }
+        public string Type { get; set; }
+
+        public int PageRank { get; set; }
+        public int Monthlyvisitors { get; set; }
+        public int MonthlyPageViews { get; set; }
+        public int MonthlyRevenue { get; set; }
+
         public int MinPrice { get; set; }
         public int MaxPrice { get; set; }
     }

@@ -61,9 +61,6 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("describes the verification channel if verified. The verification could be both automatic and manual. A fee may be requested from the members if a verification is requested for any domain.")]
         public string VerifiedBy { get; set; }
 
-        [Description("")]
-        public bool IsPrivateSales { get; set; }
-
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 40), Description("holds the analtics value of the web site if available")]
         public string Analytics { get; set; }
 
@@ -74,8 +71,11 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string Alexa { get; set; }
 
         // auction starts from here
-        [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller; 5:due date reached but no successful bid available")]
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 15), Description("0:open; 1:completed successfully; 2:direct buy(offered the buy it price and seller accepted) ; 3: suspended; 4:cancelled by the seller")]
         public DMAuctionStates Status { get; set; }
+
+        [ColumnDetail(ColumnType = DbType.VarChar, Length = 16), Description("")]
+        public DMAuctionStateReasons StatusReason { get; set; }
 
         [Description("starting date of the auction")]
         public DateTime StartDate { get; set; }
@@ -132,8 +132,12 @@ namespace DealerSafe2.API.Entity.DomainMarketing
 
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 100), Description("comments")]
         public string PaymentDescription { get; set; }
+
+
+        public int Monthlyvisitors { get; set; }
+        public int MonthlyPageViews { get; set; }
+        public int MonthlyRevenue { get; set; }
     }
 
     public class DMAuction : DMItem { }
-
 }

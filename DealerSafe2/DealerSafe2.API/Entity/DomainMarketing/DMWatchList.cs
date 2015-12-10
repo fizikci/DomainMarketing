@@ -7,7 +7,7 @@ using System.Web;
 
 namespace DealerSafe2.API.Entity.DomainMarketing
 {
-    public class DMWatchList : NamedEntity
+    public class DMWatchList : BaseEntity
     {
         [ColumnDetail(ColumnType = DbType.VarChar, Length = 12), Description("id of the member watching")]
         public string MemberId { get; set; }
