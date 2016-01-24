@@ -695,6 +695,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Medya\" />
     <Folder Include="obj\" />
   </ItemGroup>
   <PropertyGroup>

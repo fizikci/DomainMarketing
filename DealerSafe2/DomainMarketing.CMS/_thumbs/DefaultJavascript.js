@@ -137,11 +137,6 @@ $(function(){
     //since Bootstrap 3.3.0 tooltips now needs to be initialized by user code,
     //due to performance reasons
     $('[data-toggle="tooltip"]').tooltip();
-    
-    // jQuery("img.replaceIfAvatarError").error(function(){
-    //     jQuery(this).attr("src", "/UserFiles/Avatar.png");
-    // });
-    
 });
 function markTheme(){
     var currTheme = getCookie('theme') || 'Cyborg';

@@ -18,9 +18,12 @@ a, .pointer {
     text-decoration: none !important;
 }
 .inlineBlock{
-    display: inline-block;
+    display: inline-block !important;
 }
-.verticalAlignMiddle{
+.verticalAlignTop, .verticalTop{
+    vertical-align: top;
+}
+.verticalAlignMiddle, .verticalMiddle{
     vertical-align: middle;
 }
 

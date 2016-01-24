@@ -10,7 +10,11 @@ using DealerSafe2.DTO.Request;
 using DealerSafe2.DTO.Response;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -54,7 +58,7 @@ namespace DealerSafe2.API
 
         public bool IsOnMyWatchList(string id)
         {
-            return Provider.Database.GetBool("select 1 from DMWatchList where DMItemId = {0} and MemberId = {1} and IsDeleted = 0", id, Provider.CurrentMember.Id);
+            return Provider.Database.GetBool("select 1 from DMWatchList where DMItemId = {0} and MemberId = {1}", id, Provider.CurrentMember.Id);
         }
 
         public PagerResponse<ListViewDMWatchListItemInfo> GetMyWatchList(ReqPager req)
@@ -574,16 +578,9 @@ namespace DealerSafe2.API
             if (string.IsNullOrEmpty(req.DMItemId) || !Provider.Database.GetBool("select 1 from DMItem where id = {0}", req.DMItemId))
                 throw new APIException("No such item.");
 
-            var reqMail = new ReqSendMessage()
-            {
-                Email = req.ToEmail,
-                AddSubject = "New Message From " + Provider.CurrentMember.FullName,
-                AddMessage = req.Message,
-                SendDate = DateTime.Now,
-                TemplateId = "" // TODO: set the proper id
-            };
+            SendMailFromAPI("New Message From " + Provider.CurrentMember.FullName, req.Message);
 
-            return Provider.Api.SendMessage(reqMail); ;
+            return true;
         }
 
         #endregion
@@ -1259,6 +1256,129 @@ namespace DealerSafe2.API
             return true;
         }
 
+        public bool RemoveScreenshot(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new APIException("id is empty.");
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            var screenshot = Provider.Database.Read<DMScreenshot>("select * from DMScreenshot where Id = {0}", id);
+
+
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where IsDeleted = 0 and Id = {0} order by Type, DomainName", screenshot.DMItemId);
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot delete screenshots that are not yours!");
+            if (item.Status == DMAuctionStates.Open && item.BiggestBid > 0)
+                throw new APIException("This item has an auction with bids. Screenshots cannot be deleted!");
+            if (item.PaymentStatus == DMSaleStates.WaitingForPayment || item.PaymentStatus == DMSaleStates.WaitingForTransfer)
+                throw new APIException("This item has an unstable payment status, wait until it is resolved!");
+
+            screenshot.Delete();
+
+            var fullPath = AppDomain.CurrentDomain.BaseDirectory + screenshot.RelativePath.Substring(1).Replace("/", "\\");
+            File.Delete(fullPath);
+
+            return true;
+        }
+
+        public List<DMScreenshotInfo> GetDMScreenshots(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new APIException("id is empty.");
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+            
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+            var screenshots = Provider.Database.ReadList<DMScreenshot>("select * from DMScreenshot where DMItemId = {0} and IsDeleted <> 1 order by OrderNo, InsertDate ", id).ToEntityInfo<DMScreenshotInfo>();
+            screenshots.ForEach(x => x.RelativePath = host + x.RelativePath);
+            return screenshots;
+        }
+        public List<DMScreenshotInfo> SaveDMScreenShot(ReqDMScreenshot req)
+        {
+            if (req == null)
+                throw new APIException("Parameter null. Access denied");
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            if (string.IsNullOrWhiteSpace(req.DMItemId))
+                throw new APIException("Item id is empty.");
+            DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.DMItemId);
+            if (item == null)
+                throw new APIException("No such item.");
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot add screenshots to an item that is not yours!");
+            if (item.Status == DMAuctionStates.Open && item.BiggestBid > 0)
+                throw new APIException("This item has an auction with bids. New screenshots cannot be added!");
+            if (item.PaymentStatus == DMSaleStates.WaitingForPayment || item.PaymentStatus == DMSaleStates.WaitingForTransfer)
+                throw new APIException("This item has an unstable payment status, wait until it is resolved!");
+
+
+            List<DMScreenshot> screenshots = new List<DMScreenshot>();
+            for (int i = 0; i < req.ScreenShots.Length; i++)
+			{
+                if (string.IsNullOrWhiteSpace(req.ScreenShots[i].base64))
+                    throw new APIException("base64 is empty.");
+                if (string.IsNullOrWhiteSpace(req.ScreenShots[i].filename))
+                    throw new APIException("filename is empty.");
+                if (string.IsNullOrWhiteSpace(req.ScreenShots[i].filetype))
+                    throw new APIException("filetype is empty.");
+
+                screenshots.Add(new DMScreenshot()
+                {
+                    DMItemId = req.DMItemId,
+                    Name = req.ScreenShots[i].filename
+                });
+			}
+            
+
+            for (int i = 0; i < req.ScreenShots.Length; i++)
+            {
+                var fileName = req.ScreenShots[i].filename;
+                var base64EncodedText = req.ScreenShots[i].base64;
+                var fixedBase64 = FixBase64ForImage(base64EncodedText);
+                //create byte array from base64 encoded text
+                byte[] bitmapData = Convert.FromBase64String(fixedBase64);
+                System.IO.MemoryStream streamBitmap = new System.IO.MemoryStream(bitmapData);
+                Image image = Image.FromStream(streamBitmap);
+                
+                //generate img path
+                string imgPath = "Medya\\" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+                screenshots[i].RelativePath = "/" + imgPath.Replace("\\", "/");
+
+                var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
+                image.Save(fullPath, ImageFormat.Jpeg);
+
+                //Image scaledImage = new Bitmap(image);
+
+                //if (image.Height > 768)
+                //    scaledImage = image.ScaleImage(0, 768); //max height taken as 768
+                //if (image.Width > 1024)
+                //    scaledImage = image.ScaleImage(1024, 0); //max width taken as 1024
+
+                //scaledImage.Save(imgPath, ImageFormat.Jpeg); // 100%, no quality loss
+                screenshots[i].Insert();
+            }
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+            screenshots.ForEach(x => {
+                x.RelativePath = host + x.RelativePath;
+            });
+            return screenshots.ToEntityInfo<DMScreenshotInfo>();
+        }
+        private string FixBase64ForImage(string Image)
+        {
+            System.Text.StringBuilder sbText = new System.Text.StringBuilder(Image, Image.Length);
+            sbText.Replace(" ", "+").Replace("\r\n", "").Replace("\r", "").Replace("\n", "");
+            int mod4 = sbText.Length % 4;
+            if (mod4 > 0) sbText.Append(new string('=', 4 - mod4));
+            
+            return sbText.ToString();
+        }
+
         #endregion
 
         #region Biddings & Offers
@@ -1270,7 +1390,7 @@ namespace DealerSafe2.API
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
-            var sql = "select Id, BiggestBid, MinimumBidPrice, MinimumBidInterval, DomainName, BuyItNowPrice from DMItem where Id = {0}";
+            var sql = "select Id, BiggestBid, MinimumBidPrice, MinimumBidInterval, DomainName, BuyItNowPrice, Status from DMItem where Id = {0}";
             var item = Provider.Database.GetDataTable(sql, id).ToEntityList<ResponseDMAuctionBidDetails>().FirstOrDefault();
 
             return item;
@@ -1411,8 +1531,8 @@ namespace DealerSafe2.API
             req.CopyPropertiesWithSameName(bid);
 
             var item = Provider.Database.Read<DMItem>(@"select * from DMItem where  Id = {0} and Status = {1} and IsDeleted = 0", req.DMItemId, DMAuctionStates.Open.ToString());
-            if (item == null) throw new APIException("Auction is closed or there is no such auction."); 
-            
+            if (item == null) throw new APIException("Auction is closed or there is no such auction.");
+
             var minimumPossible = (item.BiggestBid == 0 ? item.MinimumBidPrice : item.BiggestBid) + item.MinimumBidInterval;
             var isAutoBidderSet = req.MaxBidValue != 0;
 
@@ -1657,45 +1777,103 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied");
 
             // check if item is still available for #buyitnow
-            var item = Provider.Database.Read<DMItem>(
-                "select * from DMItem where Id = {0} and PaymentStatus = {1}",
-                req.Id, DMSaleStates.None.ToString());
-            if (item == null)
-                throw new APIException("No such item is on sale.");
+            var item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id);
+            if (item == null) throw new APIException("No such item.");
 
-            //if (item.PaymentStatus != DMSaleStates.None)
-            //    throw new APIException("Cannot buy item. It was either cancelled or bought by somebody else.");
             if (item.SellerMemberId == Provider.CurrentMember.Id)
                 throw new APIException("You cannot buy your own item.");
 
             if (item.Status == DMAuctionStates.Cancelled || item.Status == DMAuctionStates.Suspended)
                 throw new APIException("Canceled or Suspended items cannot be sold");
-            if (item.Status == DMAuctionStates.Completed)
+            if (item.PaymentStatus == DMSaleStates.WaitingForTransfer)
                 throw new APIException("Payment for this item has already been completed. Please contact your customer representative.");
 
             // if withdrawal was made continue...
-            // TODO: send the item as parameter as well
-            var paymentRes = makeWithdrawal(req);
+            var paymentRes = makeWithdrawal(req, item);
             if (!paymentRes.IsEmpty())
                 throw new APIException(paymentRes);
 
             // set items status
             item.Status = DMAuctionStates.Completed;
 
+            if (item.PaymentStatus != DMSaleStates.WaitingForPayment)
+            {//If payment is Buy it now...
+                item.StatusReason = DMAuctionStateReasons.BuyItNow;
+                item.PaymentAmount = item.BuyItNowPrice;
+            }
+
             item.PaymentStatus = DMSaleStates.WaitingForTransfer;
-            item.StatusReason = DMAuctionStateReasons.BuyItNow;
             item.BuyerMemberId = Provider.CurrentMember.Id;
-            item.PaymentAmount = item.BuyItNowPrice;
             item.ActualCloseDate = Provider.Database.Now;
             item.PaymentType = "Credit Card";
             item.PaymentDate = DateTime.Now;
             item.PaymentDescription = req.PaymentDescription;
+
             item.Save();
+
+            var htmlMessage = @"
+                <br>
+                <p>From your {1} ending with {2}, we received {3} liras, for <a href=""{0}ViewItem.aspx?Id={4}"">{5}</a></p>
+                
+                <p>You can also go to <a href=""{0}/MySales.aspx"">My Sales</a> page to see your payment details.</p>
+                
+                <p>From now on the following will happen:</p>
+                <p>
+                    <ol>
+                        <li>You will wait for our emails for at most 2 weeks.</li>
+                        <li>We will contact the seller and take the item's ownership from him.</li>
+                        <li>
+                            After the confirmation of the money and the item transfer will be made.
+                            <ul>
+                                <li>Buyer will take the item.</li>
+                                <li>Seller will take the money.</li>
+                            </ul>
+                        </li>
+                        <li>If in 2 weeks we do not cantact you, your money will be refunded.</li>
+                        <li>
+                            If the transfer has taken place the status of this item will be 
+                            <span class=""label label-primary"">successfully closed</span>
+                        </li>
+                        <li>In the meantime no changes will be allowed to this item by the seller.</li>
+                        <li>If the transfer was failed, the status will be <span class=""label label-warning"">cancelled</span></li>
+                        <li>Cancelled items can be re-opened for bidding again.</li>
+                    </ol>
+                </p>
+            ";
+
+            htmlMessage = string.Format(htmlMessage,
+                AppDomain.CurrentDomain.BaseDirectory,
+                item.PaymentType,
+                req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
+                item.PaymentAmount,
+                item.Id,
+                item.DomainName);
+            var subject = "Congratulations! Payment Received ✅";
+
+            SendMailFromAPI(subject, htmlMessage);
 
             return true;
         }
 
-        private string makeWithdrawal(ReqPaymentInfo req)
+        /// <summary> 
+        /// Sends email to current member with a subject and an html message.
+        ///     If member is specified it is send to that member instead.
+        /// </summary>
+        private static void SendMailFromAPI(string subject, string htmlMessage, Member toMemeber = null)
+        {
+            if (toMemeber == null)
+                toMemeber = Provider.CurrentMember;
+            
+            // TODO: set correct email
+            Utility.SendMail("domainmarketing@isimtescil.net", "Domain Marketing",
+                toMemeber.Email, toMemeber.FullName,
+                subject,
+                htmlMessage,
+                // TODO: set host and port
+                "", 0);
+        }
+
+        private string makeWithdrawal(ReqPaymentInfo req, DMItem item)
         {
             return "";
         }

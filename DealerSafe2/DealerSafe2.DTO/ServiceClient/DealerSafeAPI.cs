@@ -804,6 +804,19 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
+        public bool RemoveScreenshot(string id)
+        {
+            return Call<bool, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public List<DMScreenshotInfo> GetDMScreenshots(string id)
+        {
+            return Call<List<DMScreenshotInfo>, string>(id, MethodBase.GetCurrentMethod().Name);
+        }
+        public List<DMScreenshotInfo> SaveDMScreenShot(ReqDMScreenshot req)
+        {
+            return Call<List<DMScreenshotInfo>, ReqDMScreenshot>(req, MethodBase.GetCurrentMethod().Name);
+        }
+
         #endregion
 
         #region Bids & Offers

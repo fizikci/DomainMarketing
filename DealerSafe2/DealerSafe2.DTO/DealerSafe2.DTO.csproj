@@ -57,6 +57,7 @@
     <Compile Include="EntityInfo\DomainMarketing\DMBidderMemberInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMBidInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\DMFaqInfo.cs" />
+    <Compile Include="EntityInfo\DomainMarketing\DMScreenshotInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListDMPredefinedMessageInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewAuctionsInfo.cs" />
     <Compile Include="EntityInfo\DomainMarketing\ListViewDMMessagesInfo.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="ISetFieldsByPostData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request\BaseRequest.cs" />
+    <Compile Include="Request\ReqDMScreenshot.cs" />
     <Compile Include="Request\ReqGetBidsWithItemId.cs" />
     <Compile Include="Request\ReqGetProfileComplaints.cs" />
     <Compile Include="Request\ReqPaymentInfo.cs" />
