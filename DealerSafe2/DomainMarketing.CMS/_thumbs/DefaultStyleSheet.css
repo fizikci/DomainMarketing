@@ -59,3 +59,9 @@ form.ng-invalid.ng-submitted .ng-invalid {
 .top-buffer { margin-top:20px; }
 
 .left-buffer { margin-left:20px; }
+
+@media (min-width: 768px){
+    .form-horizontal .control-label {
+        padding-top: 0px;
+    }
+}

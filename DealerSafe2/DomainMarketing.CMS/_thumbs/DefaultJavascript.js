@@ -297,6 +297,45 @@ var apiErrors = [
 /*
  * Input directives
 */
+app.directive('inputFile', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: function (elm, attr) {
+            if (!attr.placeholder) attr.placeholder = '';
+            var isAttrLoader = (typeof(attr.isUploading) === "undefined" ? false : true);
+            var customAttrs = " " + Object.keys(attr)
+                .filter(function(x){ return x.indexOf("custom") === 0; })
+                .map(function(x){ return x.replace("custom","") + "='" + attr[x] + "'" }).join(" ");
+            return '<div>' +
+                    '   <div class="space-4"></div>' +
+                    '   <div class="form-group">' +
+                    '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
+                    '       <div class="col-sm-9">' +
+                    elm.html() +
+    (isAttrLoader ? '           <img ng-show="' + attr.isUploading + '" style="width: 100px" src="/userfiles/loading.gif" class="verticalMiddle">' : '') +
+                    (elm.html().trim().length > 0 ? '<br ng-show="'+ attr.model +'"><br ng-show="'+ attr.model +'">' : '') +
+                    '           <input type="file" ng-model="' + attr.model + '"' 
+                                    + (attr.name ? ' name="' + attr.name + '" id="' + attr.name + '"' : '')
+                                    + (isAttrLoader ? ' ng-disabled="' + attr.isUploading + '"' : '')
+                                    + (attr.inputClass ? ' class="' + attr.inputClass + ' col-sm-10 col-xs-12"' : '')
+                                    + (attr.multiple ? ' multiple' : '')
+                                    + (attr.accept ? ' accept="' + attr.accept + '"' : '')
+                                    + (attr.maxsize ? ' maxsize="' + attr.maxsize + '"' : '')
+                                    + (attr.minsize ? ' minsize="' + attr.minsize + '"' : '')
+                                    + (attr.minnum ? ' minnum="' + attr.minnum + '"' : '')
+                                    + (attr.maxnum ? ' maxnum="' + attr.maxnum + '"' : '')
+                                    + (attr.onAfterValidate ? ' on-after-validate="' + attr.onAfterValidate + '"' : '')
+                                    + (attr.required ? ' required' : '')
+                                    + customAttrs
+                                    + ' base-sixty-four-input>' +
+                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
+                    '       </div>' +
+                    '   </div>' +
+                    '</div>';
+        }
+    };
+});
 app.directive('inputText', function () {
     return {
         restrict: 'E',

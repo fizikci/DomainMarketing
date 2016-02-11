@@ -134,9 +134,11 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string PaymentDescription { get; set; }
 
 
-        public int Monthlyvisitors { get; set; }
+        public int MonthlyVisitors { get; set; }
         public int MonthlyPageViews { get; set; }
         public int MonthlyRevenue { get; set; }
+
+        public bool AutoBidderActive { get; set; }
     }
 
     public class DMAuction : DMItem { }

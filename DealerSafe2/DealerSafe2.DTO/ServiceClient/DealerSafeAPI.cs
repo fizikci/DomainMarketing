@@ -152,12 +152,14 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, ProfileInfo>(req, MethodBase.GetCurrentMethod().Name);
         }
-
-        public ProfileInfo GetProfileInfo(ReqEmpty req)
+        public string GetMemberAvatar(ReqEmpty req)
         {
-            return Call<ProfileInfo, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+            return Call<string, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
-
+        public string SaveMemberAvatar(Base64Image req)
+        {
+            return Call<string, Base64Image>(req, MethodBase.GetCurrentMethod().Name);
+        }
         public bool ChangeMemberPassword(ReqChangeMemberPassword req)
         {
             return Call<bool, ReqChangeMemberPassword>(req, MethodBase.GetCurrentMethod().Name);

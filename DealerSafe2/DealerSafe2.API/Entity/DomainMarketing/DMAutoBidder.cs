@@ -19,7 +19,10 @@ namespace DealerSafe2.API.Entity.DomainMarketing
         public string BidderMemberId { get; set; }
 
         [Description("the highest bid that member could make")]
-        public int MaxBidValue { get; set; }
+        public int Limit { get; set; }
+
+        [Description("the interval for the autobid")]
+        public int Interval { get; set; }
 
 
     }

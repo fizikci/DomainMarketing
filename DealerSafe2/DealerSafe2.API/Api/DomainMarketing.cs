@@ -346,7 +346,7 @@ namespace DealerSafe2.API
 	                        B.InsertDate
                         FROM DMBrokerage AS B
                         INNER JOIN DMItem I ON B.DMItemId = I.Id
-                        INNER JOIN Member M ON M.Id = B.BrokerMemberId 
+                        LEFT JOIN Member M ON M.Id = B.BrokerMemberId 
                         WHERE B.RequesterMemberId = {0} AND B.IsDeleted <> 1 
                         ORDER BY B.InsertDate, B.Status DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
@@ -413,7 +413,22 @@ namespace DealerSafe2.API
 
             var res = Provider.Database.GetDataTable(sql, req.MemberId).ToEntityList<EntityCommentInfo>();
 
+            AddHostPrefixToAvatars(res);
+
             return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
+        }
+
+        private void AddHostPrefixToAvatars(List<EntityCommentInfo> res)
+        {
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+
+            res.AsParallel().ForAll(x =>
+            {
+                x.SenderAvatar = host + x.SenderAvatar;
+                x.ToAvatar = host + x.ToAvatar;
+            });
         }
 
         public PagerResponse<EntityCommentInfo> GetProfileComments(ReqGetProfileComplaints req)
@@ -440,6 +455,8 @@ namespace DealerSafe2.API
             var totalCount = Provider.Database.GetInt(@"SELECT count(*) FROM EntityComment AS EC WHERE EC.EntityName = 'Member' AND EC.Rating > 0 AND EC.EntityId = {0} AND EC.IsDeleted <> 1", req.MemberId);
 
             var res = Provider.Database.GetDataTable(sql, req.MemberId).ToEntityList<EntityCommentInfo>();
+
+            AddHostPrefixToAvatars(res);
 
             return new PagerResponse<EntityCommentInfo> { ItemsInPage = res, NumberOfItemsInTotal = totalCount };
         }
@@ -490,18 +507,94 @@ namespace DealerSafe2.API
         {
             if (id == null)
                 throw new APIException("Parameter null. Access denied");
-            var member = Provider.Database.Read<Member>(@"select * from Member where Id={0}", id);
+            
+            var member = id == Provider.CurrentMember.Id ? Provider.CurrentMember : Provider.Database.Read<Member>(@"select * from Member where Id={0}", id);
+            
             var memberInfo = new DMMemberInfo();
             member.CopyPropertiesWithSameName(memberInfo);
+            
             memberInfo.FullName = member.FullName;
+            memberInfo.RegistrationDate = member.InsertDate;
+            
+            SetMemberAddress(member, memberInfo);
+            SetMemberAvatar(memberInfo);
+
+            return memberInfo;
+        }
+
+        private static void SetMemberAddress(Member member, DMMemberInfo memberInfo)
+        {
+
             var address = member.GetMemberAddresses()
                 .Where(x => x.AddressType == AddressTypes.DefaultAddress)
                 .FirstOrDefault();
+
             if (address != null && !string.IsNullOrEmpty(address.CountryId))
                 memberInfo.Country = address.Country().Name;
-            memberInfo.RegistrationDate = member.InsertDate;
 
-            return memberInfo;
+        }
+
+        private void SetMemberAvatar(DMMemberInfo memberInfo)
+        {
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+
+            memberInfo.Avatar = string.IsNullOrWhiteSpace(memberInfo.Avatar) ? "" : host + memberInfo.Avatar;
+        }
+
+        public string SaveMemberAvatar(Base64Image req)
+        {
+            if (req == null)
+                throw new APIException("Parameter null. Access denied");
+            if (Provider.CurrentMember.Id.IsEmpty())
+                throw new APIException("Access denied");
+
+            if (string.IsNullOrWhiteSpace(req.base64))
+                throw new APIException("base64 is empty.");
+            if (string.IsNullOrWhiteSpace(req.filename))
+                throw new APIException("filename is empty.");
+            if (string.IsNullOrWhiteSpace(req.filetype))
+                throw new APIException("filetype is empty.");
+
+
+            var fileName = req.filename;
+            var base64EncodedText = req.base64;
+            var fixedBase64 = FixBase64ForImage(base64EncodedText);
+
+            //create byte array from base64 encoded text
+            byte[] bitmapData = Convert.FromBase64String(fixedBase64);
+            System.IO.MemoryStream streamBitmap = new System.IO.MemoryStream(bitmapData);
+            Image image = Image.FromStream(streamBitmap);
+
+            //generate img path
+            string imgPath = "Medya\\" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+            var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
+
+
+            // remove the old avatar
+            try
+            {
+                File.Delete(AppDomain.CurrentDomain.BaseDirectory + Provider.CurrentMember.Avatar);
+            }
+            catch { }
+
+            Provider.CurrentMember.Avatar = "/" + imgPath.Replace("\\", "/");
+
+            // resize if too big
+            if (image.Height > 768)
+                image = image.ScaleImage(0, 768); //max height taken as 768
+            if (image.Width > 1024)
+                image = image.ScaleImage(1024, 0); //max width taken as 1024
+
+            image.Save(fullPath, ImageFormat.Jpeg);
+
+            Provider.CurrentMember.Save(); // Save it
+
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+            return host + Provider.CurrentMember.Avatar;
         }
 
         #endregion
@@ -575,10 +668,11 @@ namespace DealerSafe2.API
         {
             if (req == null)
                 throw new APIException("Parameter null. Access denied");
-            if (string.IsNullOrEmpty(req.DMItemId) || !Provider.Database.GetBool("select 1 from DMItem where id = {0}", req.DMItemId))
+            var item = Provider.Database.Read<DMItem>("select * from DMItem where id = {0}", req.DMItemId);
+            if (string.IsNullOrEmpty(req.DMItemId) || item == null)
                 throw new APIException("No such item.");
 
-            SendMailFromAPI("New Message From " + Provider.CurrentMember.FullName, req.Message);
+            SendMailFromAPI(Provider.CurrentMember.FullName + " recommends you " + item.DomainName, req.Message, req.ToEmail, req.ToFullName);
 
             return true;
         }
@@ -1256,6 +1350,7 @@ namespace DealerSafe2.API
             return true;
         }
 
+
         public bool RemoveScreenshot(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -1281,14 +1376,13 @@ namespace DealerSafe2.API
 
             return true;
         }
-
         public List<DMScreenshotInfo> GetDMScreenshots(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new APIException("id is empty.");
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
-            
+
             var query = HttpContext.Current.Request.Url.PathAndQuery;
             var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
             var host = absUri.Substring(0, absUri.IndexOf(query));
@@ -1318,7 +1412,7 @@ namespace DealerSafe2.API
 
             List<DMScreenshot> screenshots = new List<DMScreenshot>();
             for (int i = 0; i < req.ScreenShots.Length; i++)
-			{
+            {
                 if (string.IsNullOrWhiteSpace(req.ScreenShots[i].base64))
                     throw new APIException("base64 is empty.");
                 if (string.IsNullOrWhiteSpace(req.ScreenShots[i].filename))
@@ -1331,8 +1425,8 @@ namespace DealerSafe2.API
                     DMItemId = req.DMItemId,
                     Name = req.ScreenShots[i].filename
                 });
-			}
-            
+            }
+
 
             for (int i = 0; i < req.ScreenShots.Length; i++)
             {
@@ -1343,7 +1437,7 @@ namespace DealerSafe2.API
                 byte[] bitmapData = Convert.FromBase64String(fixedBase64);
                 System.IO.MemoryStream streamBitmap = new System.IO.MemoryStream(bitmapData);
                 Image image = Image.FromStream(streamBitmap);
-                
+
                 //generate img path
                 string imgPath = "Medya\\" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
                 screenshots[i].RelativePath = "/" + imgPath.Replace("\\", "/");
@@ -1364,7 +1458,8 @@ namespace DealerSafe2.API
             var query = HttpContext.Current.Request.Url.PathAndQuery;
             var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
             var host = absUri.Substring(0, absUri.IndexOf(query));
-            screenshots.ForEach(x => {
+            screenshots.ForEach(x =>
+            {
                 x.RelativePath = host + x.RelativePath;
             });
             return screenshots.ToEntityInfo<DMScreenshotInfo>();
@@ -1375,7 +1470,7 @@ namespace DealerSafe2.API
             sbText.Replace(" ", "+").Replace("\r\n", "").Replace("\r", "").Replace("\n", "");
             int mod4 = sbText.Length % 4;
             if (mod4 > 0) sbText.Append(new string('=', 4 - mod4));
-            
+
             return sbText.ToString();
         }
 
@@ -1430,95 +1525,6 @@ namespace DealerSafe2.API
             return res;
         }
 
-        private void AutoBidder(ReqBid req, DMItem auction)
-        {
-
-            DMBid newBid = new DMBid();
-
-            if (req.MaxBidValue > 0)
-            {
-                //if autobidding value is set first, 
-                //we are going to check if there is a higher autobidding value then, knock one out
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMItemId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMItemId, Provider.CurrentMember.Id);
-
-                DMAutoBidder autoBidder = new DMAutoBidder();
-                req.CopyPropertiesWithSameName(autoBidder);
-                autoBidder.BidderMemberId = Provider.CurrentMember.Id;
-                autoBidder.Save();
-
-
-                if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null)
-                {
-                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from DMItem where Id = {0}", req.DMItemId);
-
-                    if (auction.BiggestBid < highestAutoBid.MaxBidValue)
-                    {
-
-                        if (highestAutoBid.MaxBidValue > req.MaxBidValue)
-                        {
-                            newBid.BidComments = "Automaticly bidded";
-                            newBid.DMItemId = req.DMItemId;
-                            newBid.BidderMemberId = Provider.CurrentMember.Id;
-                            newBid.BidValue = req.MaxBidValue;
-                            newBid.Save();
-                            newBid = new DMBid();
-                            newBid.BidComments = "Automaticly bidded";
-                            newBid.DMItemId = highestAutoBid.DMItemId;
-                            newBid.BidderMemberId = highestAutoBid.BidderMemberId;
-                            if (highestAutoBid.MaxBidValue >= (req.MaxBidValue + minBidInt))
-                                newBid.BidValue = req.MaxBidValue + minBidInt;
-                            else
-                                newBid.BidValue = highestAutoBid.MaxBidValue;
-                            newBid.Save();
-                            auction.BiggestBid = newBid.BidValue;
-                        }
-                        else if (highestAutoBid.MaxBidValue < req.MaxBidValue)
-                        {
-                            newBid.BidComments = "Automaticly bidded";
-                            newBid.DMItemId = highestAutoBid.DMItemId;
-                            newBid.BidderMemberId = highestAutoBid.BidderMemberId;
-                            newBid.BidValue = highestAutoBid.MaxBidValue;
-                            newBid.Save();
-                            newBid = new DMBid();
-                            newBid.BidComments = "Automaticly bidded";
-                            newBid.DMItemId = req.DMItemId;
-                            newBid.BidderMemberId = Provider.CurrentMember.Id;
-                            if (req.MaxBidValue >= (highestAutoBid.MaxBidValue + minBidInt))
-                                newBid.BidValue = highestAutoBid.MaxBidValue + minBidInt;
-                            else
-                                newBid.BidValue = req.MaxBidValue;
-                            newBid.Save();
-                            auction.BiggestBid = newBid.BidValue;
-                        }
-                        auction.Save();
-                    }
-                }
-            }
-            else if (req.MaxBidValue == 0)
-            {//if autobidding value was not set then we are going to check if there is an autobid which has a bigger maxautobidvalue than our current bid value
-                var highestAutoBid = Provider.Database.Read<DMAutoBidder>(@"select * from DMAutoBidder where DMItemId = {0} AND BidderMemberId != {1} order by MaxBidValue desc OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", req.DMItemId, Provider.CurrentMember.Id);
-                if (highestAutoBid.MaxBidValue > 0 && highestAutoBid != null)
-                {
-                    var minBidInt = Provider.Database.GetInt(@"select MinimumBidInterval from DMItem where Id = {0}", req.DMItemId);
-                    if (highestAutoBid.MaxBidValue > req.BidValue)
-                    {
-                        newBid.BidComments = "Automaticly bidded";
-                        newBid.DMItemId = highestAutoBid.DMItemId;
-                        newBid.BidderMemberId = highestAutoBid.BidderMemberId;
-                        newBid.BidValue = req.BidValue + minBidInt;
-                        newBid.Save();
-                        auction.BiggestBid = newBid.BidValue;
-                        auction.Save();
-                    }
-                    else if (highestAutoBid.MaxBidValue <= req.BidValue)
-                    {//
-                        //Do nothing
-                    }
-                }
-            }
-
-        }
-
         public bool SaveBid(ReqBid req)
         {
             if (req == null)
@@ -1534,14 +1540,14 @@ namespace DealerSafe2.API
             if (item == null) throw new APIException("Auction is closed or there is no such auction.");
 
             var minimumPossible = (item.BiggestBid == 0 ? item.MinimumBidPrice : item.BiggestBid) + item.MinimumBidInterval;
-            var isAutoBidderSet = req.MaxBidValue != 0;
+            var isAutoBidderSet = req.Limit != 0;
 
             if (bid.BidValue < minimumPossible)
                 return false;
-            if (isAutoBidderSet && req.MaxBidValue < req.BidValue)
-                throw new APIException("Auto Bidding Value has to be bigger than bid value!");
-            if (isAutoBidderSet && req.MaxBidValue > item.BuyItNowPrice)
-                throw new APIException("Auto Bidding Value has to be smaller than Buy It Now Price!");
+            if (isAutoBidderSet && req.Limit < req.BidValue)
+                throw new APIException("Auto Bidding Limit has to be bigger than bid value!");
+            if (isAutoBidderSet && req.Limit > item.BuyItNowPrice)
+                throw new APIException("Auto Bidding Limit has to be smaller than or equal to Buy It Now Price!");
             if (item.SellerMemberId == Provider.CurrentMember.Id)
                 throw new APIException("You cannot bid on your own item.");
 
@@ -1549,6 +1555,66 @@ namespace DealerSafe2.API
             if (latestBidByCurrentMember != null && latestBidByCurrentMember.BidValue == item.BiggestBid)
                 throw new APIException("You have already made a bid.");
 
+            // make bid and save
+            bidOnItem(bid, item);
+
+            // Set auto bidder if it was requested.
+            if (isAutoBidderSet) CreateAutoBidder(req, item);
+
+            // Run autobidder after each bid if there is any.
+            if (item.AutoBidderActive) AutoBid(item);
+
+            return !String.IsNullOrEmpty(bid.Id);
+        }
+
+        private void CreateAutoBidder(ReqBid req, DMItem item)
+        {
+            // autobid.maxbid should be > item.MaxBid + item.Interval ✓
+            // There can only be 1 active autobid on 1 item ✓
+            // User can reset autobid after it becomes unfunctional(autobid.limit < item.maxbid) ✓
+
+            var minLimit = item.BiggestBid + item.MinimumBidInterval;
+            if (req.Limit < minLimit)
+                throw new APIException(string.Format("Your auto bidder limit should be at least {0} (biggest bid + minimum bid interval)", minLimit));
+
+            var activeAutoBidder = Provider.Database.Read<DMAutoBidder>("select * from DMAutoBidder where DMItemId = {0} and Limit > {1}", item.Id, item.BiggestBid);
+            if (activeAutoBidder != null)
+            {
+                var highestLimit = Math.Max(activeAutoBidder.Limit, req.Limit);
+                var activeBidderWins = highestLimit == activeAutoBidder.Limit;
+
+                for (int currentbid = item.BiggestBid; currentbid < highestLimit; currentbid += req.Interval + activeAutoBidder.Interval)
+                {
+                    if (currentbid >= item.BuyItNowPrice) break;
+
+                    automaticallyBidForUser(item, activeAutoBidder, req, !activeBidderWins);
+                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
+
+                    // if activebidder wins it should make the last bid
+                    automaticallyBidForUser(item, activeAutoBidder, req, activeBidderWins);
+                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
+                }
+            }
+
+            new DMAutoBidder()
+            {
+                Limit = req.Limit,
+                Interval = req.Interval,
+                DMItemId = req.DMItemId,
+                BidderMemberId = Provider.CurrentMember.Id
+            }.Insert();
+            item.AutoBidderActive = true;
+
+            // There are 2 conditions when setting autobid:
+            // 1. There are no autobids.
+                // Just define and save the autobid.
+            // 2. There is an active autobid.
+                // Race autobidders, bidding, until one of them wins the auction or fails to keep up.
+                // If one of them fails to keep up, set autobid
+        }
+
+        private void bidOnItem(DMBid bid, DMItem item)
+        {
             //In compliance with page 24...
             if (bid.BidValue >= item.BuyItNowPrice)
             {
@@ -1559,13 +1625,34 @@ namespace DealerSafe2.API
                 acceptBidAndSetItemWithoutValidation(bid, item);
             }
             item.BiggestBid = bid.BidValue;
-
             item.Save();
             bid.Save();
-            if (isAutoBidderSet)
-                AutoBidder(req, item);
+        }
 
-            return !String.IsNullOrEmpty(bid.Id);
+        private void automaticallyBidForUser(DMItem item, DMAutoBidder activeAutoBidder, ReqBid req, bool isForActiveBidder) {
+            bidOnItem(new DMBid()
+            {
+                BidComments = "Automatic bid by Domain Marketing.",
+                BidderMemberId = isForActiveBidder ? activeAutoBidder.BidderMemberId : Provider.CurrentMember.Id,
+                BidValue = item.BiggestBid + (isForActiveBidder ? activeAutoBidder.Interval : req.Interval),
+                DMItemId = item.Id
+            }, item);
+        }
+
+        private void AutoBid(DMItem item)
+        {
+            var activeAutoBidder = Provider.Database.Read<DMAutoBidder>("select * from DMAutoBidder where DMItemId = {0} and BidderMemberId = {1}", item.Id, Provider.CurrentMember.Id);
+            if (activeAutoBidder.Limit > item.BiggestBid) {
+                bidOnItem(new DMBid()
+                {
+                    BidComments = "Automatic bid by Domain Marketing.",
+                    BidderMemberId = activeAutoBidder.BidderMemberId,
+                    BidValue = activeAutoBidder.Interval + item.BiggestBid,
+                    DMItemId = item.Id
+                }, item);
+            } else { 
+                item.AutoBidderActive = false; 
+            }
         }
 
         public bool AcceptBid(string id)
@@ -1850,7 +1937,7 @@ namespace DealerSafe2.API
                 item.DomainName);
             var subject = "Congratulations! Payment Received ✅";
 
-            SendMailFromAPI(subject, htmlMessage);
+            SendMailFromAPI(subject, htmlMessage, Provider.CurrentMember.Email, Provider.CurrentMember.FullName);
 
             return true;
         }
@@ -1859,18 +1946,19 @@ namespace DealerSafe2.API
         /// Sends email to current member with a subject and an html message.
         ///     If member is specified it is send to that member instead.
         /// </summary>
-        private static void SendMailFromAPI(string subject, string htmlMessage, Member toMemeber = null)
+        private static void SendMailFromAPI(string subject, string htmlMessage, string email, string name)
         {
-            if (toMemeber == null)
-                toMemeber = Provider.CurrentMember;
-            
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(name))
+                throw new APIException("Parameter null");
+
             // TODO: set correct email
-            Utility.SendMail("domainmarketing@isimtescil.net", "Domain Marketing",
-                toMemeber.Email, toMemeber.FullName,
+            Utility.SendMail("noreply@ozucarpool.com", "Domain Marketing",
+                email, name,
                 subject,
                 htmlMessage,
-                // TODO: set host and port
-                "", 0);
+                // TODO: change settings from test to production
+                "smtp.ozucarpool.com", 587,
+                "noreply@ozucarpool.com", "Cd6Hxy85");
         }
 
         private string makeWithdrawal(ReqPaymentInfo req, DMItem item)
