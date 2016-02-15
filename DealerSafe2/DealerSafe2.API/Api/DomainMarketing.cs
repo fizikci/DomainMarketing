@@ -1527,6 +1527,9 @@ namespace DealerSafe2.API
 
         public bool SaveBid(ReqBid req)
         {
+            /* DEBUG
+             * NULL değeri 'pozucaKs_ds_SQL.pozucaKs_ds_SQL.DMAutoBidder' tablosunun 'Interval' sütununa eklemez; sütun null değerlere izin vermiyor. INSERT başarısız. Deyim sonlandırıldı.
+             */
             if (req == null)
                 throw new APIException("Parameter null. Access denied");
             if (Provider.CurrentMember.Id.IsEmpty())
@@ -1544,10 +1547,15 @@ namespace DealerSafe2.API
 
             if (bid.BidValue < minimumPossible)
                 return false;
-            if (isAutoBidderSet && req.Limit < req.BidValue)
-                throw new APIException("Auto Bidding Limit has to be bigger than bid value!");
-            if (isAutoBidderSet && req.Limit > item.BuyItNowPrice)
-                throw new APIException("Auto Bidding Limit has to be smaller than or equal to Buy It Now Price!");
+            if (isAutoBidderSet)
+            {
+                if (req.Limit < req.BidValue)
+                    throw new APIException("Auto Bidding Limit has to be bigger than bid value!");
+                if (req.Limit > item.BuyItNowPrice)
+                    throw new APIException("Auto Bidding Limit has to be smaller than or equal to Buy It Now Price!");
+                if (req.Interval < item.MinimumBidInterval)
+                    throw new APIException("Auto Bidding Interval has to be bigger than or equal to Minimum Bid Interval!");
+            }
             if (item.SellerMemberId == Provider.CurrentMember.Id)
                 throw new APIException("You cannot bid on your own item.");
 
@@ -1557,12 +1565,13 @@ namespace DealerSafe2.API
 
             // make bid and save
             bidOnItem(bid, item);
-
-            // Set auto bidder if it was requested.
-            if (isAutoBidderSet) CreateAutoBidder(req, item);
-
-            // Run autobidder after each bid if there is any.
-            if (item.AutoBidderActive) AutoBid(item);
+            if (item.PaymentStatus != DMSaleStates.WaitingForPayment)
+            {
+                // Set auto bidder if it was requested.
+                if (isAutoBidderSet) CreateAutoBidder(req, item);
+                // Run autobidder after each bid if there is any.
+                else if (item.AutoBidderActive) AutoBid(item);
+            }
 
             return !String.IsNullOrEmpty(bid.Id);
         }
@@ -1578,32 +1587,42 @@ namespace DealerSafe2.API
                 throw new APIException(string.Format("Your auto bidder limit should be at least {0} (biggest bid + minimum bid interval)", minLimit));
 
             var activeAutoBidder = Provider.Database.Read<DMAutoBidder>("select * from DMAutoBidder where DMItemId = {0} and Limit > {1}", item.Id, item.BiggestBid);
-            if (activeAutoBidder != null)
-            {
-                var highestLimit = Math.Max(activeAutoBidder.Limit, req.Limit);
-                var activeBidderWins = highestLimit == activeAutoBidder.Limit;
 
-                for (int currentbid = item.BiggestBid; currentbid < highestLimit; currentbid += req.Interval + activeAutoBidder.Interval)
-                {
-                    if (currentbid >= item.BuyItNowPrice) break;
-
-                    automaticallyBidForUser(item, activeAutoBidder, req, !activeBidderWins);
-                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
-
-                    // if activebidder wins it should make the last bid
-                    automaticallyBidForUser(item, activeAutoBidder, req, activeBidderWins);
-                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
-                }
-            }
-
-            new DMAutoBidder()
+            var autoBidder = new DMAutoBidder()
             {
                 Limit = req.Limit,
                 Interval = req.Interval,
                 DMItemId = req.DMItemId,
                 BidderMemberId = Provider.CurrentMember.Id
-            }.Insert();
+            };
+            autoBidder.Save();
             item.AutoBidderActive = true;
+            item.Save();
+
+            if (activeAutoBidder != null) // race them
+            {
+                var limit = activeAutoBidder.Limit - activeAutoBidder.Interval;
+                var reqLimit = req.Limit - req.Interval;
+                var minimumLimit = Math.Min(limit, reqLimit);
+                var activeBidderWins = minimumLimit == reqLimit;
+
+                for (int currentbid = item.BiggestBid; currentbid < minimumLimit; currentbid += req.Interval + activeAutoBidder.Interval)
+                {
+                    if (currentbid >= item.BuyItNowPrice) break;
+
+                    automaticallyBidForUser(item, activeAutoBidder.BidderMemberId, activeAutoBidder.Interval);
+                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
+
+                    // if activebidder wins it should make the last bid
+                    automaticallyBidForUser(item, Provider.CurrentMember.Id, req.Interval);
+                    if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
+                }
+                
+                if (item.PaymentStatus != DMSaleStates.WaitingForPayment && activeBidderWins)
+                {
+                    automaticallyBidForUser(item, activeAutoBidder.BidderMemberId, activeAutoBidder.Interval);
+                }
+            }
 
             // There are 2 conditions when setting autobid:
             // 1. There are no autobids.
@@ -1629,30 +1648,32 @@ namespace DealerSafe2.API
             bid.Save();
         }
 
-        private void automaticallyBidForUser(DMItem item, DMAutoBidder activeAutoBidder, ReqBid req, bool isForActiveBidder) {
+        private void automaticallyBidForUser(DMItem item, string bidderId, int interval) {
             bidOnItem(new DMBid()
             {
                 BidComments = "Automatic bid by Domain Marketing.",
-                BidderMemberId = isForActiveBidder ? activeAutoBidder.BidderMemberId : Provider.CurrentMember.Id,
-                BidValue = item.BiggestBid + (isForActiveBidder ? activeAutoBidder.Interval : req.Interval),
+                BidderMemberId = bidderId,
+                BidValue = item.BiggestBid + interval,
                 DMItemId = item.Id
             }, item);
         }
 
         private void AutoBid(DMItem item)
         {
-            var activeAutoBidder = Provider.Database.Read<DMAutoBidder>("select * from DMAutoBidder where DMItemId = {0} and BidderMemberId = {1}", item.Id, Provider.CurrentMember.Id);
-            if (activeAutoBidder.Limit > item.BiggestBid) {
-                bidOnItem(new DMBid()
-                {
-                    BidComments = "Automatic bid by Domain Marketing.",
-                    BidderMemberId = activeAutoBidder.BidderMemberId,
-                    BidValue = activeAutoBidder.Interval + item.BiggestBid,
-                    DMItemId = item.Id
-                }, item);
-            } else { 
-                item.AutoBidderActive = false; 
+            var activeAutoBidder = Provider.Database.Read<DMAutoBidder>("select * from DMAutoBidder where DMItemId = {0} and Limit > {1}", item.Id, item.BiggestBid);
+            if (activeAutoBidder == null)
+            {
+                item.AutoBidderActive = false;
+                item.Save();
+                return;
             }
+            bidOnItem(new DMBid()
+            {
+                BidComments = "Automatic bid by Domain Marketing.",
+                BidderMemberId = activeAutoBidder.BidderMemberId,
+                BidValue = activeAutoBidder.Interval + item.BiggestBid,
+                DMItemId = item.Id
+            }, item);
         }
 
         public bool AcceptBid(string id)
