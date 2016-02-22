@@ -1301,7 +1301,7 @@ namespace DealerSafe2.API
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
                 throw new APIException("Access denied.");
 
-            if (!Regex.Match(req.DomainName, @"^[a-z0-9\-]+(\.[a-z0-9]+)+$").Success)
+            if (!Regex.Match(req.DomainName, @"^[a-zA-Z0-9\-]+(\.[a-zA-Z0-9]+)+$").Success)
                 throw new APIException("Invalid domain name");
 
             //TODO: check if user is saving his own item?
@@ -1789,13 +1789,14 @@ namespace DealerSafe2.API
                 throw new APIException("Parameter null. Access denied");
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
-
+            var where = "B.BidderMemberId = {0}"; // AND I.Status = 'Open'
             var sql = @"SELECT
 	                        B.[Id],
                             B.DMItemId,
 	                        B.[BidderMemberId],
 	                        B.[BidValue],
 	                        B.[InsertDate],
+	                        B.[BidComments],
 	                        B.[IsDeleted],
 	                        I.[DomainName],
 	                        I.[Type],
@@ -1804,12 +1805,12 @@ namespace DealerSafe2.API
 	                        I.[BuyItNowPrice]
                         FROM DMBid AS B
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE I.Status = 'Open' AND B.BidderMemberId = {0}
+                        WHERE " + where+@"
                         ORDER BY B.InsertDate DESC, B.BidValue DESC";
             sql = Provider.Database.AddPagingToSQL(sql, req.PageSize, req.PageNumber - 1);
             var totalCount = Provider.Database.GetInt(@"SELECT COUNT(*) FROM DMBid AS B
                         INNER JOIN DMItem AS I ON I.Id = B.DMItemId
-                        WHERE I.Status = 'Open' AND B.BidderMemberId = {0}", Provider.CurrentMember.Id);
+                        WHERE " + where, Provider.CurrentMember.Id);
 
             var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id).ToEntityList<ViewMyBidsForItemsInfo>();
 
@@ -2278,12 +2279,6 @@ namespace DealerSafe2.API
             dmmessage.Save();
             return dmmessage.Id.Length > 0;
         }
-
-
-
-
-
-
 
         #endregion
     }

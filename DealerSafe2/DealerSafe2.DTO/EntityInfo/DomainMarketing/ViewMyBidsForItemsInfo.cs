@@ -6,12 +6,8 @@ using System.Text;
 
 namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
 {
-    public class ViewMyBidsForItemsInfo : BaseEntityInfo
+    public class ViewMyBidsForItemsInfo : DMBidInfo
     {
-        public string Id { get; set; }
-        public string DMItemId { get; set; }
-        public string BidderMemberId { get; set; }
-        public int BidValue { get; set; }
         public DateTime InsertDate { get; set; }
         public bool IsDeleted { get; set; }
         public string DomainName { get; set; }
