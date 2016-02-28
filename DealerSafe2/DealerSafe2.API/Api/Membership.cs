@@ -416,6 +416,8 @@ namespace DealerSafe2.API
 
             member = new Member
                 {
+                    FirstName = req.FirstName,
+                    LastName = req.LastName,
                     Email = req.Email,
                     Password = Utility.MD5(req.Password),
                     MemberType = MemberTypes.Individual,
