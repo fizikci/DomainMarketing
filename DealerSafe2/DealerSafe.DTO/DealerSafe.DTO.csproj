@@ -41,7 +41,7 @@
   <ItemGroup>
     <Reference Include="DealerSafe.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DealerSafe.Utility\bin\Debug\DealerSafe.Utility.dll</HintPath>
+      <HintPath>..\..\_dlls\DealerSafe.Utility.dll</HintPath>
     </Reference>
     <Reference Include="idnlib">
       <HintPath>..\..\_dlls\idnlib.dll</HintPath>
@@ -1248,12 +1248,6 @@
   <ItemGroup>
     <Content Include="Epp\Protocol\Resources\EppMessageBase.xml" />
     <Content Include="Epp\Protocol\Resources\HelloMessage.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\HyperV\HyperV.DTO\HyperV.DTO.csproj">
-      <Project>{f0ed89f6-31a3-4d31-9d63-ff68b9aa14aa}</Project>
-      <Name>HyperV.DTO</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
