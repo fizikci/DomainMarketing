@@ -1302,12 +1302,13 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied.");
 
             var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.Id);
-            if (item == null) throw new APIException("No such auction.");
-            if (item.SellerMemberId != Provider.CurrentMember.Id)
-                throw new APIException("You cannot create or edit auctions from somebody else's item.");
-            if (item.BiggestBid > 0)
-                throw new APIException("Item has been on auction and there are bids on this auction! It cannot be editted.");
-
+            if (item != null)
+            {
+                if (item.SellerMemberId != Provider.CurrentMember.Id)
+                    throw new APIException("You cannot create or edit auctions from somebody else's item.");
+                if (item.BiggestBid > 0)
+                    throw new APIException("Item has been on auction and there are bids on this auction! It cannot be editted.");
+            } else item = new DMItem();
 
             if (!Regex.Match(req.DomainName, @"^[a-zA-Z0-9\-]+(\.[a-zA-Z0-9]+)+$").Success)
                 throw new APIException("Invalid domain name");
