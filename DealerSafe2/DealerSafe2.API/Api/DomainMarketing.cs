@@ -1321,7 +1321,6 @@ namespace DealerSafe2.API
             item.SellerMemberId = Provider.CurrentMember.Id;
             item.DomainRegistrar = getDomainRegistrarWith(req.DomainName);
             item.DomainRegistrationDate = getDomainRegistrationDateWith(req.DomainName);
-
             //if new record
             if (item.BiggestBid == 0)
             {
@@ -1922,8 +1921,9 @@ namespace DealerSafe2.API
             item.PaymentDescription = req.PaymentDescription;
 
             item.Save();
-
-            var htmlMessage = @"
+            try
+            {
+                var htmlMessage = @"
                 <br>
                 <p>From your {1} ending with {2}, we received {3} liras, for <a href=""{0}ViewItem.aspx?Id={4}"">{5}</a></p>
                 
@@ -1953,17 +1953,18 @@ namespace DealerSafe2.API
                 </p>
             ";
 
-            htmlMessage = string.Format(htmlMessage,
-                AppDomain.CurrentDomain.BaseDirectory,
-                item.PaymentType,
-                req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
-                item.PaymentAmount,
-                item.Id,
-                item.DomainName);
-            var subject = "Congratulations! Payment Received ✅";
+                htmlMessage = string.Format(htmlMessage,
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    item.PaymentType,
+                    req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
+                    item.PaymentAmount,
+                    item.Id,
+                    item.DomainName);
+                var subject = "Congratulations! Payment Received ✅";
 
-            SendMailFromAPI(subject, htmlMessage, Provider.CurrentMember.Email, Provider.CurrentMember.FullName);
-
+                SendMailFromAPI(subject, htmlMessage, Provider.CurrentMember.Email, Provider.CurrentMember.FullName);
+            }catch{}
+            
             return true;
         }
 
@@ -1973,17 +1974,19 @@ namespace DealerSafe2.API
         /// </summary>
         private static void SendMailFromAPI(string subject, string htmlMessage, string email, string name)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(name))
-                throw new APIException("Parameter null");
+            if (string.IsNullOrWhiteSpace(email))
+                throw new APIException("Your email is empty!");
+
+            string siteAddress = res.Url;
 
             // TODO: set correct email
-            Utility.SendMail("noreply@ozucarpool.com", "Domain Marketing",
+            Utility.SendMail(Provider.Api.ApiClient.MailFrom, Provider.Api.ApiClient.Client().Name,
                 email, name,
                 subject,
-                htmlMessage,
+                htmlMessage, res.MailHost, res.MailPort, res.MailUserName, res.MailPassword, res.MailFrom);
                 // TODO: change settings from test to production
-                "smtp.ozucarpool.com", 587,
-                "noreply@ozucarpool.com", "Cd6Hxy85");
+                //"smtp.ozucarpool.com", 587,
+                //"noreply@ozucarpool.com", "Cd6Hxy85");
         }
 
         private string makeWithdrawal(ReqPaymentInfo req, DMItem item)
