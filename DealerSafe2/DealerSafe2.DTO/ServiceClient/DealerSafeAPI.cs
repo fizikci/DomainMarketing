@@ -152,10 +152,7 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, ProfileInfo>(req, MethodBase.GetCurrentMethod().Name);
         }
-        public string GetMemberAvatar(ReqEmpty req)
-        {
-            return Call<string, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
-        }
+       
         public string SaveMemberAvatar(Base64Image req)
         {
             return Call<string, Base64Image>(req, MethodBase.GetCurrentMethod().Name);
@@ -621,7 +618,10 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<DMMemberInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
-
+        public string GetMemberAvatar(ReqEmpty req)
+        {
+            return Call<string, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
+        }
         public PagerResponse<EntityCommentInfo> GetProfileComplaints(ReqGetProfileComplaints req)
         {
             return Call<PagerResponse<EntityCommentInfo>, ReqGetProfileComplaints>(req, MethodBase.GetCurrentMethod().Name);
@@ -772,9 +772,9 @@ namespace DealerSafe2.DTO.ServiceClient
             return Call<List<IdName>, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
 
-        public DMItemInfo GetMyItem(string id)
+        public MyDMItemInfo GetMyItem(string id)
         {
-            return Call<DMItemInfo, string>(id, MethodBase.GetCurrentMethod().Name);
+            return Call<MyDMItemInfo, string>(id, MethodBase.GetCurrentMethod().Name);
         }
 
         public DMItemInfo GetItem(string id)

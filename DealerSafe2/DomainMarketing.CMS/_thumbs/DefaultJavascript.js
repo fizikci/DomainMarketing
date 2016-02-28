@@ -314,7 +314,7 @@ app.directive('inputFile', function () {
                     '       <div class="col-sm-9">' +
                     elm.html() +
     (isAttrLoader ? '           <img ng-show="' + attr.isUploading + '" style="width: 100px" src="/userfiles/loading.gif" class="verticalMiddle">' : '') +
-                    (elm.html().trim().length > 0 ? '<br ng-show="'+ attr.model +'"><br ng-show="'+ attr.model +'">' : '') +
+                    (elm.html().trim().length > 0 ? '<br ng-show="'+ attr.model +'.length > 0"><br ng-show="'+ attr.model +'.length > 0">' : '') +
                     '           <input type="file" ng-model="' + attr.model + '"' 
                                     + (attr.name ? ' name="' + attr.name + '" id="' + attr.name + '"' : '')
                                     + (isAttrLoader ? ' ng-disabled="' + attr.isUploading + '"' : '')

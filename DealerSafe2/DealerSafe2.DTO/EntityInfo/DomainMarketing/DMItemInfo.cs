@@ -49,4 +49,11 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public int MonthlyPageViews { get; set; }
         public int MonthlyRevenue { get; set; }
     }
+
+    public class MyDMItemInfo : DMItemInfo
+    {
+        public string Analytics { get; set; }
+        public string AdSense { get; set; }
+        public string Alexa { get; set; }
+    }
 }

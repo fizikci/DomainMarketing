@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DealerSafe2.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,16 @@ namespace RoutineTasks
     {
         static void Main(string[] args)
         {
+            while (true)
+            {
+                System.Threading.Thread.Sleep(
+                    1000 // miliseconds
+                    * 60 // seconds
+                    * 5 // minutes
+                    );
+
+                
+            }
             // 1. Auction expire date kontrolü
             
             // 2. WaitingPayment item'ların 14 gün geçmesi halinde TimeoutForPayment moduna alınması

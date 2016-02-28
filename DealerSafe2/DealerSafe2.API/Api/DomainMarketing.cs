@@ -543,6 +543,14 @@ namespace DealerSafe2.API
             memberInfo.Avatar = string.IsNullOrWhiteSpace(memberInfo.Avatar) ? "" : host + memberInfo.Avatar;
         }
 
+        public string GetMemberAvatar(ReqEmpty req) {
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+
+            return string.IsNullOrWhiteSpace(Provider.CurrentMember.Avatar) ? "" : host + Provider.CurrentMember.Avatar;
+        }
+
         public string SaveMemberAvatar(Base64Image req)
         {
             if (req == null)
@@ -1256,7 +1264,7 @@ namespace DealerSafe2.API
             return domainName + ", " + DateTime.Now.ToShortDateString();
         }
 
-        public DMItemInfo GetMyItem(string id)
+        public MyDMItemInfo GetMyItem(string id)
         {
             if (id == null)
                 throw new APIException("Parameter null. Access denied");
@@ -1264,7 +1272,7 @@ namespace DealerSafe2.API
                 throw new APIException("Access denied.");
 
             var sql = @"select * from DMItem where IsDeleted <> 1 and Id = {0} and SellerMemberId = {1}";
-            return Provider.Database.Read<DMItem>(sql, id, Provider.CurrentMember.Id).ToEntityInfo<DMItemInfo>();
+            return Provider.Database.Read<DMItem>(sql, id, Provider.CurrentMember.Id).ToEntityInfo<MyDMItemInfo>();
         }
 
         public DMItemInfo GetItem(string id)
@@ -1321,6 +1329,25 @@ namespace DealerSafe2.API
             item.SellerMemberId = Provider.CurrentMember.Id;
             item.DomainRegistrar = getDomainRegistrarWith(req.DomainName);
             item.DomainRegistrationDate = getDomainRegistrationDateWith(req.DomainName);
+
+
+            var props = from p in item.GetProperties()
+                        where p.PropertyType == typeof(string)
+                        select new { cas = p.CustomAttributes, Name = p.Name };
+            foreach (var prop in props)
+            {
+                var attrType = prop.cas.Where(p => p.AttributeType.Name == "ColumnDetailAttribute").FirstOrDefault();
+                var attrValue = prop.cas.Select(p => p.NamedArguments)
+                    .Where(p => p.Select(na => na.MemberName == "Length").FirstOrDefault())
+                    .FirstOrDefault().FirstOrDefault();
+                if(attrType != null && attrValue != null){
+                    var val = item.GetMemberValue<string>(prop.Name);
+                    if (val != null && val.Length > attrValue.TypedValue.Value.ToInt()) {
+                        item.SetMemberValue(prop.Name, val.Substring(0, attrValue.TypedValue.Value.ToInt()));
+                    }
+                }
+            }
+
             //if new record
             if (item.BiggestBid == 0)
             {
@@ -1977,13 +2004,14 @@ namespace DealerSafe2.API
             if (string.IsNullOrWhiteSpace(email))
                 throw new APIException("Your email is empty!");
 
-            string siteAddress = res.Url;
+            var apiCli = Provider.Api.ApiClient;
+            var siteAddress = apiCli.Url;
 
             // TODO: set correct email
-            Utility.SendMail(Provider.Api.ApiClient.MailFrom, Provider.Api.ApiClient.Client().Name,
+            Utility.SendMail(apiCli.MailFrom, apiCli.Client().Name,
                 email, name,
                 subject,
-                htmlMessage, res.MailHost, res.MailPort, res.MailUserName, res.MailPassword, res.MailFrom);
+                htmlMessage, apiCli.MailHost, apiCli.MailPort, apiCli.MailUserName, apiCli.MailPassword, apiCli.MailFrom);
                 // TODO: change settings from test to production
                 //"smtp.ozucarpool.com", 587,
                 //"noreply@ozucarpool.com", "Cd6Hxy85");
