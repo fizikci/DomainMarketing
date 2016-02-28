@@ -48,9 +48,25 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Cinar\Cinar.Common\Cinar.Common.csproj">
+      <Project>{e9b26a78-06ff-4d79-9c37-d4198df126eb}</Project>
+      <Name>Cinar.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Cinar\Cinar.Database\Cinar.Database.csproj">
+      <Project>{6727c03b-4cf9-4670-b2ec-63facfbe5dfa}</Project>
+      <Name>Cinar.Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Cinar\Cinar.Extensions\Cinar.Extensions.csproj">
+      <Project>{af6cb4f3-3a42-49b1-90ca-03310efae89b}</Project>
+      <Name>Cinar.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DealerSafe2\DealerSafe2.API\DealerSafe2.API.csproj">
       <Project>{359a6d31-18db-403a-8807-3713340aa331}</Project>
       <Name>DealerSafe2.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DealerSafe2\DealerSafe2.DTO\DealerSafe2.DTO.csproj">
+      <Project>{5243104c-6260-4950-afec-103f425ccd2b}</Project>
+      <Name>DealerSafe2.DTO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,5 @@
 ﻿using DealerSafe2.API;
+using DealerSafe2.API.Entity.DomainMarketing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +14,35 @@ namespace RoutineTasks
         {
             while (true)
             {
+                var items = Provider.Database.ReadList<DMItem>("select * from DMItem");
+                var now = Provider.Database.Now;
+                foreach (var item in items)
+                {
+                    if (item.Status == DealerSafe2.DTO.Enums.DMAuctionStates.Open
+                        && item.PlannedCloseDate.Date > now.Date)
+                    {
+                        item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
+                        item.StatusReason = DealerSafe2.DTO.Enums.DMAuctionStateReasons.DueDate;
+                        item.PaymentStatus = DealerSafe2.DTO.Enums.DMSaleStates.None;
+                        item.ActualCloseDate = now;
+                        item.Save();
+                    }
+                    else if (item.PaymentStatus == DealerSafe2.DTO.Enums.DMSaleStates.WaitingForPayment 
+                        && item.ActualCloseDate.Date.AddDays(14) > now.Date)
+                    {
+                        item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
+                        item.StatusReason = DealerSafe2.DTO.Enums.DMAuctionStateReasons.None;
+                        item.PaymentStatus = DealerSafe2.DTO.Enums.DMSaleStates.TimeoutForPayment;
+                        item.Save();
+                    }
+                }
+
+                // sleep for 5 minutes
                 System.Threading.Thread.Sleep(
                     1000 // miliseconds
                     * 60 // seconds
                     * 5 // minutes
                     );
-
-                
             }
             // 1. Auction expire date kontrolü
             
