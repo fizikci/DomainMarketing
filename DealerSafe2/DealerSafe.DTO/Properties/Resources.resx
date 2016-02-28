@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ContactSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="contact_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\contact-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="DomainSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd</value>
+  </data>
+  <data name="domain_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\domain-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="eppcom_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\eppcom-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="EppMessageBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EppMessageBase.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="epp_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\epp-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="HelloMessage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HelloMessage.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="HostSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd</value>
+  </data>
+  <data name="host_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\host-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="SecDnsSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:secDNS-1.0 secDNS-1.0.xsd</value>
+  </data>
+  <data name="secDNS_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\secDNS-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="finance_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\finance-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="FinanceSchemaLocation" xml:space="preserve">
+    <value>http://www.unitedtld.com/epp/finance-1.0 finance-1.0.xsd</value>
+  </data>
+  <data name="launch_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\launch-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="mark_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mark-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="signedMark_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\signedMark-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="xmldsig_core_schema" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\xmldsig-core-schema.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="LaunchSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:launch-1.0 launch-1.0.xsd</value>
+  </data>
+  <data name="balance_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\balance-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="premiumdomain_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\premiumdomain-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="rgp_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rgp-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="namestoreExt_1_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\namestoreExt-1.1.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="keysys_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\keysys-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="FeeSchemaLocation" xml:space="preserve">
+    <value>urn:ietf:params:xml:ns:fee-0.7 fee-0.7.xsd</value>
+  </data>
+  <data name="price_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\price-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="charge_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\charge-1.0.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="fee_0_7" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\fee-0.7.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="fee_0_5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\fee-0.5.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+  <data name="fee_0_6" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\fee-0.6.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1254</value>
+  </data>
+</root>

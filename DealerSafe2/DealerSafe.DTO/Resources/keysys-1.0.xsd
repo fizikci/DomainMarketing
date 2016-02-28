@@ -1,0 +1,1488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="http://www.key-systems.net/epp/keysys-1.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:epp="urn:ietf:params:xml:ns:epp-1.0"
+        xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+        xmlns:keysys="http://www.key-systems.net/epp/keysys-1.0"
+        elementFormDefault="qualified">
+
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0 Key-Systems extension schema.
+    </documentation>
+  </annotation>
+
+  <import namespace="urn:ietf:params:xml:ns:eppcom-1.0"
+		   schemaLocation="eppcom-1.0.xsd"/>
+  <import namespace="urn:ietf:params:xml:ns:epp-1.0"
+		   schemaLocation="epp-1.0.xsd"/>
+
+  <!--
+  Child elements found in EPP commands and responses.
+  -->
+  <element name="check" type="keysys:checkType"/>
+  <element name="create" type="keysys:createType"/>
+  <element name="update" type="keysys:updateType"/>
+  <element name="transfer" type="keysys:transferType"/>
+  <element name="delete" type="keysys:deleteType"/>
+  <element name="resData" type="keysys:resDataType"/>
+  <element name="infData" type="keysys:infDataTypes"/>
+  <element name="errData" type="keysys:errDataTypes"/>
+  <element name="poll" type="keysys:pollType"/>
+
+  <complexType name="checkType">
+    <sequence>
+      <choice>
+        <element name="domain" type="keysys:checkDomainType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  <complexType name="createType">
+    <sequence>
+      <choice>
+        <element name="domain" type="keysys:createDomainType"/>
+        <element name="contact" type="keysys:createContactType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  <complexType name="updateType">
+    <sequence>
+      <choice>
+        <element name="domain" type="keysys:updateDomainType"/>
+        <element name="contact" type="keysys:updateContactType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  <complexType name="transferType">
+    <sequence>
+      <choice>
+        <element name="domain" type="keysys:transferDomainType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  <complexType name="deleteType">
+    <sequence>
+      <choice>
+        <element name="domain" type="keysys:deleteDomainType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  <complexType name="checkDomainType">
+    <sequence>
+       <element name="idn-language" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="createDomainType">
+    <sequence>
+       <element name="accept-premiumprice" type="keysys:value"
+minOccurs="0"/>
+       <element name="ae-registrant-warranty-statement"
+type="keysys:value" minOccurs="0"/>
+       <element name="aero-ens-auth-id" type="keysys:value" minOccurs="0"/>
+       <element name="aero-ens-auth-key" type="keysys:value" minOccurs="0"/>
+       <element name="ar-dni" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-cclocality" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-contact" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-identform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-identnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-legalentitytype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitycity" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitysp" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otheridentform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otherletype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-maintainerurl" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-notf-contact" type="keysys:value" minOccurs="0"/>
+       <element name="au-domain-idnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-idtype" type="keysys:value" minOccurs="0"/>
+       <element name="au-domain-relation" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-relationtype" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-owner-organization" type="keysys:value"
+minOccurs="0"/>
+       <element name="az-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="az-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="bayern-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="be-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="berlin-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="bg-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="bg-idcard" type="keysys:value" minOccurs="0"/>
+       <element name="bg-tmid" type="keysys:value" minOccurs="0"/>
+       <element name="br-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="br-register-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="bs-company" type="keysys:value" minOccurs="0"/>
+       <element name="bs-userid" type="keysys:value" minOccurs="0"/>
+       <element name="bs-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-domain-id" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-password" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-legal-type" type="keysys:value" minOccurs="0"/>
+       <element name="ca-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="ca-webnames-domain-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="ca-webnames-registrant-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="cat-intended-use" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-answer" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-question" type="keysys:value"
+minOccurs="0"/>
+       <element name="cl-rut" type="keysys:value" minOccurs="0"/>
+       <element name="cn-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="de-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="de-nsentry0" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry1" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry2" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry3" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry4" type="keysys:value" minOccurs="0"/>
+       <element name="dk-admin-id" type="keysys:value" minOccurs="0"/>
+       <element name="dk-owner-id" type="keysys:value" minOccurs="0"/>
+       <element name="dk-vat-id" type="keysys:value" minOccurs="0"/>
+       <element name="do-idcard" type="keysys:value" minOccurs="0"/>
+       <element name="es-admin-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-owner-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-tech-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-registrant-lang" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-billing-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-city" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-tin" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-zip" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-state" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-zip" type="keysys:value" minOccurs="0"/>
+       <element name="fi-company-reg-id" type="keysys:value" minOccurs="0"/>
+       <element name="fi-non-violation-confirmation" type="keysys:value"
+minOccurs="0"/>
+       <element name="fi-personal-id" type="keysys:value" minOccurs="0"/>
+       <element name="fr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-announce" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthcity" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthpc" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthplace" type="keysys:value" minOccurs="0"/>
+       <element name="fr-date-association" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-date-publication-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-duns" type="keysys:value" minOccurs="0"/>
+       <element name="fr-local" type="keysys:value" minOccurs="0"/>
+       <element name="fr-no-pre-zonecheck" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-numero-de-page-announce-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-restrict-pub" type="keysys:value" minOccurs="0"/>
+       <element name="fr-siren-or-siret" type="keysys:value" minOccurs="0"/>
+       <element name="fr-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="fr-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="fr-waldec" type="keysys:value" minOccurs="0"/>
+       <element name="hk-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-age-over-18" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-origin-country"
+type="keysys:value" minOccurs="0"/>
+       <element name="hk-owner-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-other-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-accept-trustee-tac-non-eu-member"
+type="keysys:value" minOccurs="0"/>
+       <element name="hu-idcard-or-passport-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="idn-language" type="keysys:value" minOccurs="0"/>
+       <element name="ie-applicant-class" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-company-id" type="keysys:value" minOccurs="0"/>
+       <element name="ie-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="in-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="info-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-consentforpublishing" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-entity-type" type="keysys:value" minOccurs="0"/>
+       <element name="it-entitytype" type="keysys:value" minOccurs="0"/>
+       <element name="it-pin" type="keysys:value" minOccurs="0"/>
+       <element name="it-sect3-liability" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-sect5-personal-data-for-registration"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect6-personal-data-for-diffusion"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect7-explicit-acceptance" type="keysys:value"
+minOccurs="0"/>
+       <element name="jobqueue" type="keysys:value" minOccurs="0"/>
+       <element name="jobs-companyurl" type="keysys:value" minOccurs="0"/>
+       <element name="jobs-industrytype" type="keysys:value" minOccurs="0"/>
+       <element name="kr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="kr-ctfy-no" type="keysys:value" minOccurs="0"/>
+       <element name="kr-ctfy-type" type="keysys:value" minOccurs="0"/>
+       <element name="launch-accepted-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="launch-expiry-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="launch-notice-id" type="keysys:value" minOccurs="0"/>
+       <element name="launch-validator-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="lu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="mt-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="my-buisness-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-organization-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-per-date-of-birth" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-per-identity" type="keysys:value" minOccurs="0"/>
+       <element name="my-race" type="keysys:value" minOccurs="0"/>
+       <element name="name-consentid" type="keysys:value" minOccurs="0"/>
+       <element name="name-emailforward" type="keysys:value" minOccurs="0"/>
+       <element name="name-noemail" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-idnumber" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="nl-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="nl-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="nl-legalformregno" type="keysys:value" minOccurs="0"/>
+       <element name="no-organization-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="no-person-identifier" type="keysys:value"
+minOccurs="0"/>
+       <element name="nu-iis-idno" type="keysys:value" minOccurs="0"/>
+       <element name="nu-iis-vatno" type="keysys:value" minOccurs="0"/>
+       <element name="nyc-extcontact" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority-website" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-license-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-profession" type="keysys:value" minOccurs="0"/>
+       <element name="promotion-code" type="keysys:value" minOccurs="0"/>
+       <element name="pt-legitimacy" type="keysys:value" minOccurs="0"/>
+       <element name="pt-owner-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-owner-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="pt-registration-basis" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-tech-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-tech-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx0" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx1" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx2" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx3" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx4" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx5" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx6" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx7" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx8" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx9" type="keysys:value" minOccurs="0"/>
+       <element name="ro-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="ro-idcard-or-passport-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="ro-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="ru-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="ru-code" type="keysys:value" minOccurs="0"/>
+       <element name="ru-kpp" type="keysys:value" minOccurs="0"/>
+       <element name="ru-passportdata" type="keysys:value" minOccurs="0"/>
+       <element name="ruhr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="se-disclose-email" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-fax" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-voice" type="keysys:value" minOccurs="0"/>
+       <element name="sg-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-admin-singpassid" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-rcbid" type="keysys:value" minOccurs="0"/>
+       <element name="sk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sk-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="sk-legal-form" type="keysys:value" minOccurs="0"/>
+       <element name="sla-deadline" type="keysys:value" minOccurs="0"/>
+       <element name="sla-priority" type="keysys:value" minOccurs="0"/>
+       <element name="tel-publish-whois" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whois-phone" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whoistype" type="keysys:value" minOccurs="0"/>
+       <element name="tr-citid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxnumber" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxoffice" type="keysys:value" minOccurs="0"/>
+       <element name="tr-tmid" type="keysys:value" minOccurs="0"/>
+       <element name="transferlock" type="keysys:value" minOccurs="0"/>
+       <element name="travel-uin" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-date" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="uk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="unitedtld-regulatory-data" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-apppurpose" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-category" type="keysys:value" minOccurs="0"/>
+       <element name="us-nexus-validator" type="keysys:value"
+minOccurs="0"/>
+       <element name="useproxy" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner0" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner1" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner2" type="keysys:value" minOccurs="0"/>
+       <element name="whois-privacy" type="keysys:value" minOccurs="0"/>
+       <element name="whois-rsp" type="keysys:value" minOccurs="0"/>
+       <element name="whois-url" type="keysys:value" minOccurs="0"/>
+       <element name="whoisprivacy" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-id" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-password" type="keysys:value"
+minOccurs="0"/>
+       <element name="xxx-defensive" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="createContactType">
+    <sequence>
+      <element name="forceDuplication" type="boolean" minOccurs="0"/>
+       <element name="checkonly" type="keysys:value" minOccurs="0"/>
+       <element name="forceduplication" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="preverify" type="keysys:value" minOccurs="0"/>
+       <element name="validation" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="updateDomainType">
+    <sequence>
+       <element name="accept-trade" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-cclocality" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-contact" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-identform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-identnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-legalentitytype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitycity" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitysp" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otheridentform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otherletype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-maintainerurl" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-notf-contact" type="keysys:value" minOccurs="0"/>
+       <element name="au-domain-idnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-idtype" type="keysys:value" minOccurs="0"/>
+       <element name="au-domain-relation" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-relationtype" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-owner-organization" type="keysys:value"
+minOccurs="0"/>
+       <element name="auction" type="keysys:value" minOccurs="0"/>
+       <element name="bayern-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="be-requestauthcode" type="keysys:value"
+minOccurs="0"/>
+       <element name="berlin-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="bs-company" type="keysys:value" minOccurs="0"/>
+       <element name="bs-userid" type="keysys:value" minOccurs="0"/>
+       <element name="bs-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-domain-id" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-password" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-legal-type" type="keysys:value" minOccurs="0"/>
+       <element name="ca-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="ca-webnames-domain-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="ca-webnames-registrant-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="cat-intended-use" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-answer" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-question" type="keysys:value"
+minOccurs="0"/>
+       <element name="cn-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="de-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="de-nsentry0" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry1" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry2" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry3" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry4" type="keysys:value" minOccurs="0"/>
+       <element name="es-admin-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-owner-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-tech-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-registrant-lang" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-billing-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-city" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-tin" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-zip" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-state" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-zip" type="keysys:value" minOccurs="0"/>
+       <element name="fr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-announce" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthcity" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthpc" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthplace" type="keysys:value" minOccurs="0"/>
+       <element name="fr-date-association" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-date-publication-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-duns" type="keysys:value" minOccurs="0"/>
+       <element name="fr-local" type="keysys:value" minOccurs="0"/>
+       <element name="fr-numero-de-page-announce-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-restrict-pub" type="keysys:value" minOccurs="0"/>
+       <element name="fr-siren-or-siret" type="keysys:value" minOccurs="0"/>
+       <element name="fr-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="fr-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="fr-waldec" type="keysys:value" minOccurs="0"/>
+       <element name="hk-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-age-over-18" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-origin-country"
+type="keysys:value" minOccurs="0"/>
+       <element name="hk-owner-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-other-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-idcard-or-passport-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="it-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-consentforpublishing" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-entity-type" type="keysys:value" minOccurs="0"/>
+       <element name="it-ignoreowner" type="keysys:value" minOccurs="0"/>
+       <element name="it-pin" type="keysys:value" minOccurs="0"/>
+       <element name="it-sect3-liability" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-sect5-personal-data-for-registration"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect6-personal-data-for-diffusion"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect7-explicit-acceptance" type="keysys:value"
+minOccurs="0"/>
+       <element name="jobqueue" type="keysys:value" minOccurs="0"/>
+       <element name="jobs-companyurl" type="keysys:value" minOccurs="0"/>
+       <element name="jobs-industrytype" type="keysys:value" minOccurs="0"/>
+       <element name="kr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="kr-ctfy-no" type="keysys:value" minOccurs="0"/>
+       <element name="kr-ctfy-type" type="keysys:value" minOccurs="0"/>
+       <element name="name-emailforward" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-idnumber" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="nl-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="nl-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="nl-legalformregno" type="keysys:value" minOccurs="0"/>
+       <element name="no-organization-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="no-person-identifier" type="keysys:value"
+minOccurs="0"/>
+       <element name="nu-iis-idno" type="keysys:value" minOccurs="0"/>
+       <element name="nu-iis-vatno" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority-website" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-license-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-profession" type="keysys:value" minOccurs="0"/>
+       <element name="pt-owner-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-owner-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="pt-tech-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-tech-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx0" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx1" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx2" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx3" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx4" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx5" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx6" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx7" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx8" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx9" type="keysys:value" minOccurs="0"/>
+       <element name="remove-auction" type="keysys:value" minOccurs="0"/>
+       <element name="renewalmode" type="keysys:value" minOccurs="0"/>
+       <element name="ru-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="ru-code" type="keysys:value" minOccurs="0"/>
+       <element name="ru-kpp" type="keysys:value" minOccurs="0"/>
+       <element name="ru-passportdata" type="keysys:value" minOccurs="0"/>
+       <element name="ruhr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="se-disclose-email" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-fax" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-voice" type="keysys:value" minOccurs="0"/>
+       <element name="sg-admin-singpassid" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-rcbid" type="keysys:value" minOccurs="0"/>
+       <element name="sk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sk-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="sk-legal-form" type="keysys:value" minOccurs="0"/>
+       <element name="sla-deadline" type="keysys:value" minOccurs="0"/>
+       <element name="sla-priority" type="keysys:value" minOccurs="0"/>
+       <element name="tel-password" type="keysys:value" minOccurs="0"/>
+       <element name="tel-publish-whois" type="keysys:value" minOccurs="0"/>
+       <element name="tel-username" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whois-phone" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whoistype" type="keysys:value" minOccurs="0"/>
+       <element name="transferlock" type="keysys:value" minOccurs="0"/>
+       <element name="transfermode" type="keysys:value" minOccurs="0"/>
+       <element name="travel-uin" type="keysys:value" minOccurs="0"/>
+       <element name="uk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="unitedtld-regulatory-data" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-apppurpose" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-category" type="keysys:value" minOccurs="0"/>
+       <element name="us-nexus-validator" type="keysys:value"
+minOccurs="0"/>
+       <element name="vn-accept-nschange" type="keysys:value"
+minOccurs="0"/>
+       <element name="whois-banner0" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner1" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner2" type="keysys:value" minOccurs="0"/>
+       <element name="whois-privacy" type="keysys:value" minOccurs="0"/>
+       <element name="whois-rsp" type="keysys:value" minOccurs="0"/>
+       <element name="whois-url" type="keysys:value" minOccurs="0"/>
+       <element name="whoisprivacy" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-id" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-password" type="keysys:value"
+minOccurs="0"/>
+       <element name="xxx-defensive" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="updateContactType">
+    <sequence>
+       <element name="checkonly" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="preverify" type="keysys:value" minOccurs="0"/>
+       <element name="validation" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+ <complexType name="infoContactType">
+    <sequence>
+       <element name="validated" type="keysys:value" minOccurs="0"/>
+       <element name="verification-requested" type="keysys:value"
+minOccurs="0"/>
+       <element name="verified" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="transferDomainType">
+    <sequence>
+       <element name="accept-premiumprice" type="keysys:value"
+minOccurs="0"/>
+       <element name="accept-quarantine" type="keysys:value" minOccurs="0"/>
+       <element name="accept-trade" type="keysys:value" minOccurs="0"/>
+       <element name="admincontact0" type="keysys:value" minOccurs="0"/>
+       <element name="admincontact1" type="keysys:value" minOccurs="0"/>
+       <element name="admincontact2" type="keysys:value" minOccurs="0"/>
+       <element name="be-requestauthcode" type="keysys:value"
+minOccurs="0"/>
+       <element name="bg-applicationdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="bg-applicationno" type="keysys:value" minOccurs="0"/>
+       <element name="billingcontact0" type="keysys:value" minOccurs="0"/>
+       <element name="billingcontact1" type="keysys:value" minOccurs="0"/>
+       <element name="billingcontact2" type="keysys:value" minOccurs="0"/>
+       <element name="bs-company" type="keysys:value" minOccurs="0"/>
+       <element name="bs-userid" type="keysys:value" minOccurs="0"/>
+       <element name="bs-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-legal-type" type="keysys:value" minOccurs="0"/>
+       <element name="ca-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry0" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry1" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry2" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry3" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry4" type="keysys:value" minOccurs="0"/>
+       <element name="do-idcard" type="keysys:value" minOccurs="0"/>
+       <element name="eu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="fi-company-reg-id" type="keysys:value" minOccurs="0"/>
+       <element name="fi-non-violation-confirmation" type="keysys:value"
+minOccurs="0"/>
+       <element name="fi-personal-id" type="keysys:value" minOccurs="0"/>
+       <element name="fi-transfer-key" type="keysys:value" minOccurs="0"/>
+       <element name="fr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-announce" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthcity" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthpc" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthplace" type="keysys:value" minOccurs="0"/>
+       <element name="fr-date-association" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-date-publication-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-duns" type="keysys:value" minOccurs="0"/>
+       <element name="fr-local" type="keysys:value" minOccurs="0"/>
+       <element name="fr-numero-de-page-announce-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-restrict-pub" type="keysys:value" minOccurs="0"/>
+       <element name="fr-siren-or-siret" type="keysys:value" minOccurs="0"/>
+       <element name="fr-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="fr-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="fr-waldec" type="keysys:value" minOccurs="0"/>
+       <element name="ie-applicant-class" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-company-id" type="keysys:value" minOccurs="0"/>
+       <element name="ie-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="is-nic-handle" type="keysys:value" minOccurs="0"/>
+       <element name="is-password" type="keysys:value" minOccurs="0"/>
+       <element name="it-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-consentforpublishing" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-entity-type" type="keysys:value" minOccurs="0"/>
+       <element name="it-pin" type="keysys:value" minOccurs="0"/>
+       <element name="it-sect3-liability" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-sect5-personal-data-for-registration"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect6-personal-data-for-diffusion"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect7-explicit-acceptance" type="keysys:value"
+minOccurs="0"/>
+       <element name="kr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="kr-ctfy-no" type="keysys:value" minOccurs="0"/>
+       <element name="kr-ctfy-type" type="keysys:value" minOccurs="0"/>
+       <element name="lu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="mt-nic-handle" type="keysys:value" minOccurs="0"/>
+       <element name="mt-nic-password" type="keysys:value" minOccurs="0"/>
+       <element name="mt-nic-username" type="keysys:value" minOccurs="0"/>
+       <element name="my-adminhandle" type="keysys:value" minOccurs="0"/>
+       <element name="my-adminpassword" type="keysys:value" minOccurs="0"/>
+       <element name="nu-iis-idno" type="keysys:value" minOccurs="0"/>
+       <element name="nu-iis-vatno" type="keysys:value" minOccurs="0"/>
+       <element name="ownercontact0" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority-website" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-license-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-profession" type="keysys:value" minOccurs="0"/>
+       <element name="promotion-code" type="keysys:value" minOccurs="0"/>
+       <element name="sg-admin-singpassid" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-rcbid" type="keysys:value" minOccurs="0"/>
+       <element name="sk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sk-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="sla-deadline" type="keysys:value" minOccurs="0"/>
+       <element name="sla-priority" type="keysys:value" minOccurs="0"/>
+       <element name="techcontact0" type="keysys:value" minOccurs="0"/>
+       <element name="techcontact1" type="keysys:value" minOccurs="0"/>
+       <element name="techcontact2" type="keysys:value" minOccurs="0"/>
+       <element name="tr-citid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-nichandle" type="keysys:value" minOccurs="0"/>
+       <element name="tr-password" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxnumber" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxoffice" type="keysys:value" minOccurs="0"/>
+       <element name="tr-tmid" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-date" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="unitedtld-regulatory-data" type="keysys:value"
+minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="deleteDomainType">
+    <sequence>
+       <element name="action" type="keysys:value" minOccurs="0"/>
+       <element name="bs-company" type="keysys:value" minOccurs="0"/>
+       <element name="bs-userid" type="keysys:value" minOccurs="0"/>
+       <element name="bs-username" type="keysys:value" minOccurs="0"/>
+       <element name="jobqueue" type="keysys:value" minOccurs="0"/>
+       <element name="sla-deadline" type="keysys:value" minOccurs="0"/>
+       <element name="sla-priority" type="keysys:value" minOccurs="0"/>
+       <element name="target" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="resDataType">
+    <sequence>
+      <choice>
+        <element name="infData" type="keysys:infDataTypes"
+	  maxOccurs="unbounded"/>
+        <element name="contactInfData" type="keysys:infoContactType"
+	  maxOccurs="unbounded"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+
+  <complexType name="infDataTypes">
+    <sequence>
+      <element name="renDate" type="dateTime" minOccurs="0"/>
+       <element name="accept-premiumprice" type="keysys:value"
+minOccurs="0"/>
+       <element name="ae-registrant-warranty-statement"
+type="keysys:value" minOccurs="0"/>
+       <element name="aero-ens-auth-id" type="keysys:value" minOccurs="0"/>
+       <element name="aero-ens-auth-key" type="keysys:value" minOccurs="0"/>
+       <element name="ar-dni" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-cclocality" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-contact" type="keysys:value" minOccurs="0"/>
+       <element name="asia-ced-identform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-identnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-legalentitytype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitycity" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-localitysp" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otheridentform" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-ced-otherletype" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-maintainerurl" type="keysys:value"
+minOccurs="0"/>
+       <element name="asia-notf-contact" type="keysys:value" minOccurs="0"/>
+       <element name="asia-regagent-contact" type="keysys:value"
+minOccurs="0"/>
+       <element name="at-new-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="at-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="at-owner-organization" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-idnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-idtype" type="keysys:value" minOccurs="0"/>
+       <element name="au-domain-relation" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-domain-relationtype" type="keysys:value"
+minOccurs="0"/>
+       <element name="au-owner-organization" type="keysys:value"
+minOccurs="0"/>
+       <element name="auction" type="keysys:value" minOccurs="0"/>
+       <element name="authcode-expiration" type="keysys:value"
+minOccurs="0"/>
+       <element name="az-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="az-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="bayern-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="be-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="be-owner" type="keysys:value" minOccurs="0"/>
+       <element name="be-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="berlin-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="bg-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="bg-idcard" type="keysys:value" minOccurs="0"/>
+       <element name="bg-tmid" type="keysys:value" minOccurs="0"/>
+       <element name="br-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="br-register-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="br-ticket-number" type="keysys:value" minOccurs="0"/>
+       <element name="bs-company" type="keysys:value" minOccurs="0"/>
+       <element name="bs-userid" type="keysys:value" minOccurs="0"/>
+       <element name="bs-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-domain-id" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-password" type="keysys:value" minOccurs="0"/>
+       <element name="ca-cira-username" type="keysys:value" minOccurs="0"/>
+       <element name="ca-legal-type" type="keysys:value" minOccurs="0"/>
+       <element name="ca-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="ca-webnames-domain-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="ca-webnames-registrant-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="cat-intended-use" type="keysys:value" minOccurs="0"/>
+       <element name="ch-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-answer" type="keysys:value" minOccurs="0"/>
+       <element name="challenge-question" type="keysys:value"
+minOccurs="0"/>
+       <element name="cl-rut" type="keysys:value" minOccurs="0"/>
+       <element name="cn-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-admin-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-billing-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-owner-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="cnnic-tech-id-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="coat-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="de-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="de-nsentry" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry0" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry1" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry2" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry3" type="keysys:value" minOccurs="0"/>
+       <element name="de-nsentry4" type="keysys:value" minOccurs="0"/>
+       <element name="dispute" type="keysys:value" minOccurs="0"/>
+       <element name="dk-admin-id" type="keysys:value" minOccurs="0"/>
+       <element name="dk-owner-id" type="keysys:value" minOccurs="0"/>
+       <element name="dk-vat-id" type="keysys:value" minOccurs="0"/>
+       <element name="do-idcard" type="keysys:value" minOccurs="0"/>
+       <element name="domain-roid" type="keysys:value" minOccurs="0"/>
+       <element name="es-admin-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-admin-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-billing-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-owner-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-legalform" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-owner-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-registrant-tipo-identificacion"
+type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="es-tech-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="es-tech-tipo-identificacion" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="eu-owner" type="keysys:value" minOccurs="0"/>
+       <element name="eu-registrant-lang" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-admin-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-admin-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-billing-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-city" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-tin" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-billing-zip" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-state" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-owner-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-owner-zip" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-birthdate" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-city" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-passportinfo" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-state" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-street" type="keysys:value"
+minOccurs="0"/>
+       <element name="faitid-tech-tin" type="keysys:value" minOccurs="0"/>
+       <element name="faitid-tech-zip" type="keysys:value" minOccurs="0"/>
+       <element name="fi-company-reg-id" type="keysys:value" minOccurs="0"/>
+       <element name="fi-non-violation-confirmation" type="keysys:value"
+minOccurs="0"/>
+       <element name="fi-personal-id" type="keysys:value" minOccurs="0"/>
+       <element name="fr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-announce" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthcity" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthpc" type="keysys:value" minOccurs="0"/>
+       <element name="fr-birthplace" type="keysys:value" minOccurs="0"/>
+       <element name="fr-date-association" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-date-publication-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-duns" type="keysys:value" minOccurs="0"/>
+       <element name="fr-local" type="keysys:value" minOccurs="0"/>
+       <element name="fr-no-pre-zonecheck" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-numero-de-page-announce-jo" type="keysys:value"
+minOccurs="0"/>
+       <element name="fr-owner-key" type="keysys:value" minOccurs="0"/>
+       <element name="fr-restrict-pub" type="keysys:value" minOccurs="0"/>
+       <element name="fr-siren-or-siret" type="keysys:value" minOccurs="0"/>
+       <element name="fr-ticket" type="keysys:value" minOccurs="0"/>
+       <element name="fr-trademark" type="keysys:value" minOccurs="0"/>
+       <element name="fr-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="fr-waldec" type="keysys:value" minOccurs="0"/>
+       <element name="hk-contract-version" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-age-over-18" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-document-origin-country"
+type="keysys:value" minOccurs="0"/>
+       <element name="hk-owner-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-owner-other-document-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="hk-tracking-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-accept-trustee-tac-non-eu-member"
+type="keysys:value" minOccurs="0"/>
+       <element name="hu-idcard-or-passport-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="hu-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="idn-language" type="keysys:value" minOccurs="0"/>
+       <element name="idn-namevariant" type="keysys:value" minOccurs="0"/>
+       <element name="ie-applicant-class" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-company-id" type="keysys:value" minOccurs="0"/>
+       <element name="ie-domain-category" type="keysys:value"
+minOccurs="0"/>
+       <element name="ie-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="in-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="info-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="ipr-appdate" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-cclocality" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-class" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-entitlement" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-form" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-name" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-number" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-preverified" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-regdate" type="keysys:value" minOccurs="0"/>
+       <element name="ipr-type" type="keysys:value" minOccurs="0"/>
+       <element name="it-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-consentforpublishing" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-entity-type" type="keysys:value" minOccurs="0"/>
+       <element name="it-entitytype" type="keysys:value" minOccurs="0"/>
+       <element name="it-ignoreowner" type="keysys:value" minOccurs="0"/>
+       <element name="it-pin" type="keysys:value" minOccurs="0"/>
+       <element name="it-sect3-liability" type="keysys:value"
+minOccurs="0"/>
+       <element name="it-sect5-personal-data-for-registration"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect6-personal-data-for-diffusion"
+type="keysys:value" minOccurs="0"/>
+       <element name="it-sect7-explicit-acceptance" type="keysys:value"
+minOccurs="0"/>
+       <element name="jobs-companyurl" type="keysys:value" minOccurs="0"/>
+       <element name="jobs-industrytype" type="keysys:value" minOccurs="0"/>
+       <element name="kr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="kr-ctfy-no" type="keysys:value" minOccurs="0"/>
+       <element name="kr-ctfy-type" type="keysys:value" minOccurs="0"/>
+       <element name="launch-accepted-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="launch-expiry-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="launch-notice-id" type="keysys:value" minOccurs="0"/>
+       <element name="launch-validator-id" type="keysys:value"
+minOccurs="0"/>
+       <element name="li-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="lu-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-sunrise-trademark-country"
+type="keysys:value" minOccurs="0"/>
+       <element name="mobi-sunrise-trademark-filing-date"
+type="keysys:value" minOccurs="0"/>
+       <element name="mobi-sunrise-trademark-name" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-sunrise-trademark-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-sunrise-trademark-registration-date"
+type="keysys:value" minOccurs="0"/>
+       <element name="mobi-trademark-country" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-trademark-filing-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-trademark-name" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-trademark-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="mobi-trademark-registration-date"
+type="keysys:value" minOccurs="0"/>
+       <element name="mt-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="my-buisness-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-organization-type" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-per-date-of-birth" type="keysys:value"
+minOccurs="0"/>
+       <element name="my-per-identity" type="keysys:value" minOccurs="0"/>
+       <element name="my-race" type="keysys:value" minOccurs="0"/>
+       <element name="name-consentid" type="keysys:value" minOccurs="0"/>
+       <element name="name-emailforward" type="keysys:value" minOccurs="0"/>
+       <element name="name-noemail" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-contractnumber" type="keysys:value"
+minOccurs="0"/>
+       <element name="nicse-idnumber" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-password" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-passwordexpiration" type="keysys:value"
+minOccurs="0"/>
+       <element name="nicse-typeofname" type="keysys:value" minOccurs="0"/>
+       <element name="nicse-vatid" type="keysys:value" minOccurs="0"/>
+       <element name="nl-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="nl-legalform" type="keysys:value" minOccurs="0"/>
+       <element name="nl-legalformregno" type="keysys:value" minOccurs="0"/>
+       <element name="no-organization-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="no-person-identifier" type="keysys:value"
+minOccurs="0"/>
+       <element name="nu-iis-idno" type="keysys:value" minOccurs="0"/>
+       <element name="nu-iis-vatno" type="keysys:value" minOccurs="0"/>
+       <element name="nu-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="nyc-extcontact" type="keysys:value" minOccurs="0"/>
+       <element name="old-ns0" type="keysys:value" minOccurs="0"/>
+       <element name="old-ns1" type="keysys:value" minOccurs="0"/>
+       <element name="old-ns2" type="keysys:value" minOccurs="0"/>
+       <element name="old-ns3" type="keysys:value" minOccurs="0"/>
+       <element name="orat-owner-name" type="keysys:value" minOccurs="0"/>
+       <element name="orat-owner-organization" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-authority" type="keysys:value" minOccurs="0"/>
+       <element name="pro-authority-website" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-license-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-profession" type="keysys:value" minOccurs="0"/>
+       <element name="pro-professiontype" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-registration" type="keysys:value" minOccurs="0"/>
+       <element name="pro-trademark-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-trademark-jurisdiction" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-trademark-name" type="keysys:value"
+minOccurs="0"/>
+       <element name="pro-trademark-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="promotion-code" type="keysys:value" minOccurs="0"/>
+       <element name="pt-autorenew" type="keysys:value" minOccurs="0"/>
+       <element name="pt-legitimacy" type="keysys:value" minOccurs="0"/>
+       <element name="pt-owner-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-owner-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="pt-registration-basis" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-tech-identification" type="keysys:value"
+minOccurs="0"/>
+       <element name="pt-tech-mobile" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx0" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx1" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx2" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx3" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx4" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx5" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx6" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx7" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx8" type="keysys:value" minOccurs="0"/>
+       <element name="record-mx9" type="keysys:value" minOccurs="0"/>
+       <element name="registry-lock" type="keysys:value" minOccurs="0"/>
+       <element name="renewalmode" type="keysys:value" minOccurs="0"/>
+       <element name="ro-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="ro-idcard-or-passport-number" type="keysys:value"
+minOccurs="0"/>
+       <element name="ro-vat-number" type="keysys:value" minOccurs="0"/>
+       <element name="ru-birthdate" type="keysys:value" minOccurs="0"/>
+       <element name="ru-code" type="keysys:value" minOccurs="0"/>
+       <element name="ru-contract" type="keysys:value" minOccurs="0"/>
+       <element name="ru-kpp" type="keysys:value" minOccurs="0"/>
+       <element name="ru-passportdata" type="keysys:value" minOccurs="0"/>
+       <element name="ruhr-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="se-client-delete" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-email" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-fax" type="keysys:value" minOccurs="0"/>
+       <element name="se-disclose-voice" type="keysys:value" minOccurs="0"/>
+       <element name="sg-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-account-transfer-authcode" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-admin-singpassid" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-rcbid" type="keysys:value" minOccurs="0"/>
+       <element name="sg-transfer-out-code" type="keysys:value"
+minOccurs="0"/>
+       <element name="sg-transfer-out-code-exp-date" type="keysys:value"
+minOccurs="0"/>
+       <element name="sk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="sk-company-number" type="keysys:value" minOccurs="0"/>
+       <element name="sk-legal-form" type="keysys:value" minOccurs="0"/>
+       <element name="sla-deadline" type="keysys:value" minOccurs="0"/>
+       <element name="sla-priority" type="keysys:value" minOccurs="0"/>
+       <element name="tel-password" type="keysys:value" minOccurs="0"/>
+       <element name="tel-publish-whois" type="keysys:value" minOccurs="0"/>
+       <element name="tel-username" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whois-phone" type="keysys:value" minOccurs="0"/>
+       <element name="tel-whoistype" type="keysys:value" minOccurs="0"/>
+       <element name="time-to-suspension" type="keysys:value"
+minOccurs="0"/>
+       <element name="tr-citid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-comregid" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxnumber" type="keysys:value" minOccurs="0"/>
+       <element name="tr-taxoffice" type="keysys:value" minOccurs="0"/>
+       <element name="tr-tmid" type="keysys:value" minOccurs="0"/>
+       <element name="transferlock" type="keysys:value" minOccurs="0"/>
+       <element name="transfermode" type="keysys:value" minOccurs="0"/>
+       <element name="travel-uin" type="keysys:value" minOccurs="0"/>
+       <element name="trustee-comment" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-date" type="keysys:value" minOccurs="0"/>
+       <element name="ua-tm-number" type="keysys:value" minOccurs="0"/>
+       <element name="uk-accept-trustee-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="unitedtld-regulatory-data" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-accept-special-tac" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-apppurpose" type="keysys:value"
+minOccurs="0"/>
+       <element name="us-nexus-category" type="keysys:value" minOccurs="0"/>
+       <element name="us-nexus-validator" type="keysys:value"
+minOccurs="0"/>
+       <element name="useproxy" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner0" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner1" type="keysys:value" minOccurs="0"/>
+       <element name="whois-banner2" type="keysys:value" minOccurs="0"/>
+       <element name="whois-privacy" type="keysys:value" minOccurs="0"/>
+       <element name="whois-rsp" type="keysys:value" minOccurs="0"/>
+       <element name="whois-url" type="keysys:value" minOccurs="0"/>
+       <element name="whoisprivacy" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-id" type="keysys:value" minOccurs="0"/>
+       <element name="xxx-community-password" type="keysys:value"
+minOccurs="0"/>
+       <element name="xxx-defensive" type="keysys:value" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="errDataTypes">
+    <sequence>
+      <element name="msg" type="epp:msgType" minOccurs="0"/>
+      <element name="reason" type="string" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="pollType">
+    <sequence>
+      <element name="data" type="keysys:anyNamespace" minOccurs="0"/>
+      <element name="info" type="string" minOccurs="0"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="anyNamespace">
+    <sequence>
+      <any namespace="##any" processContents="skip" minOccurs="0"
+maxOccurs="unbounded"/>
+    </sequence>
+    <anyAttribute namespace="##any" processContents="skip"/>
+  </complexType>
+
+  <!--
+  General Data types.
+  -->
+  <simpleType name="name">
+    <restriction base="token">
+      <minLength value="1"/>
+      <maxLength value="64"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="value">
+    <restriction base="token">
+      <minLength value="1"/>
+      <maxLength value="255"/>
+    </restriction>
+  </simpleType>
+
+<!-- End of schema. -->
+</schema>

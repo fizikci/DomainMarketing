@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema targetNamespace="http://www.unitedtld.com/epp/finance-1.0"
+	xmlns:finance="http://www.unitedtld.com/epp/finance-1.0"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:eppcom="urn:ietf:params:xml:ns:eppcom-1.0"
+	elementFormDefault="qualified">
+	
+	<annotation>
+		<documentation>
+			Extensible Provisioning Protocol v1.0
+			Mapping for account balance and thresholds.
+		</documentation>
+	</annotation>
+
+	<!-- Child elements found in EPP commands. -->
+	<element name="info"/>
+
+	<!-- Child response elements. -->
+	<element name="infData" type="finance:infRespType"/>
+
+	<complexType name="infRespType">
+		<sequence>
+			<element name="balance" type="decimal"/>
+			<element name="threshold" type="finance:thresholdType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="thresholdType">
+		<simpleContent>
+			<extension base="decimal">
+				<attribute name="type" type="token" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+
+	</schema>

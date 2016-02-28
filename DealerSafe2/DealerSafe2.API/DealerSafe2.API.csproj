@@ -685,7 +685,7 @@
       <Project>{d33bda95-9e9b-4b97-bf2a-b3520d8928f3}</Project>
       <Name>Cinar.Scripting</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\DealerSafe2\DealerSafe.DTO\DealerSafe.DTO.csproj">
+    <ProjectReference Include="..\DealerSafe.DTO\DealerSafe.DTO.csproj">
       <Project>{0997bf2a-c5f2-46e6-b070-b0f22c143113}</Project>
       <Name>DealerSafe.DTO</Name>
     </ProjectReference>

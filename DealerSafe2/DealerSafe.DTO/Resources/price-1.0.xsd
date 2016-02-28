@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="urn:afilias:params:xml:ns:price-1.0"
+        xmlns:price="urn:afilias:params:xml:ns:price-1.0"
+        elementFormDefault="qualified">
+
+  <annotation>
+    <documentation>
+      Extensible Provisioning Protocol v1.0
+      domain name extension schema for premium pricing
+    </documentation>
+  </annotation>
+
+
+
+  <!--
+    response elements
+  -->
+  
+ 
+  <element name="chkData" type="price:chkDataType" />
+  <element name="creData" type="price:creDataType" />
+  <element name="trnData" type="price:trnDataType" />
+  <element name="renData" type="price:renDataType" />
+  
+  <complexType name="chkDataType">  	
+  	<sequence>
+  	<element name="cd" type="price:cdType" maxOccurs="unbounded" />  		
+  	</sequence>
+  </complexType>
+
+
+  <complexType name="cdType" >
+  	<sequence>
+  		<element name="domain" type="price:domainType" />
+  		<element name="currency" type="string" />
+  		<element name="period" type="price:periodType" />
+  		<element name="pricing" type="price:pricingType" maxOccurs="unbounded" />
+  	</sequence>
+  </complexType>
+  
+  <complexType name="creDataType" >
+  	<sequence>
+  		<element name="domain" type="price:domainType" />
+  	</sequence>
+  </complexType>
+  
+  <complexType name="trnDataType" >
+  	<sequence>
+  		<element name="domain" type="price:domainType" />
+  	</sequence>
+  </complexType>
+  
+  <complexType name="renDataType" >
+  	<sequence>
+  		<element name="domain" type="price:domainType" />
+  	</sequence>
+  </complexType>
+  
+  <!--
+    Utility Types
+  -->
+ <complexType name="domainType" >
+ 	<simpleContent>    
+    	<extension base="string">
+    		<attribute name="type"  type="price:domainPriceType" use="required" />
+    	</extension>
+    </simpleContent> 	 	
+ </complexType>
+ 
+ <simpleType name="domainPriceType">
+     <restriction base="string">
+        <enumeration value="premium"/>
+      </restriction>
+ </simpleType>
+ 
+ <complexType name="periodType">
+ 	<simpleContent>
+ 		<extension base="int" >
+ 		<attribute name="unit" type="string" use="required" />
+ 		</extension> 		
+ 	</simpleContent>
+ </complexType>
+
+ <complexType name="pricingType" >
+ 	<sequence>
+ 		<element name="amount" type="price:amountType" maxOccurs="unbounded" /> 		 		
+ 	</sequence>
+ 	<attribute name="from" type="dateTime" />
+ 	<attribute name="to" type="dateTime" />
+ </complexType>
+ 
+ <complexType name="amountType" >
+ 	<simpleContent>
+ 		<extension base="price:amountValue">
+    		<attribute name="type" type="price:operationType" use="required"/>
+   		 </extension>
+    </simpleContent>
+ </complexType>
+ 
+  <simpleType name="amountValue">
+    <restriction base="decimal">
+      <totalDigits value="12"/>
+      <fractionDigits value="2"/>
+    </restriction>
+  </simpleType>
+ 
+ <simpleType name="operationType" >   
+      <restriction base="string">
+         <enumeration value="create" />
+         <enumeration value="renew" />
+         <enumeration value="transfer" />
+      </restriction>         
+ </simpleType>
+ 
+
+
+  <!--
+   End of schema.
+  -->
+
+</schema>

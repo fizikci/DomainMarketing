@@ -1,0 +1,1266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0997BF2A-C5F2-46E6-B070-B0F22C143113}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DealerSafe.DTO</RootNamespace>
+    <AssemblyName>DealerSafe.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DealerSafe.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DealerSafe.Utility\bin\Debug\DealerSafe.Utility.dll</HintPath>
+    </Reference>
+    <Reference Include="idnlib">
+      <HintPath>..\..\_dlls\idnlib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\_dlls\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\_dlls\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.2.0.30506.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.Mvc.4.0.40804.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.2.0.30506.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.2.0.30506.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIException.cs" />
+    <Compile Include="BaseKit\Base.cs" />
+    <Compile Include="BaseKit\GetListBrandLanguages.cs" />
+    <Compile Include="BaseKit\GetListCategories.cs" />
+    <Compile Include="BaseKit\GetListUserPackage.cs" />
+    <Compile Include="BaseKit\GetSite.cs" />
+    <Compile Include="BaseKit\GetSites.cs" />
+    <Compile Include="BaseKit\GetUser.cs" />
+    <Compile Include="BaseKit\GetUsers.cs" />
+    <Compile Include="BaseKit\SalesItem.cs" />
+    <Compile Include="BaseKit\SetCreateSite.cs" />
+    <Compile Include="BaseKit\SetCreateUser.cs" />
+    <Compile Include="BaseKit\SetUpdateSite.cs" />
+    <Compile Include="Common\BaseEntityObject.cs" />
+    <Compile Include="Common\BlogRss.cs" />
+    <Compile Include="Common\CampaignTo.cs" />
+    <Compile Include="Common\DomainNewsInfo.cs" />
+    <Compile Include="Common\FrontBannerInfo.cs" />
+    <Compile Include="Common\FTP\RequestFTPDelete.cs" />
+    <Compile Include="Common\FTP\RequestFTPUpload.cs" />
+    <Compile Include="Common\FTP\ResponseFTPDelete.cs" />
+    <Compile Include="Common\FTP\ResponseFTPUpload.cs" />
+    <Compile Include="Common\IP2CountryInfo.cs" />
+    <Compile Include="Common\ReqArkadasimaDevretHasHostingIndirim.cs" />
+    <Compile Include="Common\ReqArkadasimaDevretHosting.cs" />
+    <Compile Include="Common\ReqBlogRss.cs" />
+    <Compile Include="Common\ReqCampaignNameAndCount.cs" />
+    <Compile Include="Common\ReqCampingCustomerBackForward.cs" />
+    <Compile Include="Common\ReqCampingCustomerYearDetail.cs" />
+    <Compile Include="Common\ReqCampingCustomerYearPointFb.cs" />
+    <Compile Include="Common\ReqCampingCustomerYearPointSend.cs" />
+    <Compile Include="Common\ReqCampingPublicCustomerYearList.cs" />
+    <Compile Include="Common\ReqCampingYearActiveAndShare.cs" />
+    <Compile Include="Common\ReqCampingYearCustomerList.cs" />
+    <Compile Include="Common\ReqCrossBuyingOffer.cs" />
+    <Compile Include="Common\ReqCrossBuyingSelection.cs" />
+    <Compile Include="Common\ReqCustomerOftheYearCampingControl.cs" />
+    <Compile Include="Common\ReqCustomerOftheYearSave.cs" />
+    <Compile Include="Common\ReqGetDashboardReport.cs" />
+    <Compile Include="Common\ReqGetDomainNewsList.cs" />
+    <Compile Include="Common\ReqGetExpiringProductList.cs" />
+    <Compile Include="Common\ReqGetLogMethods.cs" />
+    <Compile Include="Common\ReqIP2Country.cs" />
+    <Compile Include="Common\ReqListOrgMousePadStatus.cs" />
+    <Compile Include="Common\ReqOrgMousePadStatusChange.cs" />
+    <Compile Include="Common\ReqSendMail.cs" />
+    <Compile Include="Common\ReqSendTurkcellSMS.cs" />
+    <Compile Include="Common\ReqSendSMS.cs" />
+    <Compile Include="Common\MainBottomBoxInfo.cs" />
+    <Compile Include="Common\ResCampingCustomerBackForward.cs" />
+    <Compile Include="Common\ResCampingCustomerYearDetail.cs" />
+    <Compile Include="Common\ResCampingCustomerYearPoint.cs" />
+    <Compile Include="Common\ResCampingPublicCustomerYearList.cs" />
+    <Compile Include="Common\ResCampingYearActiveAndShare.cs" />
+    <Compile Include="Common\ResCampingYearCustomer.cs" />
+    <Compile Include="Common\ResCampingYearCustomerList.cs" />
+    <Compile Include="Common\ResCrossBuyingOffer.cs" />
+    <Compile Include="Common\ResCrossBuyingSelection.cs" />
+    <Compile Include="Common\ResCustomerOftheYearCampingControl.cs" />
+    <Compile Include="Common\ResDasboardIstatistic.cs" />
+    <Compile Include="Common\ResGetLog.cs" />
+    <Compile Include="Common\ResGetLogDetails.cs" />
+    <Compile Include="Common\ResGetLogMethods.cs" />
+    <Compile Include="Common\SendSMSInfo.cs" />
+    <Compile Include="Common\StaffNotice.cs" />
+    <Compile Include="Dashboard\ApprovedMarketingMember.cs" />
+    <Compile Include="Dns\DnsServer.cs" />
+    <Compile Include="Dns\DnsType.cs" />
+    <Compile Include="Dns\TblDnsTo.cs" />
+    <Compile Include="Domain\ChildNameServerTo.cs" />
+    <Compile Include="Domain\DomainHunterInfo.cs" />
+    <Compile Include="Domain\DomainRenewLogDataResponse.cs" />
+    <Compile Include="Domain\DomainTypesVerify.cs" />
+    <Compile Include="Domain\NictrNewQueue.cs" />
+    <Compile Include="Domain\Register\DealerSafeResponse.cs" />
+    <Compile Include="Domain\Register\DirectiResponse.cs" />
+    <Compile Include="Domain\Register\DomainRegisterRegisterLogInfo.cs" />
+    <Compile Include="Domain\Register\RegisterParameters.cs" />
+    <Compile Include="Domain\Register\ReqGetDomainRegisterLogById.cs" />
+    <Compile Include="Domain\Register\ReqGetDomainRegisterLogs.cs" />
+    <Compile Include="Domain\Register\ReqGetIncorrectDomainsForMailing.cs" />
+    <Compile Include="Domain\Register\ReqUpdateContactStatus.cs" />
+    <Compile Include="Domain\Register\ReqUpdateDomainRegisterLogStatus.cs" />
+    <Compile Include="Domain\Register\ReqUpdateDomainNameServerRequest.cs" />
+    <Compile Include="Domain\Register\ResGetIncorrectDomainsForMailing.cs" />
+    <Compile Include="Domain\Register\ReqGetDomainRegisterRequestByReferenceId.cs" />
+    <Compile Include="Domain\Register\ReqGetSuccessfullGetDomainsForMailing.cs" />
+    <Compile Include="Domain\Register\ReqResGetDomainIds.cs" />
+    <Compile Include="Domain\Register\ReqUpdateDomainRegisterRequestGeneralAvailableDate.cs" />
+    <Compile Include="Domain\Register\ReqUpdateExtLaunch.cs" />
+    <Compile Include="Domain\Register\ResGetDomainIds.cs" />
+    <Compile Include="Domain\Register\ResGetSuccessfullDomainsForMailing.cs" />
+    <Compile Include="Domain\Register\ResponseBase.cs" />
+    <Compile Include="Domain\Register\ResSaveDomainRegisterLog.cs" />
+    <Compile Include="Domain\Register\ResUpdateDomainNameServerRequest.cs" />
+    <Compile Include="Domain\ReqDomainWhois.cs" />
+    <Compile Include="Domain\ReqEppExtension.cs" />
+    <Compile Include="Domain\ReqDirectiDisablePrivacyProtection.cs" />
+    <Compile Include="Domain\ReqDomainStatusActivityProcessChange.cs" />
+    <Compile Include="Domain\ReqIdByDomainId.cs" />
+    <Compile Include="Domain\ReqNewGtldDelete.cs" />
+    <Compile Include="Domain\ReqStaffCheckContactApprove.cs" />
+    <Compile Include="Domain\ReqStaffMemberContactsApprove.cs" />
+    <Compile Include="Domain\ReqStaffSaveMemberContactsApprove.cs" />
+    <Compile Include="Domain\ReqTldSellingInformation.cs" />
+    <Compile Include="Domain\ReqUpdateQueueReportTypeAndProcessType.cs" />
+    <Compile Include="Domain\Register\DomainRegisterAutoRegisterInfo.cs" />
+    <Compile Include="Domain\Register\DomainRegisterBackorderInfo.cs" />
+    <Compile Include="Domain\Register\DomainRegisterCompletedRequestsInfo.cs" />
+    <Compile Include="Domain\Register\DomainRegisterContactInfo.cs" />
+    <Compile Include="Domain\Register\DomainRegisterPreRequestInfo.cs" />
+    <Compile Include="Domain\Register\DomainRegisterReferenceInfoDto.cs" />
+    <Compile Include="Domain\Register\ReqDeleteDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ReqDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ReqGetDnsList.cs" />
+    <Compile Include="Domain\Register\ReqGetDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ReqGetDomainRegisterRequestList.cs" />
+    <Compile Include="Domain\Register\ReqGetReferenceInfo.cs" />
+    <Compile Include="Domain\Register\ReqGetRegisterContactByDomainId.cs" />
+    <Compile Include="Domain\Register\ReqGetRegisterContactList.cs" />
+    <Compile Include="Domain\Register\ReqGetRegisterContact.cs" />
+    <Compile Include="Domain\Register\ReqSaveContact.cs" />
+    <Compile Include="Domain\Register\ReqSaveReferenceInfo.cs" />
+    <Compile Include="Domain\Register\ReqUpdateContact.cs" />
+    <Compile Include="Domain\Register\ReqUpdateDomainNameservers.cs" />
+    <Compile Include="Domain\Register\ReqUpdateDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ReqUpdateRequestModifyStatus.cs" />
+    <Compile Include="Domain\Register\ResDeleteDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ResDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ResGetDomainRegisterRequest.cs" />
+    <Compile Include="Domain\Register\ResSaveContact.cs" />
+    <Compile Include="Domain\Register\ResSaveReferenceInfo.cs" />
+    <Compile Include="Domain\Register\ResUpdateContact.cs" />
+    <Compile Include="Domain\Register\ResUpdateDomainNameservers.cs" />
+    <Compile Include="Domain\Register\ResUpdateDomainRegisterRequest.cs" />
+    <Compile Include="Domain\RegistryCompany.cs" />
+    <Compile Include="Domain\DomainTypesGroups.cs" />
+    <Compile Include="Domain\DomainTypesGroupsDetailAdd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Domain\DomainTypesGroupsDetailDelete.cs" />
+    <Compile Include="Domain\qryDomainManagemenet.cs" />
+    <Compile Include="Domain\Renew\DomainRenewRequest.cs" />
+    <Compile Include="Domain\Renew\ReqCheckPaymentActivity.cs" />
+    <Compile Include="Domain\Renew\ReqDomainAutoRenew.cs" />
+    <Compile Include="Domain\Renew\ReqDomainRenewLogs.cs" />
+    <Compile Include="Domain\Renew\ReqGetDomainRegistirationDate.cs" />
+    <Compile Include="Domain\Renew\ReqGetDomainRenewCheckList.cs" />
+    <Compile Include="Domain\Renew\ReqGetDomainRenewRequestByOrderId.cs" />
+    <Compile Include="Domain\Renew\ReqGetDomainRenewRequests.cs" />
+    <Compile Include="Domain\Renew\ReqGetDomainStatus.cs" />
+    <Compile Include="Domain\Renew\ReqGetQueue.cs" />
+    <Compile Include="Domain\Renew\ReqRemoveDomainQueue.cs" />
+    <Compile Include="Domain\Renew\ReqRenewRequest.cs" />
+    <Compile Include="Domain\Renew\ReqSaveDomainRenewRequest.cs" />
+    <Compile Include="Domain\Renew\ReqUpdateDomainForRenewal.cs" />
+    <Compile Include="Domain\Renew\ReqUpdateDomainQueue.cs" />
+    <Compile Include="Domain\Renew\ReqUpdateDomainRenewStatus.cs" />
+    <Compile Include="Domain\Renew\ReqUpdateDomainRenewSuccess.cs" />
+    <Compile Include="Domain\Renew\ReqUpdateDomainRenewTemp.cs" />
+    <Compile Include="Domain\Renew\ResDomainAutoRenew.cs" />
+    <Compile Include="Domain\Renew\ResGetDomainRegistirationDate.cs" />
+    <Compile Include="Domain\Renew\ResGetDomainRenewCheckList.cs" />
+    <Compile Include="Domain\ReqDomainQuery.cs" />
+    <Compile Include="Domain\ReqDomainTypesGroupsByUpdate.cs" />
+    <Compile Include="Domain\ReqGetDomainQuery.cs" />
+    <Compile Include="Domain\ReqGetNewDnsByDomainTypeExtName.cs" />
+    <Compile Include="Domain\DnsName.cs" />
+    <Compile Include="Domain\DomainLandingPageTo.cs" />
+    <Compile Include="Domain\ModifyRegisterContactTo.cs" />
+    <Compile Include="Domain\RegisterContactTo.cs" />
+    <Compile Include="Domain\ReqDomainAndContacts.cs" />
+    <Compile Include="Domain\ReqDomainIdAndDirectiCustomerId.cs" />
+    <Compile Include="Domain\ReqDomainIdAndDirectiOrderId.cs" />
+    <Compile Include="Domain\ReqGetNewDnsByDomainType.cs" />
+    <Compile Include="Domain\ReqGetNewDnsByMemberAndDomain.cs" />
+    <Compile Include="Domain\ReqHostCreate.cs" />
+    <Compile Include="Domain\ReqHostDelete.cs" />
+    <Compile Include="Domain\ReqIdAndEmail.cs" />
+    <Compile Include="Domain\ReqIsActiveDomainDb.cs" />
+    <Compile Include="Domain\ReqNewTldInformation.cs" />
+    <Compile Include="Domain\ReqNewTldSave.cs" />
+    <Compile Include="Domain\ReqRemoveFromQueue.cs" />
+    <Compile Include="Domain\ReqSetDnsServerTypeDomainById.cs" />
+    <Compile Include="Domain\ReqTldFavoriteAdd.cs" />
+    <Compile Include="Domain\ReqTldGeneralSave.cs" />
+    <Compile Include="Domain\ReqTldGeneralUpdate.cs" />
+    <Compile Include="Domain\ReqNewTldUpdate.cs" />
+    <Compile Include="Domain\ReqTldInformationSave.cs" />
+    <Compile Include="Domain\ReqTldInformationUpdate.cs" />
+    <Compile Include="Domain\ReqTldPriceSave.cs" />
+    <Compile Include="Domain\ReqTldPriceUpdate.cs" />
+    <Compile Include="Domain\ReqTldProtectedContactSave.cs" />
+    <Compile Include="Domain\ReqTldProtectedContactUpdate.cs" />
+    <Compile Include="Domain\ReqUpdateQueueReportType.cs" />
+    <Compile Include="Domain\ResDomainWhoisAlternativeCheck.cs" />
+    <Compile Include="Domain\ResDomainWhoisLookUpGet.cs" />
+    <Compile Include="Domain\ResDomain_Process_History.cs" />
+    <Compile Include="Domain\ResGetQueueIdByDomainId.cs" />
+    <Compile Include="Domain\ResRemoveFromQueue.cs" />
+    <Compile Include="Domain\ResStaffMemberContactsApprove.cs" />
+    <Compile Include="Domain\ResTldPriceInformation.cs" />
+    <Compile Include="Domain\ReqTldRequestInformation.cs" />
+    <Compile Include="Domain\ReqWhoisInformation.cs" />
+    <Compile Include="Domain\ResDomainGroupListInformation.cs" />
+    <Compile Include="Domain\ResNewTldAllQuery.cs" />
+    <Compile Include="Domain\ResNewTldAvailable.cs" />
+    <Compile Include="Domain\ResNewTldInformation.cs" />
+    <Compile Include="Domain\ResNewTldList.cs" />
+    <Compile Include="Domain\ResTldProtectedContactGet.cs" />
+    <Compile Include="Domain\ResUpdateQueueReportType.cs" />
+    <Compile Include="Domain\ResUpdateQueueReportTypeAndProcessType.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferInListStaff.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferInLogGet.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferInMailExposition.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferInStart.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferInStatusChanged.cs" />
+    <Compile Include="Domain\TransferIn\ReqDomainTransferToMembersCancel.cs" />
+    <Compile Include="Domain\TransferIn\ResDomainTransferInListStaff.cs" />
+    <Compile Include="Domain\TransferIn\ResDomainTransferInLogGet.cs" />
+    <Compile Include="Domain\TransferIn\ResDomainTransferInSearchList.cs" />
+    <Compile Include="Domain\TransferIn\ResDomainTransferInStart.cs" />
+    <Compile Include="Domain\TransferOut\ReqDomainTransferOutCancel.cs" />
+    <Compile Include="Domain\TransferOut\ReqDomainTransferOutListStaff.cs" />
+    <Compile Include="Domain\TransferOut\ReqDomainTransferOutStart.cs" />
+    <Compile Include="Domain\TransferOut\ResDomainTransferOutListStaff.cs" />
+    <Compile Include="Domain\TransferOut\ResDomainTransferOutLogGet.cs" />
+    <Compile Include="Domain\TransferOut\ResDomainTransferOutStart.cs" />
+    <Compile Include="Domain\Transfer\ResGetOutTransferMemberDnsList.cs" />
+    <Compile Include="Domain\tblDomainContactTo.cs" />
+    <Compile Include="Domain\WhoisContactUsLogTo.cs" />
+    <Compile Include="Domain\tblDnsTo.cs" />
+    <Compile Include="Domain\WhoisHiderLogTo.cs" />
+    <Compile Include="Domain\ReqDomainIdAndContactId.cs" />
+    <Compile Include="Domain\DomainTypeTo.cs" />
+    <Compile Include="Domain\DomainTypeInfo.cs" />
+    <Compile Include="Domain\ReqDomainIdAndActivity.cs" />
+    <Compile Include="Domain\ReqCQueueAddDomain.cs" />
+    <Compile Include="Domain\DomainUsersTo.cs" />
+    <Compile Include="Domain\PremiumTvDomainTo.cs" />
+    <Compile Include="Domain\ReqCQueueCheckDomain.cs" />
+    <Compile Include="Domain\ReqDayAndActivities.cs" />
+    <Compile Include="Domain\ReqDomainIdAndCompanyId.cs" />
+    <Compile Include="Domain\ReqDomainIdAndOtherCompany.cs" />
+    <Compile Include="Domain\ReqDomainIdAndProcess.cs" />
+    <Compile Include="Domain\ReqDomainIdAndTicketNumber.cs" />
+    <Compile Include="Domain\ReqDomainIdAndUserId.cs" />
+    <Compile Include="Domain\ReqDomainNameAndActivityAndProductId.cs" />
+    <Compile Include="Domain\ReqDomainNameAndCompanyId.cs" />
+    <Compile Include="Domain\ReqDomainNameAndContacts.cs" />
+    <Compile Include="Domain\DomainContacts.cs" />
+    <Compile Include="Domain\DomainTransferLogTo.cs" />
+    <Compile Include="Domain\MembersDnsTo.cs" />
+    <Compile Include="Domain\MyDomainTo.cs" />
+    <Compile Include="Domain\NicTrTicketStatusTo.cs" />
+    <Compile Include="Domain\ProductsProductUnitsTo.cs" />
+    <Compile Include="Domain\ReqAddToMemberDnsList.cs" />
+    <Compile Include="Domain\ReqAddZone.cs" />
+    <Compile Include="Domain\ReqARecord.cs" />
+    <Compile Include="Domain\ReqCNameRecord.cs" />
+    <Compile Include="Domain\ReqDirectiOrderIdAndCode.cs" />
+    <Compile Include="Domain\ReqDomainIdAndSecret.cs" />
+    <Compile Include="Domain\ReqDomainIdAndStatus.cs" />
+    <Compile Include="Domain\ReqDomainNameAndAuthCode.cs" />
+    <Compile Include="Domain\ReqDomainNameAndServerId.cs" />
+    <Compile Include="Domain\ReqDomainNameAndDnsRecordId.cs" />
+    <Compile Include="Domain\ReqGetDomainDns.cs" />
+    <Compile Include="Domain\ReqHostDnsAndHosting.cs" />
+    <Compile Include="Domain\ReqIdAndName.cs" />
+    <Compile Include="Domain\ReqNictrUpdateNameServer.cs" />
+    <Compile Include="Domain\ReqRegisteredDomainCounts.cs" />
+    <Compile Include="Domain\ReqRemoveSimpleDnsRecord.cs" />
+    <Compile Include="Domain\ReqDomainNameAndActivity.cs" />
+    <Compile Include="Domain\MembersHostTo.cs" />
+    <Compile Include="Domain\ReqMemberHostAndActivity.cs" />
+    <Compile Include="Domain\ReqRemoveSrvRecord.cs" />
+    <Compile Include="Domain\ReqSpfRecord.cs" />
+    <Compile Include="Domain\ReqTrackContactInfo.cs" />
+    <Compile Include="Domain\ReqTxtRecord.cs" />
+    <Compile Include="Domain\ReqNSRecord.cs" />
+    <Compile Include="Domain\ReqMXRecord.cs" />
+    <Compile Include="Domain\ReqUpdateSPFRecord.cs" />
+    <Compile Include="Domain\ReqUpdateTXTRecord.cs" />
+    <Compile Include="Domain\ReqUpdateCNameRecord.cs" />
+    <Compile Include="Domain\ReqUpdateNSRecord.cs" />
+    <Compile Include="Domain\ReqUpdateMXRecord.cs" />
+    <Compile Include="Domain\ReqUpdateARecord.cs" />
+    <Compile Include="Domain\MembersDNSOtherCompanyTo.cs" />
+    <Compile Include="Domain\ReqUpdateDomainPrivacyStatus.cs" />
+    <Compile Include="Domain\ReqSetPrivacyProtectionToDirecti.cs" />
+    <Compile Include="Domain\ReqUpdateMemberDnsList.cs" />
+    <Compile Include="Domain\ReqSetMemberDnsListInfo.cs" />
+    <Compile Include="Domain\MemberDnsListTo.cs" />
+    <Compile Include="Domain\ReqUpdateDomainDnsId.cs" />
+    <Compile Include="Domain\ReqUpdateDomainDns.cs" />
+    <Compile Include="Domain\ReqGetDomainHosts.cs" />
+    <Compile Include="Domain\ReqHostUpdate.cs" />
+    <Compile Include="Domain\ReqUserIdAndPassword.cs" />
+    <Compile Include="Domain\ReqUserNameAndPassword.cs" />
+    <Compile Include="Domain\ResTextAndResult.cs" />
+    <Compile Include="Domain\tblDirectionTo.cs" />
+    <Compile Include="Domain\Transfer\ResOutTransferMemberDnsList.cs" />
+    <Compile Include="Domain\Transfer\ResTransferLogExplantion.cs" />
+    <Compile Include="Domain\tblMailServersTo.cs" />
+    <Compile Include="Domain\Transfer\ResTransferAllPasswordList.cs" />
+    <Compile Include="Domain\Transfer\ReqTransferLogExplation.cs" />
+    <Compile Include="Domain\Transfer\ResTransferReturnEnd.cs" />
+    <Compile Include="Domain\Transfer\ResTransferAllPasswordControl.cs" />
+    <Compile Include="Domain\Transfer\ResDomainTransfer.cs" />
+    <Compile Include="Domain\ResDomainQuery.cs" />
+    <Compile Include="Domain\ReqGetSuggestions.cs" />
+    <Compile Include="Domain\ResGetSuggestions.cs" />
+    <Compile Include="Domain\HostInfoTo.cs" />
+    <Compile Include="Domain\NameServerTo.cs" />
+    <Compile Include="Domain\Transfer\DomainTransfer.cs" />
+    <Compile Include="Domain\Transfer\MembersDomainTransferInfo.cs" />
+    <Compile Include="Domain\Transfer\ResGetMemberDnsTransferList.cs" />
+    <Compile Include="Domain\Transfer\ResTransferVerisignSesionKontrolToStart.cs" />
+    <Compile Include="Domain\WhoisInformationInfo.cs" />
+    <Compile Include="Domain\XXXCodeTo.cs" />
+    <Compile Include="Enums\BCIT\EnmMobileShowStatus.cs" />
+    <Compile Include="Enums\BCIT\enums.cs" />
+    <Compile Include="Enums\EnmBackupCreateRestoreStatus.cs" />
+    <Compile Include="Enums\EnmBackupStatus.cs" />
+    <Compile Include="Enums\EnmCampaignCustomerYear2014Status.cs" />
+    <Compile Include="Enums\EnmCampingCrossBuyingMemberOfferSelection.cs" />
+    <Compile Include="Enums\ConfirmationType.cs" />
+    <Compile Include="Enums\ContactGroup.cs" />
+    <Compile Include="Enums\ContactType.cs" />
+    <Compile Include="Enums\DomainRenewProcessType.cs" />
+    <Compile Include="Enums\enmContactCompatibility.cs" />
+    <Compile Include="Enums\EnmDnsServerType.cs" />
+    <Compile Include="Enums\EnmDomainRegisterProcessType.cs" />
+    <Compile Include="Enums\EnmDomainRegisterType.cs" />
+    <Compile Include="Enums\EnmExtraRenewType.cs" />
+    <Compile Include="Enums\EnmHistoryType.cs" />
+    <Compile Include="Enums\EnmHostingQueue.cs" />
+    <Compile Include="Enums\EnmHostingQueueResult.cs" />
+    <Compile Include="Enums\EnmInTransferDomainStatus.cs" />
+    <Compile Include="Enums\EnmListTypes.cs" />
+    <Compile Include="Enums\EnmLogProcessType.cs" />
+    <Compile Include="Enums\EnmMembersDNSActivity.cs" />
+    <Compile Include="Enums\EnmMembersDNSDomainProcess.cs" />
+    <Compile Include="Enums\EnmMembersDNSStatus.cs" />
+    <Compile Include="Enums\EnmOutTransferDomainProcess.cs" />
+    <Compile Include="Enums\EnmOutTransferDomainStatus.cs" />
+    <Compile Include="Enums\EnmOutTransferMemberStatus.cs" />
+    <Compile Include="Enums\EnmPasswordType.cs" />
+    <Compile Include="Enums\EnmPhysicalServerStatus.cs" />
+    <Compile Include="Enums\EnmProcessTypes.cs" />
+    <Compile Include="Enums\EnmRegisterResponse.cs" />
+    <Compile Include="Enums\EnmRegisterStatus.cs" />
+    <Compile Include="Enums\EnmServerGenerations.cs" />
+    <Compile Include="Enums\EnmStaffNotice.cs" />
+    <Compile Include="Enums\EnumMembersAddressType.cs" />
+    <Compile Include="Enums\EnumPhysicalServerCurrency.cs" />
+    <Compile Include="Enums\EnumHyperVServerStatus.cs" />
+    <Compile Include="Enums\EppQueueStatuses.cs" />
+    <Compile Include="Enums\RenewalMode.cs" />
+    <Compile Include="Enums\TypeOfApproving.cs" />
+    <Compile Include="Epp\EppUtility.cs" />
+    <Compile Include="Epp\Protocol\CommandExtension.cs" />
+    <Compile Include="Epp\Protocol\CommandMessageBase.cs" />
+    <Compile Include="Epp\Protocol\Commands\Check\CDItem.cs" />
+    <Compile Include="Epp\Protocol\Commands\Check\CheckCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Check\CheckCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Check\CheckResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\Check\CheckResponseHelper.cs" />
+    <Compile Include="Epp\Protocol\Commands\CommandBase.cs" />
+    <Compile Include="Epp\Protocol\Commands\CommandBase2.cs" />
+    <Compile Include="Epp\Protocol\Commands\CommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\CommandResult.cs" />
+    <Compile Include="Epp\Protocol\Commands\Create\CreateCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Create\CreateCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Create\CreateResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\Delete\DeleteCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Delete\DeleteCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\IComand.cs" />
+    <Compile Include="Epp\Protocol\Commands\ICommandArgs.cs" />
+    <Compile Include="Epp\Protocol\Commands\ICommandResult.cs" />
+    <Compile Include="Epp\Protocol\Commands\Info\InfoCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Info\InfoCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Info\InfoResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\Info\InfoResponseHelper.cs" />
+    <Compile Include="Epp\Protocol\Commands\IResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\LoginCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\LogoutCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\NoResCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\PollCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\PollExtensions.cs" />
+    <Compile Include="Epp\Protocol\Commands\Renew\RenewCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Renew\RenewCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Renew\RenewResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\ResponseBase.cs" />
+    <Compile Include="Epp\Protocol\Commands\ResponseMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Transfer\TransferCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Transfer\TransferCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\Commands\Transfer\TransferOperation.cs" />
+    <Compile Include="Epp\Protocol\Commands\Transfer\TransferResponse.cs" />
+    <Compile Include="Epp\Protocol\Commands\Transfer\TransferStatus.cs" />
+    <Compile Include="Epp\Protocol\Commands\Update\UpdateCommand.cs" />
+    <Compile Include="Epp\Protocol\Commands\Update\UpdateCommandMessage.cs" />
+    <Compile Include="Epp\Protocol\CommandType.cs" />
+    <Compile Include="Epp\Protocol\Configuration\DatesConfigurationElement.cs" />
+    <Compile Include="Epp\Protocol\Configuration\EppConfigurationManager.cs" />
+    <Compile Include="Epp\Protocol\Configuration\EPPConfigurationSection.cs" />
+    <Compile Include="Epp\Protocol\Configuration\LicenseConfigurationElement.cs" />
+    <Compile Include="Epp\Protocol\Configuration\TransportConfigurationElement.cs" />
+    <Compile Include="Epp\Protocol\Contacts\AddressInfo.cs" />
+    <Compile Include="Epp\Protocol\Contacts\ContactAddRemType.cs" />
+    <Compile Include="Epp\Protocol\Contacts\ContactAuthIDBase.cs" />
+    <Compile Include="Epp\Protocol\Contacts\ContactChangeType.cs" />
+    <Compile Include="Epp\Protocol\Contacts\Disclose.cs" />
+    <Compile Include="Epp\Protocol\Contacts\PostalInfo.cs" />
+    <Compile Include="Epp\Protocol\Contacts\Voice.cs" />
+    <Compile Include="Epp\Protocol\Domains\DomainAddRemType.cs" />
+    <Compile Include="Epp\Protocol\Domains\DomainChangeType.cs" />
+    <Compile Include="Epp\Protocol\Domains\DomainContactInfo.cs" />
+    <Compile Include="Epp\Protocol\Domains\DomainPeriod.cs" />
+    <Compile Include="Epp\Protocol\Domains\NameServiceInfo.cs" />
+    <Compile Include="Epp\Protocol\Domains\NameServiceList.cs" />
+    <Compile Include="Epp\Protocol\EnumParser.cs" />
+    <Compile Include="Epp\Protocol\ExtensionManager.cs" />
+    <Compile Include="Epp\Protocol\ExtensionProvider.cs" />
+    <Compile Include="Epp\Protocol\Fee\fee-0.6.cs" />
+    <Compile Include="Epp\Protocol\GeneratedEppEntity.cs" />
+    <Compile Include="Epp\Protocol\GreetingMessage.cs" />
+    <Compile Include="Epp\Protocol\HelloMessage.cs" />
+    <Compile Include="Epp\Protocol\HexByteConverter.cs" />
+    <Compile Include="Epp\Protocol\Hosts\HostAddRemType.cs" />
+    <Compile Include="Epp\Protocol\Hosts\IpAddress.cs" />
+    <Compile Include="Epp\Protocol\IEppExtension.cs" />
+    <Compile Include="Epp\Protocol\KeySys\keysys-1.0.cs" />
+    <Compile Include="Epp\Protocol\LiteralMessage.cs" />
+    <Compile Include="Epp\Protocol\MessageBase.cs" />
+    <Compile Include="Epp\Protocol\MessageType.cs" />
+    <Compile Include="Epp\Protocol\MessageValidationException.cs" />
+    <Compile Include="Epp\Protocol\ResponseExtension.cs" />
+    <Compile Include="Epp\Protocol\ResponseMessageBase.cs" />
+    <Compile Include="Epp\Protocol\SchemaHelper.cs" />
+    <Compile Include="Epp\Protocol\SchemaProvider.cs" />
+    <Compile Include="Epp\Protocol\SecDns\AlgorithmType.cs" />
+    <Compile Include="Epp\Protocol\SecDns\DelegationSignerData.cs" />
+    <Compile Include="Epp\Protocol\SecDns\DigestType.cs" />
+    <Compile Include="Epp\Protocol\SecDns\DnsSecurityExtension.cs" />
+    <Compile Include="Epp\Protocol\SecDns\DnsSecurityUpdateExtension.cs" />
+    <Compile Include="Epp\Protocol\SecDns\KeyData.cs" />
+    <Compile Include="Epp\Protocol\SecDns\KeyDataFlags.cs" />
+    <Compile Include="Epp\Protocol\Shared\AuthInfo.cs" />
+    <Compile Include="Epp\Protocol\Shared\StatusInfo.cs" />
+    <Compile Include="Epp\Reflection\EppExtensionDiscoverer.cs" />
+    <Compile Include="Epp\Reflection\EppExtensionProvider.cs" />
+    <Compile Include="Epp\Reflection\EppExtensionProviderAttribute.cs" />
+    <Compile Include="Epp\Reflection\ReflectionExtensions.cs" />
+    <Compile Include="Epp\Reflection\XmlSchemaDiscoverer.cs" />
+    <Compile Include="Epp\Reflection\XmlSchemaProvider.cs" />
+    <Compile Include="Epp\Reflection\XmlSchemaProviderAttribute.cs" />
+    <Compile Include="Epp\Request\ReqBase.cs" />
+    <Compile Include="Epp\Request\ReqPollAcknowledge.cs" />
+    <Compile Include="Epp\Request\ReqPollRequest.cs" />
+    <Compile Include="Epp\Request\ReqFinanceInfo.cs" />
+    <Compile Include="Epp\Request\ReqTldInformationSave.cs" />
+    <Compile Include="Epp\Request\ReqDiagnose.cs" />
+    <Compile Include="Epp\Request\IRequest.cs" />
+    <Compile Include="Epp\Request\ReqContactCheck.cs" />
+    <Compile Include="Epp\Request\ReqContactCreate.cs" />
+    <Compile Include="Epp\Request\ReqContactDelete.cs" />
+    <Compile Include="Epp\Request\ReqContactInfo.cs" />
+    <Compile Include="Epp\Request\ReqContactTransfer.cs" />
+    <Compile Include="Epp\Request\ReqContactUpdate.cs" />
+    <Compile Include="Epp\Request\ReqDomainCheck.cs" />
+    <Compile Include="Epp\Request\ReqDomainCreate.cs" />
+    <Compile Include="Epp\Request\ReqDomainDelete.cs" />
+    <Compile Include="Epp\Request\ReqDomainInfo.cs" />
+    <Compile Include="Epp\Request\ReqDomainRenew.cs" />
+    <Compile Include="Epp\Request\ReqDomainTransfer.cs" />
+    <Compile Include="Epp\Request\ReqDomainUpdate.cs" />
+    <Compile Include="Epp\Request\ReqHostCheck.cs" />
+    <Compile Include="Epp\Request\ReqHostCreate.cs" />
+    <Compile Include="Epp\Request\ReqHostDelete.cs" />
+    <Compile Include="Epp\Request\ReqHostInfo.cs" />
+    <Compile Include="Epp\Request\ReqHostUpdate.cs" />
+    <Compile Include="Epp\Response\ResPollAcknowledge.cs" />
+    <Compile Include="Epp\Response\ResPollRequest.cs" />
+    <Compile Include="Epp\Response\ResDomainTransferCancel.cs" />
+    <Compile Include="Epp\Response\ResDomainTransferRequest.cs" />
+    <Compile Include="Epp\Response\ResFinanceInfo.cs" />
+    <Compile Include="Epp\Response\ResDomainUpdate.cs" />
+    <Compile Include="Epp\Response\ResDomainDelete.cs" />
+    <Compile Include="Epp\Response\ResContactUpdate.cs" />
+    <Compile Include="Epp\Response\ResHostDelete.cs" />
+    <Compile Include="Epp\Response\ResHostUpdate.cs" />
+    <Compile Include="Epp\Request\ReqTldInformation.cs" />
+    <Compile Include="Epp\Response\ResContactCheck.cs" />
+    <Compile Include="Epp\Response\ResContactCreate.cs" />
+    <Compile Include="Epp\Response\ResContactDelete.cs" />
+    <Compile Include="Epp\Response\ResContactInfo.cs" />
+    <Compile Include="Epp\Response\ResContactTransfer.cs" />
+    <Compile Include="Epp\Response\ResDomainCheck.cs" />
+    <Compile Include="Epp\Response\ResDomainCreate.cs" />
+    <Compile Include="Epp\Response\ResDomainInfo.cs" />
+    <Compile Include="Epp\Response\ResDomainRenew.cs" />
+    <Compile Include="Epp\Response\ResDomainTransfer.cs" />
+    <Compile Include="Epp\Response\ResHostCheck.cs" />
+    <Compile Include="Epp\Response\ResHostCreate.cs" />
+    <Compile Include="Epp\Response\ResHostInfo.cs" />
+    <Compile Include="Epp\Response\ResTldCompany.cs" />
+    <Compile Include="Epp\Response\ResTldInformation.cs" />
+    <Compile Include="Epp\Request\ReqTldInformationUpdate.cs" />
+    <Compile Include="Epp\Response\ResTldNameGroupByCompanyId.cs" />
+    <Compile Include="GeneralFunctions.cs" />
+    <Compile Include="Hosting\HostingQueue.cs" />
+    <Compile Include="Hosting\HostingJobRequest.cs" />
+    <Compile Include="Hosting\MemberProductPasswordsInfo.cs" />
+    <Compile Include="Hosting\OldMailCopiers.cs" />
+    <Compile Include="Hosting\EmailProperties.cs" />
+    <Compile Include="Hosting\HostingTransactionInfo.cs" />
+    <Compile Include="Hosting\HostingTwinPrice.cs" />
+    <Compile Include="Hosting\MemberEmailsInfo.cs" />
+    <Compile Include="Hosting\MemberProcessLogInfo.cs" />
+    <Compile Include="Hosting\MemberProductLogsInfo.cs" />
+    <Compile Include="Hosting\MemberHostingTransactionsInfo.cs" />
+    <Compile Include="Hosting\MemberDnsBackup.cs" />
+    <Compile Include="Hosting\OrdersDetailForHosting.cs" />
+    <Compile Include="Hosting\MemberProductHistoryInfo.cs" />
+    <Compile Include="Hosting\MemberProductHistoryDomainsInfo.cs" />
+    <Compile Include="Hosting\ReqClientInfo.cs" />
+    <Compile Include="Hosting\ReqDatabaseInfo.cs" />
+    <Compile Include="Hosting\ReqDeleteMemberProductPassword.cs" />
+    <Compile Include="Hosting\ReqDeletePostOffice.cs" />
+    <Compile Include="Hosting\ReqDomainInfo.cs" />
+    <Compile Include="Hosting\ReqFtpInfo.cs" />
+    <Compile Include="Hosting\ReqGetCountForStats.cs" />
+    <Compile Include="Hosting\ReqGetDomainsByHostingId.cs" />
+    <Compile Include="Hosting\ReqGetHostingList.cs" />
+    <Compile Include="Hosting\ReqGetMailBoxes.cs" />
+    <Compile Include="Hosting\ReqGetMailBoxSize.cs" />
+    <Compile Include="Hosting\ReqGetMemberDnsBackup.cs" />
+    <Compile Include="Hosting\ReqGetOrderDetailForHosting.cs" />
+    <Compile Include="Hosting\ReqGetSearchCount.cs" />
+    <Compile Include="Hosting\ReqHostingInfo.cs" />
+    <Compile Include="Hosting\ReqMailboxLimitUpdate.cs" />
+    <Compile Include="Hosting\ReqMemberProductPassword.cs" />
+    <Compile Include="Hosting\ReqMoveHostingForAdmin.cs" />
+    <Compile Include="Hosting\ReqUpdateBackupStatusToComplete.cs" />
+    <Compile Include="Hosting\ReqUpdateOperatingSystem.cs" />
+    <Compile Include="Hosting\ReqPanelInfo.cs" />
+    <Compile Include="Hosting\ReqSubdomainInfo.cs" />
+    <Compile Include="Hosting\ReqUpdateMemberProductDetailsByPropId.cs" />
+    <Compile Include="Hosting\ReqUpdateMemberProductEndDate.cs" />
+    <Compile Include="Hosting\ReqUpdatePanelIp.cs" />
+    <Compile Include="Hosting\ReqWriteDns.cs" />
+    <Compile Include="Hosting\ResGetDomainsByHostingId.cs" />
+    <Compile Include="Hosting\ResGetStatsCountQuery.cs" />
+    <Compile Include="Hosting\simpleReturn.cs" />
+    <Compile Include="Hosting\tblDNSbyTLDInfo.cs" />
+    <Compile Include="Hosting\WaitingMigrationInfo.cs" />
+    <Compile Include="Hosting\ReqGetHostingDetailsRow.cs" />
+    <Compile Include="Hosting\ReqGetHostingWithNameAndPrice.cs" />
+    <Compile Include="Hosting\ReqGetLimit.cs" />
+    <Compile Include="Hosting\ReqHostingActivityChange.cs" />
+    <Compile Include="Hosting\ReqMailBoxInsert.cs" />
+    <Compile Include="Hosting\MemberDomainsInfo.cs" />
+    <Compile Include="Hosting\ReqAddLog.cs" />
+    <Compile Include="Hosting\ReqExistDomainMemberDns.cs" />
+    <Compile Include="Hosting\ReqGetAvaibleServer.cs" />
+    <Compile Include="Enums\EnmActivities.cs" />
+    <Compile Include="Enums\EnmDatabaseType.cs" />
+    <Compile Include="Enums\EnmDnsTypes.cs" />
+    <Compile Include="Enums\EnmGROUPS.cs" />
+    <Compile Include="Enums\EnmMailPanelType.cs" />
+    <Compile Include="Enums\EnmMailTypes.cs" />
+    <Compile Include="Enums\EnmPanelTypes.cs" />
+    <Compile Include="Enums\EnmProcess.cs" />
+    <Compile Include="Enums\EnmProductType.cs" />
+    <Compile Include="Enums\EnmPROPS.cs" />
+    <Compile Include="Enums\EnmSuspendFor.cs" />
+    <Compile Include="Enums\EnmUNITS.cs" />
+    <Compile Include="Hosting\ClientInfo.cs" />
+    <Compile Include="Hosting\DatabaseDetailsInfo.cs" />
+    <Compile Include="Hosting\DatabaseInfo.cs" />
+    <Compile Include="Hosting\DnsInfo.cs" />
+    <Compile Include="Hosting\DomainInfo.cs" />
+    <Compile Include="Hosting\DropDown.cs" />
+    <Compile Include="Hosting\EmailInfo.cs" />
+    <Compile Include="Hosting\ExtraFtpInfo.cs" />
+    <Compile Include="Hosting\HostingDetail.cs" />
+    <Compile Include="Hosting\HostingDetailsInfo.cs" />
+    <Compile Include="Hosting\HostingLogInfo.cs" />
+    <Compile Include="Hosting\HostingPropertiesInfo.cs" />
+    <Compile Include="Hosting\HostingProperty.cs" />
+    <Compile Include="Hosting\HostingServiceSettings.cs" />
+    <Compile Include="Hosting\MailServiceSettings.cs" />
+    <Compile Include="Hosting\MemberHostingsDdlInfo.cs" />
+    <Compile Include="Hosting\MemberProductDetailInfo.cs" />
+    <Compile Include="Hosting\PanelInfo.cs" />
+    <Compile Include="Hosting\MemberProductsInfo.cs" />
+    <Compile Include="Hosting\MemberProductDetailsInfo.cs" />
+    <Compile Include="Hosting\MemberProductDomainsInfo.cs" />
+    <Compile Include="Hosting\ReqGetHostingDomains.cs" />
+    <Compile Include="Hosting\ReqGetHostingDomainsAllDomain.cs" />
+    <Compile Include="Hosting\ReqGetMemberHostings.cs" />
+    <Compile Include="Hosting\ReqGetServersForOpertaingSystem.cs" />
+    <Compile Include="Hosting\ReturnMethod.cs" />
+    <Compile Include="Hosting\StatisticsInfo.cs" />
+    <Compile Include="Hosting\SubdomainInfo.cs" />
+    <Compile Include="Hosting\SupportInfo.cs" />
+    <Compile Include="Hosting\DnsByTldInfo.cs" />
+    <Compile Include="Hosting\tblMailServersInfo.cs" />
+    <Compile Include="Hosting\tblServersInfo.cs" />
+    <Compile Include="Hosting\TempEntity.cs" />
+    <Compile Include="Mark\AddLogInfo.cs" />
+    <Compile Include="Mark\AgreedFilesInfo.cs" />
+    <Compile Include="Mark\BrandApplyCheckInfo.cs" />
+    <Compile Include="Mark\BrandBankReceiptNumbersInfo.cs" />
+    <Compile Include="Mark\BrandRemindDeleteInfo.cs" />
+    <Compile Include="Mark\BrandRemindSendInfo.cs" />
+    <Compile Include="Mark\BrandStaticsForDashBoardInfo.cs" />
+    <Compile Include="Mark\CalculateMarkPricInfo.cs" />
+    <Compile Include="Mark\ChangeMarkInfo.cs" />
+    <Compile Include="Mark\CreateOrderForMarkRequestInfo.cs" />
+    <Compile Include="Mark\DataTable\Interface\IDataTable.cs" />
+    <Compile Include="Mark\DataTable\MarkOrders.cs" />
+    <Compile Include="Mark\DataTable\MarkRequest.cs" />
+    <Compile Include="Mark\DataTable\Request\MarkOrders.cs" />
+    <Compile Include="Mark\DataTable\Request\MarkRequest.cs" />
+    <Compile Include="Mark\DeleteBrandFileInfo.cs" />
+    <Compile Include="Mark\DeleteClassInfo.cs" />
+    <Compile Include="Mark\GetBrandFilesInfo.cs" />
+    <Compile Include="Mark\GetCustomerBrandListInfo.cs" />
+    <Compile Include="Mark\GetCustomerDocProfitInfo.cs" />
+    <Compile Include="Mark\GetCustomerMarkFilesInfo.cs" />
+    <Compile Include="Mark\GetCustomerMarkRequestListInfo.cs" />
+    <Compile Include="Mark\GetCustomerProfitInfo.cs" />
+    <Compile Include="Mark\GetMarkRemindsInfo.cs" />
+    <Compile Include="Mark\GetMarkRequestDetailInfo.cs" />
+    <Compile Include="Mark\GetWaitingforFilesInfo.cs" />
+    <Compile Include="Mark\Logs\LogsInfo.cs" />
+    <Compile Include="Mark\MarkAddClassInfo.cs" />
+    <Compile Include="Mark\MarkClass.cs" />
+    <Compile Include="Mark\MarkIdListInfo.cs" />
+    <Compile Include="Mark\MarkOrderDetailInfo.cs" />
+    <Compile Include="Mark\MarkOrderLogInfo.cs" />
+    <Compile Include="Mark\MarkPaymentDetailInfo.cs" />
+    <Compile Include="Mark\MarkPaymentPoolDetailInfo.cs" />
+    <Compile Include="Mark\MarkPriceListInfo.cs" />
+    <Compile Include="Mark\PatentPriceListInfo.cs" />
+    <Compile Include="Mark\ReqAddReqeestClass.cs" />
+    <Compile Include="Mark\ReqAgreedFiles.cs" />
+    <Compile Include="Mark\ReqBrandApplyCheck.cs" />
+    <Compile Include="Mark\ReqBrandBankReceiptNumbers.cs" />
+    <Compile Include="Mark\ReqBrandRemindDelete.cs" />
+    <Compile Include="Mark\ReqBrandRemindSend.cs" />
+    <Compile Include="Mark\ReqBrandStaticsForDashBoard.cs" />
+    <Compile Include="Mark\ReqCalculateMarkPric.cs" />
+    <Compile Include="Mark\ReqCalculateMarkPriceWithProductIds.cs" />
+    <Compile Include="Mark\ReqCreateOrderForMarkRequest.cs" />
+    <Compile Include="Mark\ReqDeleteBrandFile.cs" />
+    <Compile Include="Mark\ReqDeleteClass.cs" />
+    <Compile Include="Mark\ReqDeleteReqeestClass.cs" />
+    <Compile Include="Mark\ReqGetBrandFiles.cs" />
+    <Compile Include="Mark\ReqGetCustomerBrandDetail.cs" />
+    <Compile Include="Mark\ReqGetCustomerBrandList.cs" />
+    <Compile Include="Mark\ReqGetCustomerMarkFiles.cs" />
+    <Compile Include="Mark\ReqGetCustomerMarkRequestList.cs" />
+    <Compile Include="Mark\ReqGetCustomerProfit.cs" />
+    <Compile Include="Mark\ReqGetMarkReminds.cs" />
+    <Compile Include="Mark\ReqGetMarkRequestDetail.cs" />
+    <Compile Include="Mark\ReqGetParentBrandFiles.cs" />
+    <Compile Include="Mark\ReqGetWaitingforFiles.cs" />
+    <Compile Include="Mark\ReqMarkAddClass.cs" />
+    <Compile Include="Mark\ReqMarkIdList.cs" />
+    <Compile Include="Mark\ReqMarkOrderLog.cs" />
+    <Compile Include="Mark\ReqMarkPriceList.cs" />
+    <Compile Include="Mark\ReqSaveAgreedSingleFileProcessType.cs" />
+    <Compile Include="Mark\ReqSaveBrandBankReceiptNumberPool.cs" />
+    <Compile Include="Mark\ReqSaveBrandDekont.cs" />
+    <Compile Include="Mark\ReqSaveBrandDetail.cs" />
+    <Compile Include="Mark\ReqSaveBrandFile.cs" />
+    <Compile Include="Mark\ReqSaveMarkOrderDetail.cs" />
+    <Compile Include="Mark\ReqSaveMarkRequestDetail.cs" />
+    <Compile Include="Mark\ReqSaveNewBrandName.cs" />
+    <Compile Include="Mark\ReqSaveNewBrandOwner.cs" />
+    <Compile Include="Mark\ReqSaveNewBrandRequestName.cs" />
+    <Compile Include="Mark\ReqSaveNewMarkRequest.cs" />
+    <Compile Include="Mark\ReqSaveTPEApplyNumber.cs" />
+    <Compile Include="Mark\ReqUpdateCustomerMarkRequest.cs" />
+    <Compile Include="Mark\ResMarkList.cs" />
+    <Compile Include="Mark\SaveAgreedSingleFileProcessTypeInfo.cs" />
+    <Compile Include="Mark\SaveBrandDetailInfo.cs" />
+    <Compile Include="Mark\SaveBrandFileInfo.cs" />
+    <Compile Include="Mark\SaveMarkOrderDetailInfo.cs" />
+    <Compile Include="Mark\SaveMarkRequestDetailInfo.cs" />
+    <Compile Include="Mark\SaveNewBrandNameInfo.cs" />
+    <Compile Include="Mark\SaveNewBrandNameRequestInfo.cs" />
+    <Compile Include="Mark\SaveNewBrandOwnerInfo.cs" />
+    <Compile Include="Mark\SaveNewMarkRequestInfo.cs" />
+    <Compile Include="Mark\SaveTPEApplyNumberInfo.cs" />
+    <Compile Include="Mark\TasarimPriceListInfo.cs" />
+    <Compile Include="Mark\UpdateCustomerMarkRequestInfo.cs" />
+    <Compile Include="Membership\AddMembersAddressInfo.cs" />
+    <Compile Include="Membership\AutoCompleteMemberSearchInfo.cs" />
+    <Compile Include="Membership\BlockUserInfo.cs" />
+    <Compile Include="Membership\ChangeEmailInfo.cs" />
+    <Compile Include="Membership\ChangeEmailValidateInfo.cs" />
+    <Compile Include="Membership\ChangeGSMInfo.cs" />
+    <Compile Include="Membership\ChangePasswordInfo.cs" />
+    <Compile Include="Membership\ChangePasswordValidateInfo.cs" />
+    <Compile Include="Membership\ChangeUserNameInfo.cs" />
+    <Compile Include="Membership\ChangeUserNameValidateInfo.cs" />
+    <Compile Include="Membership\ConfirmMobileInfo.cs" />
+    <Compile Include="Membership\CountryListInfo.cs" />
+    <Compile Include="Membership\DeleteMembersAddressInfo.cs" />
+    <Compile Include="Membership\DiscountBulletinInfo.cs" />
+    <Compile Include="Membership\GetMemberAddressInfo.cs" />
+    <Compile Include="Membership\GetMemberAddressListInfoWithType.cs" />
+    <Compile Include="Membership\GetMemberAddressListInfo.cs" />
+    <Compile Include="Membership\GetMemberInvoiceListInfo.cs" />
+    <Compile Include="Membership\GetSuggestionsInfo.cs" />
+    <Compile Include="Membership\MemberAddressInfoWithType.cs" />
+    <Compile Include="Membership\ReqAddMembersAddressWithType.cs" />
+    <Compile Include="Membership\ReqAutoCompleteMemberSearch.cs" />
+    <Compile Include="Membership\ReqChangeUserName.cs" />
+    <Compile Include="Membership\ReqChangeUserNameValidate.cs" />
+    <Compile Include="Membership\ReqCountryList.cs" />
+    <Compile Include="Membership\ReqDeleteUserMessage.cs" />
+    <Compile Include="Membership\ReqGetDiscountBulletinList.cs" />
+    <Compile Include="Membership\ReqGetDomainMove.cs" />
+    <Compile Include="Membership\ReqGetMemberMarketingAuthList.cs" />
+    <Compile Include="Membership\ReqGetUserMessagesCount.cs" />
+    <Compile Include="Membership\ReqMembersMobile.cs" />
+    <Compile Include="Membership\ReqReadUserMessage.cs" />
+    <Compile Include="Membership\ReqUpdateMembersAddressWithType.cs" />
+    <Compile Include="Membership\ReqUpdateMembersDefaultContact.cs" />
+    <Compile Include="Membership\ResGetDomainMove.cs" />
+    <Compile Include="Membership\tblAdminNoticeInfo.cs" />
+    <Compile Include="MobileBridge\DomainHunter.cs" />
+    <Compile Include="MobileBridge\ReqAddOrder.cs" />
+    <Compile Include="MobileBridge\ReqContactForm.cs" />
+    <Compile Include="MobileBridge\ReqLogin.cs" />
+    <Compile Include="MobileBridge\ReqMemberContact.cs" />
+    <Compile Include="MobileBridge\ReqParameter.cs" />
+    <Compile Include="MobileBridge\ReqRegisterMember.cs" />
+    <Compile Include="MobileBridge\ReqRegisterMemberSendSms.cs" />
+    <Compile Include="MobileBridge\ReqSearch.cs" />
+    <Compile Include="MobileBridge\ReqRegisterMemberSendMail.cs" />
+    <Compile Include="MobileBridge\ReqSetDefaultMemberContact.cs" />
+    <Compile Include="MobileBridge\ReqTicket.cs" />
+    <Compile Include="MobileBridge\ResLogin.cs" />
+    <Compile Include="MobileBridge\RespAddOrder.cs" />
+    <Compile Include="MobileBridge\RespDomains.cs" />
+    <Compile Include="MobileBridge\RespLogin.cs" />
+    <Compile Include="MobileBridge\RespMemberContact.cs" />
+    <Compile Include="MobileBridge\RespNews.cs" />
+    <Compile Include="MobileBridge\RespPrices.cs" />
+    <Compile Include="MobileBridge\RespRegisterMember.cs" />
+    <Compile Include="MobileBridge\RespRegisterMemberSendSms.cs" />
+    <Compile Include="MobileBridge\RespResult.cs" />
+    <Compile Include="MobileBridge\RespSearch.cs" />
+    <Compile Include="MobileBridge\RespWhoIs.cs" />
+    <Compile Include="MobileBridge\RespRegisterMemberSendMail.cs" />
+    <Compile Include="Orders\AddCreditForRejectionInfo.cs" />
+    <Compile Include="Membership\ReqAddKayakoUserId.cs" />
+    <Compile Include="Membership\ReqUpdateMemberInvoiceInfo.cs" />
+    <Compile Include="Orders\AddOrderInfo.cs" />
+    <Compile Include="Orders\AddToQueueInfo.cs" />
+    <Compile Include="Orders\BankDetailInfo.cs" />
+    <Compile Include="Orders\BankErrorsInfo.cs" />
+    <Compile Include="Orders\BindDDLOrdersInfo.cs" />
+    <Compile Include="Orders\BindDGInfo.cs" />
+    <Compile Include="Orders\BlockedCreditOrdersInfo.cs" />
+    <Compile Include="Orders\ChangeOrderAndPayTypeInfo.cs" />
+    <Compile Include="Orders\CompleteOrderActionsInfo.cs" />
+    <Compile Include="Orders\CreateOrderOnDatabaseInfo.cs" />
+    <Compile Include="Orders\DeleteAllMemberBasketInfo.cs" />
+    <Compile Include="Orders\DeleteCreditInfo.cs" />
+    <Compile Include="Orders\DeleteMemberBasketInfo.cs" />
+    <Compile Include="Orders\DeleteOrderDetailForOrderListInfo.cs" />
+    <Compile Include="Orders\DeleteOrderDetailInfo.cs" />
+    <Compile Include="Orders\DeleteOrderInfo.cs" />
+    <Compile Include="Orders\DeleteOrdersDetailInfo.cs" />
+    <Compile Include="Orders\DeletePaymentInfo.cs" />
+    <Compile Include="Orders\DeletingOrdersInfo.cs" />
+    <Compile Include="Orders\DomainTypesInfo.cs" />
+    <Compile Include="Orders\ExecuteCouponAfterOrderInfo.cs" />
+    <Compile Include="Orders\ExecuteCouponInfo.cs" />
+    <Compile Include="Orders\ExecuteCouponLastInfo.cs" />
+    <Compile Include="Orders\ExecuteCouponStatusInfo.cs" />
+    <Compile Include="Orders\ExistingOrderFirstProcessInfo.cs" />
+    <Compile Include="Orders\GetCalculateOrderAmountWithCompanyInfo.cs" />
+    <Compile Include="Orders\GetCouponInfo.cs" />
+    <Compile Include="Orders\GetCreditPaymentsInfo.cs" />
+    <Compile Include="Orders\GetCreditReportsInfo.cs" />
+    <Compile Include="Orders\GetCreditsInfo.cs" />
+    <Compile Include="Orders\GetCreditsReportInfo.cs" />
+    <Compile Include="Orders\GetMyCouponsInfo.cs" />
+    <Compile Include="Orders\GetOrderDetailForOrderListInfo.cs" />
+    <Compile Include="Orders\GetOrderDetailInfo.cs" />
+    <Compile Include="Orders\GetOrderListInfo.cs" />
+    <Compile Include="Orders\GetOrdersCouponInfo.cs" />
+    <Compile Include="Orders\GetOrdersDetailsInfo.cs" />
+    <Compile Include="Orders\GetOrdersInfo.cs" />
+    <Compile Include="Orders\GetPageKredilerInfo.cs" />
+    <Compile Include="Orders\GetPaymentsInfo.cs" />
+    <Compile Include="Orders\GetPaymentTypeInfo.cs" />
+    <Compile Include="Orders\GetProductListInfo.cs" />
+    <Compile Include="Orders\GiftVoucherInfo.cs" />
+    <Compile Include="Orders\IsCouponValidNewInfo.cs" />
+    <Compile Include="Membership\MemberMessageCountInfo.cs" />
+    <Compile Include="Membership\MemberMessageDetailInfo.cs" />
+    <Compile Include="Membership\MemberAddressInfo.cs" />
+    <Compile Include="Membership\MemberInfo.cs" />
+    <Compile Include="Membership\MemberMessagesInfo.cs" />
+    <Compile Include="Membership\ReqBlockUser.cs" />
+    <Compile Include="Membership\ReqChangeEmail.cs" />
+    <Compile Include="Membership\ReqChangeEmailValidate.cs" />
+    <Compile Include="Membership\ReqChangeGSM.cs" />
+    <Compile Include="Membership\ReqChangeKayakoUserId.cs" />
+    <Compile Include="Membership\ReqChangePassword.cs" />
+    <Compile Include="Membership\ReqConfirmMobile.cs" />
+    <Compile Include="Membership\ReqDeleteMembersAddress.cs" />
+    <Compile Include="Membership\ReqForgotPassword.cs" />
+    <Compile Include="Membership\ReqGetMemberInfo.cs" />
+    <Compile Include="Membership\ReqGetMemberMessageCount.cs" />
+    <Compile Include="Membership\ReqGetMemberMessageDetail.cs" />
+    <Compile Include="Membership\ReqGetMemberMessages.cs" />
+    <Compile Include="Membership\ReqGetMembersAddress.cs" />
+    <Compile Include="Membership\ReqGetMembersAddressList.cs" />
+    <Compile Include="Orders\MemberBasketListInfo.cs" />
+    <Compile Include="Orders\MembersSERVERPluginsInfo.cs" />
+    <Compile Include="Orders\ModifyOrderForCouponExecutionInfo.cs" />
+    <Compile Include="Orders\ModifyOrderForCreditExecutionInfo.cs" />
+    <Compile Include="Orders\OrderIdSetMemberBasketInfo.cs" />
+    <Compile Include="Orders\OrderListWithCouponInfo.cs" />
+    <Compile Include="Orders\OrdersForCreditManagementPageInfo.cs" />
+    <Compile Include="Orders\OrdersIpAddressInfo.cs" />
+    <Compile Include="Orders\PaymentControlAndUpdateDomainInfo.cs" />
+    <Compile Include="Orders\PaymentFailInfo.cs" />
+    <Compile Include="Orders\PrdCls.cs" />
+    <Compile Include="Orders\PremiumTvDomainsInfo.cs" />
+    <Compile Include="Orders\ProblematicPaymentListInfo.cs" />
+    <Compile Include="Orders\ProductTypeInfo.cs" />
+    <Compile Include="Orders\ReqAddCreditForRejection.cs" />
+    <Compile Include="Orders\ReqAddOrder.cs" />
+    <Compile Include="Orders\ReqAddToQueue.cs" />
+    <Compile Include="Orders\ReqBankDetail.cs" />
+    <Compile Include="Orders\ReqBankErrors.cs" />
+    <Compile Include="Orders\ReqbindDG.cs" />
+    <Compile Include="Orders\ReqBlockedCreditOrders.cs" />
+    <Compile Include="Orders\ReqChangeOrderAndPayType.cs" />
+    <Compile Include="Orders\ReqCompleteOrderActions.cs" />
+    <Compile Include="Orders\ReqCreateOrderOnDatabase.cs" />
+    <Compile Include="Orders\ReqDeleteAllMemberBasket.cs" />
+    <Compile Include="Orders\ReqDeleteCredit.cs" />
+    <Compile Include="Orders\ReqDeleteMemberBasket.cs" />
+    <Compile Include="Orders\ReqDeleteOrder.cs" />
+    <Compile Include="Orders\ReqDeleteOrderDetail.cs" />
+    <Compile Include="Orders\ReqDeleteOrderDetailForOrderList.cs" />
+    <Compile Include="Orders\ReqDeleteOrdersDetail.cs" />
+    <Compile Include="Orders\ReqDeletePayment.cs" />
+    <Compile Include="Orders\ReqDeletingOrders.cs" />
+    <Compile Include="Orders\ReqDomainTypes.cs" />
+    <Compile Include="Orders\ReqExecuteCoupon.cs" />
+    <Compile Include="Orders\ReqExecuteCouponAfterOrder.cs" />
+    <Compile Include="Orders\ReqExecuteCouponLast.cs" />
+    <Compile Include="Orders\ReqExecuteCouponStatus.cs" />
+    <Compile Include="Orders\ReqExistingOrderFirstProcess.cs" />
+    <Compile Include="Orders\ReqGetCalculateOrderAmountWithCompany.cs" />
+    <Compile Include="Orders\ReqGetCoupon.cs" />
+    <Compile Include="Orders\ReqGetCreditPayments.cs" />
+    <Compile Include="Orders\ReqGetCreditReports.cs" />
+    <Compile Include="Orders\ReqGetCredits.cs" />
+    <Compile Include="Orders\ReqGetCreditsReportInfo.cs" />
+    <Compile Include="Orders\ReqGetMyCoupons.cs" />
+    <Compile Include="Orders\ReqGetOrderDetail.cs" />
+    <Compile Include="Orders\ReqGetOrderDetailForOrderList.cs" />
+    <Compile Include="Orders\ReqGetOrderList.cs" />
+    <Compile Include="Orders\ReqGetOrders.cs" />
+    <Compile Include="Orders\ReqGetOrdersCoupon.cs" />
+    <Compile Include="Orders\ReqGetOrdersDetails.cs" />
+    <Compile Include="Orders\ReqGetPageKrediler.cs" />
+    <Compile Include="Orders\ReqGetPaymentType.cs" />
+    <Compile Include="Orders\ReqGetProductListNew.cs" />
+    <Compile Include="Orders\ReqGiftVoucher.cs" />
+    <Compile Include="Orders\ReqIsCouponValidNew.cs" />
+    <Compile Include="Membership\ReqLogin.cs" />
+    <Compile Include="Membership\ReqAddMembersAddress.cs" />
+    <Compile Include="Membership\ReqGetMemberInvoiceList.cs" />
+    <Compile Include="Membership\ReqMemberLogsInfo.cs" />
+    <Compile Include="Membership\ReqRegisterUser.cs" />
+    <Compile Include="Membership\ReqSendMailForReqisterUser.cs" />
+    <Compile Include="Membership\ReqSendSmsForReqisterUser.cs" />
+    <Compile Include="Membership\ForgotPasswordInfo.cs" />
+    <Compile Include="Membership\RegisterUserInfo.cs" />
+    <Compile Include="Membership\ReqSuggestionsInfo.cs" />
+    <Compile Include="Membership\ReqUpdateActivationCode.cs" />
+    <Compile Include="Membership\ReqUpdateInvoiceCompany.cs" />
+    <Compile Include="Membership\ReqUpdateMemberDefaultAddress.cs" />
+    <Compile Include="Membership\ReqUpdateMemberMessageRead.cs" />
+    <Compile Include="Membership\ReqUpdateMemberMessageStatus.cs" />
+    <Compile Include="Membership\ReqUpdateMembersAddress.cs" />
+    <Compile Include="Membership\ReqUpdateUser.cs" />
+    <Compile Include="Membership\SendMailForReqisterUserInfo.cs" />
+    <Compile Include="Membership\SendSmsForReqisterUserInfo.cs" />
+    <Compile Include="Membership\tblMemberLogsInfo.cs" />
+    <Compile Include="Membership\UpdateActivationCodeInfo.cs" />
+    <Compile Include="Membership\UpdateInvoiceCompanyInfo.cs" />
+    <Compile Include="Membership\UpdateMemberDefaultAddressInfo.cs" />
+    <Compile Include="Membership\UpdateMemberMessageReadInfo.cs" />
+    <Compile Include="Membership\UpdateMemberMessageStatusInfo.cs" />
+    <Compile Include="Membership\UpdateMembersAddressInfo.cs" />
+    <Compile Include="Membership\UpdateUserInfo.cs" />
+    <Compile Include="Membership\ValidateUserInfo.cs" />
+    <Compile Include="Orders\CalcProductInfo.cs" />
+    <Compile Include="Orders\OrderDetailInfo.cs" />
+    <Compile Include="Orders\PurchaseOrderInfo.cs" />
+    <Compile Include="Orders\ReqCalcProduct.cs" />
+    <Compile Include="Orders\ReqGetCurrentOrder.cs" />
+    <Compile Include="Orders\ReqMemberBasketList.cs" />
+    <Compile Include="Orders\ReqMembersSERVERPlugins.cs" />
+    <Compile Include="Orders\ReqModifyOrderForCouponExecution.cs" />
+    <Compile Include="Orders\ReqModifyOrderForCreditExecution.cs" />
+    <Compile Include="Orders\ReqOrderAddDetail.cs" />
+    <Compile Include="Orders\ReqOrderIdSetMemberBasket.cs" />
+    <Compile Include="Orders\ReqOrderListWithCoupon.cs" />
+    <Compile Include="Orders\ReqOrdersForCreditManagementPage.cs" />
+    <Compile Include="Orders\ReqOrdersIpAddress.cs" />
+    <Compile Include="Orders\ReqPaymentControlAndUpdateDomain.cs" />
+    <Compile Include="Orders\ReqPaymentFail.cs" />
+    <Compile Include="Orders\ReqPayments.cs" />
+    <Compile Include="Orders\ReqPremiumTvDomains.cs" />
+    <Compile Include="Orders\ReqProblematicPaymentList.cs" />
+    <Compile Include="Orders\ReqProductType.cs" />
+    <Compile Include="Orders\ReqServerType.cs" />
+    <Compile Include="Orders\ReqSSLTypes.cs" />
+    <Compile Include="Orders\ReqStaticIPTypes.cs" />
+    <Compile Include="Orders\ReqSuccess3DPaymentAfterProcess.cs" />
+    <Compile Include="Orders\ReqUpdateCouponIDForOrders.cs" />
+    <Compile Include="Orders\ReqUpdateCreditReportsIDForOrders.cs" />
+    <Compile Include="Orders\ReqUpdateMemberBasket.cs" />
+    <Compile Include="Orders\ReqUpdateOrder.cs" />
+    <Compile Include="Orders\ReqUpdateOrderDetail.cs" />
+    <Compile Include="Orders\ReqViewMembersDNSAndDomainPrice.cs" />
+    <Compile Include="Orders\ReqWebKlavuzu.cs" />
+    <Compile Include="Orders\ReqWrite3DBankResponseXML.cs" />
+    <Compile Include="Orders\ResOrderAddDetail.cs" />
+    <Compile Include="Domain\ReqProtectedContact.cs" />
+    <Compile Include="Domain\ResProtectedContact.cs" />
+    <Compile Include="Orders\ServerTypeInfo.cs" />
+    <Compile Include="Orders\SSLTypesInfo.cs" />
+    <Compile Include="Orders\StaticIPTypesInfo.cs" />
+    <Compile Include="Orders\Success3DPaymentAfterProcessInfo.cs" />
+    <Compile Include="Orders\UpdateCouponIDForOrdersInfo.cs" />
+    <Compile Include="Orders\UpdateCreditReportsIDForOrdersInfo.cs" />
+    <Compile Include="Orders\UpdateMemberBasketInfo.cs" />
+    <Compile Include="Orders\UpdateOrderDetailInfo.cs" />
+    <Compile Include="Orders\UpdateOrderInfo.cs" />
+    <Compile Include="Orders\ViewMembersDNSAndDomainPriceInfo.cs" />
+    <Compile Include="Orders\WebKlavuzuInfo.cs" />
+    <Compile Include="Orders\Write3DBankResponseXMLInfo.cs" />
+    <Compile Include="OrgMousePadTo.cs" />
+    <Compile Include="Payment\AddCreditInfo.cs" />
+    <Compile Include="Payment\CepBankTransactionCheckInfo.cs" />
+    <Compile Include="Payment\ClassicVPosPaymentInfo.cs" />
+    <Compile Include="Payment\GetBankInfo.cs" />
+    <Compile Include="Payment\GetBankListInfo.cs" />
+    <Compile Include="Payment\GetBankRateInfo.cs" />
+    <Compile Include="Payment\GetCompaniesInfo.cs" />
+    <Compile Include="Payment\GetSubBankListInfo.cs" />
+    <Compile Include="Payment\IsPayment3dSecureInfo.cs" />
+    <Compile Include="Payment\MarkExpressCheckoutInfo.cs" />
+    <Compile Include="Payment\PaymentFormEmailInfo.cs" />
+    <Compile Include="Payment\PaymentFormInfo.cs" />
+    <Compile Include="Payment\PaymentFormValidateInfo.cs" />
+    <Compile Include="Payment\ReqAddCredit.cs" />
+    <Compile Include="Payment\ReqCepBankTransactionCheck.cs" />
+    <Compile Include="Payment\ReqClassicVPosPayment.cs" />
+    <Compile Include="Payment\ReqGetBank.cs" />
+    <Compile Include="Payment\ReqGetBankList.cs" />
+    <Compile Include="Payment\ReqGetBankRate.cs" />
+    <Compile Include="Payment\ReqGetCompanies.cs" />
+    <Compile Include="Payment\ReqGetSubBankList.cs" />
+    <Compile Include="Payment\ReqIsPayment3dSecure.cs" />
+    <Compile Include="Payment\ReqMarkExpressCheckout.cs" />
+    <Compile Include="Payment\ReqPaymentForm.cs" />
+    <Compile Include="Payment\ReqPaymentFormEmail.cs" />
+    <Compile Include="Payment\ReqPaymentFormValidate.cs" />
+    <Compile Include="Payment\ReqPaymentListInformation.cs" />
+    <Compile Include="Payment\ReqPaymentMobileControl.cs" />
+    <Compile Include="Payment\ReqPaymentMobileSend.cs" />
+    <Compile Include="Payment\ReqThreeDSecureControl.cs" />
+    <Compile Include="Payment\ReqThreeDSecureParams.cs" />
+    <Compile Include="Payment\ReqTransactionCheckDLLAPI.cs" />
+    <Compile Include="Payment\ReqTransactionStartDLLAPI.cs" />
+    <Compile Include="Payment\ResPaymentListInformation.cs" />
+    <Compile Include="Payment\ResPaymentMobileControl.cs" />
+    <Compile Include="Payment\ResPaymentMobileSend.cs" />
+    <Compile Include="Payment\ThreeDSecureControlInfo.cs" />
+    <Compile Include="Payment\ThreeDSecureParamsInfo.cs" />
+    <Compile Include="Payment\TransactionCheckDLLAPIInfo.cs" />
+    <Compile Include="Payment\TransactionStartDLLAPIInfo.cs" />
+    <Compile Include="PowerDns\Domains.cs" />
+    <Compile Include="PowerDns\Records.cs" />
+    <Compile Include="PriceUnits.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReqEmpty.cs" />
+    <Compile Include="Epp\Protocol\Launch\launch-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\Balance\balance-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\Rgp\rgp-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\PremiumDomain\premiumdomain-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\NameStore\namestoreExt-1.1.designer.cs" />
+    <Compile Include="Common\ResFrontBannerImage.cs" />
+    <Compile Include="Epp\Protocol\KeySys\keysys-1.0_yeni.cs" />
+    <Compile Include="Epp\Protocol\Fee\fee_0.5.cs" />
+    <Compile Include="Epp\Protocol\Price\price-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\Charge\charge-1.0.designer.cs" />
+    <Compile Include="Epp\Protocol\Fee\fee-0.7.cs" />
+    <Compile Include="ResResultAndMessage.cs" />
+    <Compile Include="Domain\ResTldSellingInformation.cs" />
+    <Compile Include="ServiceClient\BaseAPI.cs" />
+    <Compile Include="ServiceClient\BaseKitAPI.cs" />
+    <Compile Include="ServiceClient\MobileBridgeAPI.cs" />
+    <Compile Include="ServiceClient\PowerDnsAPI.cs" />
+    <Compile Include="ServiceClient\SunucuAPI.cs" />
+    <Compile Include="ServiceClient\DomainAPI.cs" />
+    <Compile Include="ServiceClient\EppAPI.cs" />
+    <Compile Include="ServiceClient\HostingAPI.cs" />
+    <Compile Include="ServiceClient\MarkAPI.cs" />
+    <Compile Include="ServiceClient\MembershipAPI.cs" />
+    <Compile Include="ServiceClient\OrdersAPI.cs" />
+    <Compile Include="ServiceClient\PaymentAPI.cs" />
+    <Compile Include="ServiceClient\SSLAPI.cs" />
+    <Compile Include="ServiceClient\SupportAPI.cs" />
+    <Compile Include="ServiceRequest.cs" />
+    <Compile Include="ServiceResponse.cs" />
+    <Compile Include="SSL\ReqResolveCSR.cs" />
+    <Compile Include="SSL\ResolvedCSRInfo.cs" />
+    <Compile Include="Support\ReqAddAttach.cs" />
+    <Compile Include="Support\ReqAddStaff.cs" />
+    <Compile Include="Support\ReqAddTicket.cs" />
+    <Compile Include="Support\ReqAddUser.cs" />
+    <Compile Include="Support\ReqDeleteStaff.cs" />
+    <Compile Include="Support\ReqGetTicket.cs" />
+    <Compile Include="Support\ReqGetTickets.cs" />
+    <Compile Include="Support\ReqGetTicketsPosts.cs" />
+    <Compile Include="Support\ReqGetUser.cs" />
+    <Compile Include="Support\ReqGetUserId.cs" />
+    <Compile Include="Support\ReqTicketPost.cs" />
+    <Compile Include="Support\ReqTicketPostStaff.cs" />
+    <Compile Include="Support\ReqUpdateTicketStatus.cs" />
+    <Compile Include="Support\ReqUpdateUserEmail.cs" />
+    <Compile Include="Support\SupportListItem.cs" />
+    <Compile Include="Support\SupportPosts.cs" />
+    <Compile Include="Support\SupportStaff.cs" />
+    <Compile Include="Support\SupportTickets.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PrivacyProtection\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Epp\Protocol\Resources\contact-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Epp\Protocol\Resources\domain-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Epp\Protocol\Resources\epp-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Epp\Protocol\Resources\eppcom-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Epp\Protocol\Resources\host-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Epp\Protocol\Resources\secDNS-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Resources\balance-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\charge-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\contact-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\domain-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\epp-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\eppcom-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\EppMessageBase.xml" />
+    <None Include="Resources\fee-0.5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\fee-0.6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\fee-0.7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\finance-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\host-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\keysys-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\launch-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\mark-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\namestoreExt-1.1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\premiumdomain-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\price-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\rgp-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\secDNS-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\signedMark-1.0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\xmldsig-core-schema.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HelloMessage.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Epp\Protocol\Resources\EppMessageBase.xml" />
+    <Content Include="Epp\Protocol\Resources\HelloMessage.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HyperV\HyperV.DTO\HyperV.DTO.csproj">
+      <Project>{f0ed89f6-31a3-4d31-9d63-ff68b9aa14aa}</Project>
+      <Name>HyperV.DTO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

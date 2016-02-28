@@ -1,0 +1,52 @@
+namespace DealerSafe.DTO.Enums
+{
+    public enum EnmPROPS
+    {
+        TANIMSIZ = 0,
+        RAM = 1,
+        CPU = 2,
+        HDD = 3,
+        TRAFIK = 4,
+        KONTROL_PANEL = 5,
+        ISLETIM_SISTEMI = 6,
+        PAKET = 7,
+        MARKA = 8,
+        PORT = 9,
+        IP = 10,
+        DESTEK = 11,
+        HIZMET_SURESI = 12,
+        //CUSTOMIZE = 13,
+        DATABASE = 14,
+        GUVENLIK = 15,
+        MEDIA_SERVISLERI = 16,
+        MAIL_YAZILIMI = 17,
+        KONFIGURASYON = 18,
+        /////////////////////////////Hosting özellikleri
+        //PANEL_TYPE = 100,
+        //EMAÝL_PANEL_TYPE = 101, 
+        EMAÝL_SERVER = 102,
+        SERVER_ID = 103,
+        EMAÝLSERVER_ID = 104,
+        IS_SUSPENDED = 105,
+        CLÝENT_NAME = 106,
+        RESELLER_PACKET = 107,
+        CLÝENT_TEMPLATE_NAME = 108,
+        DOMAÝN_TEMPLATE_NAME = 109,
+        DÝSK_BOYUTU = 110,
+        DOMAÝN_BARINDIRMA = 111,
+        MAÝL_BARINDIRMA = 112,
+        AYLIK_TRAFÝK = 113,
+        FTP_HESAPLARI = 114,
+        MY_SQL = 115,
+        MS_SQL = 116,
+        MYSQL_ALANI = 117,
+        MSSQL_ALANI = 118,
+        MAÝL_BOX_SÝZE = 119,
+        SUB_DOMAÝNS = 120,
+        WEB_MAÝL = 121,
+        ACCESS = 122,
+        ////////////////////////////
+        YEDEKLEME_HIZMETI = 207,
+        PLESK_PANEL_PASSWORD = 208
+    }
+}
