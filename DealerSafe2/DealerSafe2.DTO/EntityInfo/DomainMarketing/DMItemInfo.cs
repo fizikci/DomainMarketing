@@ -43,6 +43,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string WinnerMemberId { get; set; }
         public string Comments { get; set; }
 
+        public DMSaleStates PaymentStatus { get; set; }
 
         public int MonthlyVisitors { get; set; }
         public int MonthlyPageViews { get; set; }

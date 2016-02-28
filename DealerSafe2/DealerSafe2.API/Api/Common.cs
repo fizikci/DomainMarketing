@@ -147,13 +147,13 @@ namespace DealerSafe2.API
                     "SELECT * FROM Member WHERE IsStaffMember = 1 AND IsDeleted = 0 ORDER BY Id");
             if (HttpContext.Current.Application["lastIdleStaffMemberId"] == null)
             {
-                var m = staffMembers.FirstOrDefault(sm => sm.StaffDepartment == department);
-                if (m == null)
-                {
-                    HttpContext.Current.Application["lastIdleStaffMemberId"] = staffMembers[0].Id;
-                    return staffMembers[0].Id;
-                }
-
+                var m = staffMembers.FirstOrDefault(sm => sm.StaffDepartment == department) ?? new Member() { Id = "" };
+                // when there is no staff user, meaning system is virgin. This produces an error
+                //if (m == null)
+                //{
+                //    m = staffMembers[0];
+                //}
+                
                 HttpContext.Current.Application["lastIdleStaffMemberId"] = m.Id;
                 return m.Id;
             }

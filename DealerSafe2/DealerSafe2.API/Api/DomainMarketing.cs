@@ -1301,14 +1301,16 @@ namespace DealerSafe2.API
             if (string.IsNullOrEmpty(Provider.CurrentMember.Id))
                 throw new APIException("Access denied.");
 
+            var item = Provider.Database.Read<DMItem>(@"select * from DMItem where Id={0}", req.Id);
+            if (item == null) throw new APIException("No such auction.");
+            if (item.SellerMemberId != Provider.CurrentMember.Id)
+                throw new APIException("You cannot create or edit auctions from somebody else's item.");
+            if (item.BiggestBid > 0)
+                throw new APIException("Item has been on auction and there are bids on this auction! It cannot be editted.");
+
+
             if (!Regex.Match(req.DomainName, @"^[a-zA-Z0-9\-]+(\.[a-zA-Z0-9]+)+$").Success)
                 throw new APIException("Invalid domain name");
-
-            //TODO: check if user is saving his own item?
-            DMItem item = Provider.Database.Read<DMItem>("select * from DMItem where Id = {0}", req.Id);
-            if (item != null && item.SellerMemberId != Provider.CurrentMember.Id)
-                throw new APIException("You cannot edit somebody else's item!");
-            else item = new DMItem();
 
             if (this.GetDomainBlackList(new ReqEmpty()).Where(x => x.Name == req.DomainName).Count() > 0)
                 throw new APIException(string.Format("Domain name is in blacklist. It cannot be {0}", req.DomainName));

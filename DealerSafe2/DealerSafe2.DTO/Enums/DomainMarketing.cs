@@ -52,9 +52,9 @@ namespace DealerSafe2.DTO.Enums
         WaitingForPayment,
         WaitingForTransfer,
         SuccessfullyClosed,
+        TimeoutForPayment,
         CancelledBySeller,
         CancelledByBuyer,
-        TimeoutForPayment
     }
 
     public enum DMExpertiseStates
