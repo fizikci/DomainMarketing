@@ -748,7 +748,7 @@ namespace DealerSafe2.API
                 throw new APIException("Minimum bid interval has to be bigger than 9.");
             if (req.MinimumBidPrice <= 0)
                 throw new APIException("Minimum bid interval has to be bigger than 0.");
-            if (req.BuyItNowPrice <= req.MinimumBidPrice + req.MinimumBidInterval)
+            if (req.BuyItNowPrice < req.MinimumBidPrice + req.MinimumBidInterval)
                 throw new APIException("Buy it now price has to be higher than the minimum placeable bid.");
             if (req.PlannedCloseDate.Date <= DateTime.Now.Date.AddDays(1))
                 throw new APIException("Planned close date of auction should be at least 1 day later.");

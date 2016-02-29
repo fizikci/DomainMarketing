@@ -21,7 +21,7 @@ namespace RoutineTasks
                     if (item.Status == DealerSafe2.DTO.Enums.DMAuctionStates.Open
                         && item.PlannedCloseDate.Date < now.Date)
                     {
-                        
+                        Console.WriteLine("Cancelling `" + item.DomainName + "`, due date reached.");
                         item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
                         item.StatusReason = DealerSafe2.DTO.Enums.DMAuctionStateReasons.DueDate;
                         item.PaymentStatus = DealerSafe2.DTO.Enums.DMSaleStates.None;
@@ -31,6 +31,7 @@ namespace RoutineTasks
                     else if (item.PaymentStatus == DealerSafe2.DTO.Enums.DMSaleStates.WaitingForPayment 
                         && item.ActualCloseDate.Date.AddDays(14) < now.Date)
                     {
+                        Console.WriteLine("Cancelling `" + item.DomainName + "`, timeout for payment.");
                         item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
                         item.StatusReason = DealerSafe2.DTO.Enums.DMAuctionStateReasons.None;
                         item.PaymentStatus = DealerSafe2.DTO.Enums.DMSaleStates.TimeoutForPayment;
