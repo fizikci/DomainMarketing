@@ -235,7 +235,7 @@ namespace DealerSafe2.API
 
             var expertise = new DMExpertise();
             expertise.RequesterMemberId = Provider.CurrentMember.Id;
-            expertise.Status = DMExpertiseStates.Open;
+            expertise.Status = DMExpertiseStates.New;
             expertise.DMItemId = id;
             expertise.Insert();
 
@@ -306,7 +306,7 @@ namespace DealerSafe2.API
                         INNER JOIN Member M on M.Id = E.ExpertMemberId
                         WHERE E.RequesterMemberId = {0} and E.DMItemId = {1} AND E.Status = {2} AND E.IsDeleted <> 1 
                         ORDER BY E.InsertDate, E.Status DESC";
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Processed.ToString())
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMExpertiseStates.Completed.ToString())
                 .ToEntityList<DMExpertiseInfo>();
             return res;
         }
@@ -318,7 +318,7 @@ namespace DealerSafe2.API
                 throw new APIException("Parameter null. Access denied");
             var brokerage = new DMBrokerage();
             brokerage.RequesterMemberId = Provider.CurrentMember.Id;
-            brokerage.Status = DMBrokerageStates.Open;
+            brokerage.Status = DMBrokerageStates.New;
             brokerage.DMItemId = id;
             brokerage.Insert();
 
@@ -378,7 +378,7 @@ namespace DealerSafe2.API
                         INNER JOIN Member M ON M.Id = B.BrokerMemberId 
                         WHERE B.RequesterMemberId = {0} AND B.IsDeleted <> 1 AND B.DMItemId = {1} AND B.Status = {2}
                         ORDER BY B.InsertDate, B.Status DESC";
-            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Processed.ToString())
+            var res = Provider.Database.GetDataTable(sql, Provider.CurrentMember.Id, id, DMBrokerageStates.Completed.ToString())
                 .ToEntityList<DMBrokerageInfo>().FirstOrDefault();
             return res;
         }
@@ -1556,9 +1556,6 @@ namespace DealerSafe2.API
 
         public bool SaveBid(ReqBid req)
         {
-            /* DEBUG
-             * NULL değeri 'pozucaKs_ds_SQL.pozucaKs_ds_SQL.DMAutoBidder' tablosunun 'Interval' sütununa eklemez; sütun null değerlere izin vermiyor. INSERT başarısız. Deyim sonlandırıldı.
-             */
             if (req == null)
                 throw new APIException("Parameter null. Access denied");
             if (Provider.CurrentMember.Id.IsEmpty())
@@ -1580,8 +1577,8 @@ namespace DealerSafe2.API
             {
                 if (req.Limit < req.BidValue)
                     throw new APIException("Auto Bidding Limit has to be bigger than bid value!");
-                if (req.Limit > item.BuyItNowPrice)
-                    throw new APIException("Auto Bidding Limit has to be smaller than or equal to Buy It Now Price!");
+                if (req.Limit > item.BuyItNowPrice + req.Interval)
+                    throw new APIException("Auto Bidding Limit has to be smaller than or equal to (Buy It Now Price + Auto Bidding Interval)!");
                 if (req.Interval < item.MinimumBidInterval)
                     throw new APIException("Auto Bidding Interval has to be bigger than or equal to Minimum Bid Interval!");
             }
@@ -1633,12 +1630,27 @@ namespace DealerSafe2.API
                 var limit = activeAutoBidder.Limit - activeAutoBidder.Interval;
                 var reqLimit = req.Limit - req.Interval;
                 var minimumLimit = Math.Min(limit, reqLimit);
-                var activeBidderWins = minimumLimit == reqLimit;
-
-                for (int currentbid = item.BiggestBid; currentbid < minimumLimit; currentbid += req.Interval + activeAutoBidder.Interval)
+                bool activeBidderWins;
+                int currentbid = item.BiggestBid;
+                while(true)
                 {
-                    if (currentbid >= item.BuyItNowPrice) break;
+                    currentbid += activeAutoBidder.Interval;
+                    if (currentbid >= minimumLimit)
+                    {
+                        activeBidderWins = true;
+                        break;
+                    }
 
+                    currentbid += req.Interval;
+                    if (currentbid >= minimumLimit)
+                    {
+                        activeBidderWins = false;
+                        break;
+                    }
+                }
+
+                for (currentbid = item.BiggestBid; currentbid < minimumLimit; currentbid += req.Interval + activeAutoBidder.Interval)
+                {
                     automaticallyBidForUser(item, activeAutoBidder.BidderMemberId, activeAutoBidder.Interval);
                     if (item.PaymentStatus == DMSaleStates.WaitingForPayment) break;
 

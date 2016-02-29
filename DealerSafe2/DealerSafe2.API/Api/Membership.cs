@@ -507,7 +507,7 @@ namespace DealerSafe2.API
             var member = Provider.Database.Read<Member>("Email = {0}", email);
             if (member != null)
                 member.SendPasswordRecoveryMessage();
-
+            else throw new APIException("User is not registered!");
             return true;
         }
 

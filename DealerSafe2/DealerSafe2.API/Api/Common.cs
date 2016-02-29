@@ -170,7 +170,7 @@ namespace DealerSafe2.API
                 else
                     currIndex++;
 
-                HttpContext.Current.Application["lastIdleStaffMemberId"] = staffMembers[currIndex].Id;
+                HttpContext.Current.Application["lastIdleStaffMemberId"] = currIndex == -1 ? null : staffMembers[currIndex].Id;
 
                 return staffMembers[currIndex].Id;
             }

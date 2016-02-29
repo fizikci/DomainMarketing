@@ -59,15 +59,15 @@ namespace DealerSafe2.DTO.Enums
 
     public enum DMExpertiseStates
     {
-        Open,
+        New,
         Processing,
-        Processed
+        Completed
     }
 
     public enum DMBrokerageStates
     {
-        Open,
+        New,
         Processing,
-        Processed
+        Completed
     }
 }

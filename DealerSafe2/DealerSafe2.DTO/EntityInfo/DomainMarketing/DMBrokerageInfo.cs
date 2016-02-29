@@ -14,7 +14,7 @@ namespace DealerSafe2.DTO.EntityInfo.DomainMarketing
         public string DMItemId { get; set; }
         public string DomainName { get; set; }
         public DMItemTypes Type { get; set; }
-        public string Status { get; set; }
+        public DMBrokerageStates Status { get; set; }
         public string ReportContent { get; set; }
         public DateTime InsertDate { get; set; }
     }
