@@ -293,10 +293,14 @@ var apiErrors = [
 	["Ülke seçiniz", "Ülke seçiniz.", "Select a country."],
 	["Lütfen ya temsilci seçiniz ya da yeni temsilci için email adresi giriniz.", "", ""]
 ];
-
+var toDashCase = function(s){
+    return s.replace(/\.?([A-Z])/g, function (x,y){return "-" + y.toLowerCase()}).replace(/^_/, "");
+};
 /*
  * Input directives
 */
+
+
 app.directive('inputFile', function () {
     return {
         restrict: 'E',
@@ -307,7 +311,9 @@ app.directive('inputFile', function () {
             var customAttrs = " " + Object.keys(attr)
                 .filter(function(x){ return x.indexOf("custom") === 0; })
                 .map(function(x){ return x.replace("custom","") + "='" + attr[x] + "'" }).join(" ");
-            return '<div>' +
+            var events = Object.keys(attr).filter(function(el){ return el.startsWith("on") });
+            
+            var html = '<div>' +
                     '   <div class="space-4"></div>' +
                     '   <div class="form-group">' +
                     '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
@@ -324,12 +330,33 @@ app.directive('inputFile', function () {
                                     + (attr.maxsize ? ' maxsize="' + attr.maxsize + '"' : '')
                                     + (attr.minsize ? ' minsize="' + attr.minsize + '"' : '')
                                     + (attr.minnum ? ' minnum="' + attr.minnum + '"' : '')
-                                    + (attr.maxnum ? ' maxnum="' + attr.maxnum + '"' : '')
-                                    + (attr.onAfterValidate ? ' on-after-validate="' + attr.onAfterValidate + '"' : '')
+                                    + (attr.maxnum ? ' maxnum="' + attr.maxnum + '"' : '');
+                                    for(var i = 0; i< events.length; i++){
+                                        html += " " + toDashCase(events[i]) + '="' + attr[events[i]] + '"';
+}
+                                html += (attr.onAfterValidate ? ' on-after-validate="' + attr.onAfterValidate + '"' : '')
                                     + (attr.required ? ' required' : '')
                                     + customAttrs
                                     + ' base-sixty-four-input>' +
                         (attr.required ? ' <span class="required-star">*</span> ' : '') +
+                    '       </div>' +
+                    '   </div>' +
+                    '</div>';
+            return html;
+        }
+    };
+});
+app.directive('formInput', function () {
+    return {
+        restrict: 'E',
+        replace: false,
+        template: function (elm, attr) {
+            return '<div>' +
+                    '   <div class="space-4"></div>' +
+                    '   <div class="form-group">' +
+                    '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
+                    '       <div class="col-sm-9">' +
+                                elm.html() +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -519,28 +546,28 @@ app.directive('inputSelect', function () {
         }
     };
 });
-app.directive('inputDate', function () {
+app.directive('inputDatePicker', function () {
     return {
         restrict: 'E',
         replace: true,
         template: function (elm, attr) {
             if (!attr.placeholder) attr.placeholder = '';
-                         var customAttrs = " " + Object.keys(attr)
-                             .filter(function(x){ return x.indexOf("custom") === 0; })
-                             .map(function(x){ return x.replace("custom","") + "='" + attr[x] + "'" }).join(" ");
+                var customAttrs = " " + Object.keys(attr)
+                    .filter(function(x){ return x.indexOf("custom") === 0; })
+                    .map(function(x){ return x.replace("custom","") + "='" + attr[x] + "'" }).join(" ");
             return '<div>' +
                     '   <div class="space-4"></div>' +
                     '   <div class="form-group">' +
                     '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
                     '       <div class="col-sm-9">' +
-                    '           <input type="date" class="date-picker" ng-model="' + attr.model + '"' 
+                    '           <input type="date" ng-model="' + attr.model + '"' 
                                     + (attr.name ? ' name="' + attr.name + '" id="' + attr.name + '"' : '') 
                                     + (attr.required ? ' required' : '')
                                     + (attr.disabled ? ' disabled="' + attr.disabled + '"' : '') 
                                     + customAttrs
                                     + '/>' +
-                        elm.html() +
-                        (attr.required ? ' <span class="required-star">*</span> ' : '') +
+                                (attr.required ? ' <span class="required-star">*</span> ' : '') +
+                                elm.html() +
                     '       </div>' +
                     '   </div>' +
                     '</div>';
@@ -640,4 +667,58 @@ app.directive('errSrc', function() {
       });
     }
   }
+});
+app.directive('inputDate', function ($compile, $filter) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            model: "=",
+            popup1: "@",
+            dateoptions: "="
+        },
+        template: function (elm, attr) {
+            var html = '<div>' +
+                    '   <div class="space-4"></div>' +
+                    '   <div class="form-group">' +
+                    '       <label for="' + attr.name + '" class="col-sm-3 control-label no-padding-right"> ' + attr.label + ' </label>' +
+                    '       <div class="col-sm-9">' +
+                                '<input type="text" name="'+attr.name+'" class="'+ attr.inputClass +'"' + 
+                                ' uib-datepicker-popup="{{dateFormat}}" ng-click="open()"  ng-model="'+attr.model+'"'+
+                                ' is-open="popup.opened" datepicker-options="datepickerOptions"/>' +
+                                elm.html() +
+                    '       </div>' +
+                    '   </div>' +
+                    '</div>';
+            return html;
+        },
+        link: {
+            pre: function(scope, element, attrs, controller, transcludeFn)
+            {
+                scope.dateFormat = "dd-MM-yyyy";
+                var d = new Date();
+                scope.datepickerOptions = {
+                    maxDate: new Date(d.getFullYear() + 4, d.getMonth(), d.getDate()),
+                    minDate: new Date(1900, 1, 1),
+                    startingDay: 1,
+                    showWeeks: false,
+                    initDate: scope.model
+                };
+            },
+            post: function(scope, element, attrs, controller, transcludeFn)
+            {
+                var d = $filter('date')(scope.datepickerOptions.initDate, scope.dateFormat);
+                setTimeout(function(){
+                    $(element.find("input")).val(d);
+                }, 100);
+                scope.open = function() {
+                    scope.popup.opened = true;
+                };
+            
+                scope.popup = {
+                    opened: false
+                };
+            }
+        }
+    };
 });

@@ -668,8 +668,7 @@ namespace DealerSafe2.API
 
         public List<DMFaqInfo> GetDMFaqSearchResults(string keyword)
         {
-            var searchIncludingKeyword = "%" + (keyword ?? "") + "%";
-            return Provider.Database.ReadList<DMFaq>("select * from DMFaq where Question LIKE {0} OR Answer LIKE {1}", searchIncludingKeyword, searchIncludingKeyword).ToEntityInfo<DMFaqInfo>();
+            return Provider.Database.ReadList<DMFaq>("select * from DMFaq").ToEntityInfo<DMFaqInfo>();
         }
 
         public bool RecommendItem(ReqShareItem req)
@@ -1962,14 +1961,17 @@ namespace DealerSafe2.API
             item.Save();
             try
             {
-                var htmlMessage = @"
+                var htmlMessage = @"""
                 <br>
+                <br>
+                <h2>Congratulations! ✓</h2>
+                
                 <p>From your {1} ending with {2}, we received {3} liras, for <a href=""{0}ViewItem.aspx?Id={4}"">{5}</a></p>
                 
                 <p>You can also go to <a href=""{0}/MySales.aspx"">My Sales</a> page to see your payment details.</p>
                 
                 <p>From now on the following will happen:</p>
-                <p>
+                <div style=""font-size: 1.4em"">
                     <ol>
                         <li>You will wait for our emails for at most 2 weeks.</li>
                         <li>We will contact the seller and take the item's ownership from him.</li>
@@ -1989,8 +1991,8 @@ namespace DealerSafe2.API
                         <li>If the transfer was failed, the status will be <span class=""label label-warning"">cancelled</span></li>
                         <li>Cancelled items can be re-opened for bidding again.</li>
                     </ol>
-                </p>
-            ";
+                </div>
+            """;
 
                 htmlMessage = string.Format(htmlMessage,
                     AppDomain.CurrentDomain.BaseDirectory,

@@ -19,7 +19,7 @@ namespace RoutineTasks
                 foreach (var item in items)
                 {
                     if (item.Status == DealerSafe2.DTO.Enums.DMAuctionStates.Open
-                        && item.PlannedCloseDate.Date < now.Date)
+                        && item.PlannedCloseDate.Date <= now.Date)
                     {
                         Console.WriteLine("Cancelling `" + item.DomainName + "`, due date reached.");
                         item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
@@ -29,7 +29,7 @@ namespace RoutineTasks
                         item.Save();
                     }
                     else if (item.PaymentStatus == DealerSafe2.DTO.Enums.DMSaleStates.WaitingForPayment 
-                        && item.ActualCloseDate.Date.AddDays(14) < now.Date)
+                        && item.ActualCloseDate.Date.AddDays(14) <= now.Date)
                     {
                         Console.WriteLine("Cancelling `" + item.DomainName + "`, timeout for payment.");
                         item.Status = DealerSafe2.DTO.Enums.DMAuctionStates.Cancelled;
