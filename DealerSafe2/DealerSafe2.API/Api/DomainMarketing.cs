@@ -1958,20 +1958,20 @@ namespace DealerSafe2.API
             item.PaymentDate = DateTime.Now;
             item.PaymentDescription = req.PaymentDescription;
 
-            item.Save();
-            try
-            {
-                var htmlMessage = @"""
-                <br>
-                <br>
-                <h2>Congratulations! ✓</h2>
+
+            var query = HttpContext.Current.Request.Url.PathAndQuery;
+            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            var host = absUri.Substring(0, absUri.IndexOf(query));
+
+            var htmlMessage = string.Format(@"
+                <h1>Congratulations! ✅</h1>
                 
-                <p>From your {1} ending with {2}, we received {3} liras, for <a href=""{0}ViewItem.aspx?Id={4}"">{5}</a></p>
+                <p style=""font-size: {6}em"">From your {1} ending with {2}, we received {3} liras, for <a href=""{0}/ViewItem.aspx?Id={4}"">{5}</a></p>
                 
-                <p>You can also go to <a href=""{0}/MySales.aspx"">My Sales</a> page to see your payment details.</p>
+                <p style=""font-size: {6}em"">You can also go to <a href=""{0}/MySales.aspx"">My Sales</a> page to see your payment details.</p>
                 
-                <p>From now on the following will happen:</p>
-                <div style=""font-size: 1.4em"">
+                <p style=""font-size: {6}em"">From now on the following will happen:</p>
+                <div style=""font-size: {6}em"">
                     <ol>
                         <li>You will wait for our emails for at most 2 weeks.</li>
                         <li>We will contact the seller and take the item's ownership from him.</li>
@@ -1991,21 +1991,20 @@ namespace DealerSafe2.API
                         <li>If the transfer was failed, the status will be <span class=""label label-warning"">cancelled</span></li>
                         <li>Cancelled items can be re-opened for bidding again.</li>
                     </ol>
-                </div>
-            """;
+                </div>",
+                       host,
+                       item.PaymentType,
+                       req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
+                       item.PaymentAmount,
+                       item.Id,
+                       item.DomainName,
+                       "1.2");
 
-                htmlMessage = string.Format(htmlMessage,
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    item.PaymentType,
-                    req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
-                    item.PaymentAmount,
-                    item.Id,
-                    item.DomainName);
-                var subject = "Congratulations! Payment Received ✅";
+            var subject = "Congratulations! Payment Received ✅";
 
-                SendMailFromAPI(subject, htmlMessage, Provider.CurrentMember.Email, Provider.CurrentMember.FullName);
-            }catch{}
-            
+            SendMailFromAPI(subject, htmlMessage, Provider.CurrentMember.Email, Provider.CurrentMember.FullName);
+
+            item.Save();
             return true;
         }
 
