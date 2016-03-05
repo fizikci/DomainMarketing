@@ -181,17 +181,15 @@ namespace DealerSafe2.API
             if (member == null)
                 throw new APIException(Provider.TR("Invalid email or password"));
 
-            //switch (member.State)
-            //{
-            //    case MemberStates.WaitingEmailConfirmation:
-            //        throw new APIException(Provider.TR("Waiting e-mail confirmation"));
-            //    case MemberStates.WaitingSMSConfirmation:
-            //        throw new APIException(Provider.TR("Waiting SMS confirmation"));
-            //    case MemberStates.Suspended:
-            //        throw new APIException(Provider.TR("Membership suspended"));
-            //    case MemberStates.Undefined:
-            //        throw new APIException(Provider.TR("Invalid member state"));
-            //}
+            switch (member.State)
+            {
+                case MemberStates.WaitingEmailConfirmation:
+                    throw new APIException(Provider.TR("Waiting e-mail confirmation"));
+                case MemberStates.WaitingSMSConfirmation:
+                    throw new APIException(Provider.TR("Waiting SMS confirmation"));
+                case MemberStates.Suspended:
+                    throw new APIException(Provider.TR("Membership suspended"));
+            }
 
             return doLoginForMember(member);
         }
@@ -532,7 +530,7 @@ namespace DealerSafe2.API
 
             var member = Provider.Database.Read<Member>("Keyword = {0}", req.Keyword);
             if (member == null)
-                throw new APIException("No such member with the keyword provided", ErrorTypes.ValidationError);
+                throw new APIException("No such member with the keyword provided");
 
 
             try

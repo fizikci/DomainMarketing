@@ -1958,11 +1958,6 @@ namespace DealerSafe2.API
             item.PaymentDate = DateTime.Now;
             item.PaymentDescription = req.PaymentDescription;
 
-
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
-
             var htmlMessage = string.Format(@"
                 <h1>Congratulations! ✅</h1>
                 
@@ -1992,7 +1987,7 @@ namespace DealerSafe2.API
                         <li>Cancelled items can be re-opened for bidding again.</li>
                     </ol>
                 </div>",
-                       host,
+                       Provider.Api.ApiClient.Url,
                        item.PaymentType,
                        req.CardNumber.Substring(req.CardNumber.Length - 4, 4),
                        item.PaymentAmount,
@@ -2007,7 +2002,17 @@ namespace DealerSafe2.API
             item.Save();
             return true;
         }
+        public bool ResendConfirmationMessage(string toId) {
+            var member = Provider.Database.Read<Member>("select * from Member where Id = {0}", toId);
+            if (member == null)
+                throw new APIException("No such member");
+            
+            member.Keyword = Utility.CreatePassword(16);
+            member.Save();
 
+            member.SendConfirmationCode();
+            return true;
+        }
         /// <summary> 
         /// Sends email to current member with a subject and an html message.
         ///     If member is specified it is send to that member instead.

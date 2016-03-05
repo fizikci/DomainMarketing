@@ -211,8 +211,8 @@ namespace DealerSafe2.API.Entity.Members
                 Dear #{FullName},<br/>
                 <br/>
                 Please follow this link to confirm your email address:<br/>
-                #{siteAddress}/ConfirmEmail.aspx?Keyword=#{Keyword}
-                ".EvaluateAsTemplate(new { FullName, siteAddress, Keyword }), res.MailHost, res.MailPort, res.MailUserName, res.MailPassword, res.MailFrom);
+                #{siteAddress}/ConfirmEmail.aspx?Keyword=#{Keyword}&Id=#{Id}
+                ".EvaluateAsTemplate(new { FullName, siteAddress, Keyword, Id }), res.MailHost, res.MailPort, res.MailUserName, res.MailPassword, res.MailFrom);
         }
 
         public Dictionary<string, int> GetAllRights()

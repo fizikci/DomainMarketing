@@ -232,6 +232,10 @@ namespace DealerSafe2.DTO.ServiceClient
         {
             return Call<bool, ReqEmpty>(req, MethodBase.GetCurrentMethod().Name);
         }
+        public bool ResendConfirmationMessage(string toId)
+        {
+            return Call<bool, string>(toId, MethodBase.GetCurrentMethod().Name);
+        }
 
         public bool ChangeForgottenPassword(ReqChangeForgottenPassword req)
         {

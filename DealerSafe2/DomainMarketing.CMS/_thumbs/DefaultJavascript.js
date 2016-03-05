@@ -71,7 +71,7 @@ function defaultSuccessCallback(res) {
 
 function trError(msg){
     for(var i=0; i<apiErrors.length; i++){
-        if(msg.indexOf(apiErrors[i][0])>-1)
+        if(msg.indexOf(apiErrors[i][0]) == 0 && apiErrors[i][0].length == msg.length)
             return apiErrors[i][currLang=='tr' ? 1 : 2] || msg;
     }
     return msg;
@@ -267,7 +267,7 @@ var apiErrors = [
 	["Please enter a valid email address", "Lütfen geçerli bir email adresi giriniz. ", "Please enter a valid email address"],
 	["No such member", "Böyle bir kullanici yok.", "No such username"],
 	["Keyword required", "Anahtar kelime gerekli.", "Keyword required"],
-	["No such member with the keyword provided", "Girilen anahtar kelimeye ait bir kulanici adi yok.", "No such username with the keyword entered."],
+	["No such member with the keyword provided", "Bu anahtar kelimeye kullnilmis.", "Keyword is outdated."],
 	["Email address is invalid", "Email adresi geçersiz.", "Email address is invalid"],
 	["Not valid email address", "Geçersiz email adresi.", "Invalid email address."],
 	["Password length cannot be less than six", "Sifre en az 6 karakterden olusmalidir.", "Password should contain at least 6 characters."],
