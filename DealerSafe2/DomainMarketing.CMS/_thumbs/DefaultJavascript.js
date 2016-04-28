@@ -12,10 +12,10 @@
     if(number == -5) return "Worst";
 };
 
-if(location.href.indexOf('domainmarketing.com')>-1)
-    document.domain = "domainmarketing.com";
-else
-    document.domain = "localhost";
+// if(location.href.indexOf('domainmarketing.com')>-1)
+//     document.domain = "domainmarketing.com";
+// else
+//     document.domain = "kar-zarar.com";
 
 var ajaxLog = {};
 function callAPIMethod(method, data, successCallback, failCallback) {

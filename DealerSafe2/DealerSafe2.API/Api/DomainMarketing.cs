@@ -10,6 +10,7 @@ using DealerSafe2.DTO.Request;
 using DealerSafe2.DTO.Response;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -420,14 +421,14 @@ namespace DealerSafe2.API
 
         private void AddHostPrefixToAvatars(List<EntityCommentInfo> res)
         {
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
 
             res.AsParallel().ForAll(x =>
             {
-                x.SenderAvatar = host + x.SenderAvatar;
-                x.ToAvatar = host + x.ToAvatar;
+                x.SenderAvatar = getApiFullPath() + x.SenderAvatar;
+                x.ToAvatar = getApiFullPath() + x.ToAvatar;
             });
         }
 
@@ -536,19 +537,19 @@ namespace DealerSafe2.API
 
         private void SetMemberAvatar(DMMemberInfo memberInfo)
         {
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
 
-            memberInfo.Avatar = string.IsNullOrWhiteSpace(memberInfo.Avatar) ? "" : host + memberInfo.Avatar;
+            memberInfo.Avatar = string.IsNullOrWhiteSpace(memberInfo.Avatar) ? "" : getApiFullPath() + memberInfo.Avatar;
         }
 
         public string GetMemberAvatar(ReqEmpty req) {
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
 
-            return string.IsNullOrWhiteSpace(Provider.CurrentMember.Avatar) ? "" : host + Provider.CurrentMember.Avatar;
+            return string.IsNullOrWhiteSpace(Provider.CurrentMember.Avatar) ? "" : getApiFullPath() + Provider.CurrentMember.Avatar;
         }
 
         public string SaveMemberAvatar(Base64Image req)
@@ -576,9 +577,8 @@ namespace DealerSafe2.API
             Image image = Image.FromStream(streamBitmap);
 
             //generate img path
-            string imgPath = "Medya\\" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+            string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
             var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
-
 
             // remove the old avatar
             try
@@ -599,10 +599,10 @@ namespace DealerSafe2.API
 
             Provider.CurrentMember.Save(); // Save it
 
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
-            return host + Provider.CurrentMember.Avatar;
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
+            return getApiFullPath() + Provider.CurrentMember.Avatar;
         }
 
         #endregion
@@ -1411,11 +1411,11 @@ namespace DealerSafe2.API
             if (Provider.CurrentMember.Id.IsEmpty())
                 throw new APIException("Access denied");
 
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
             var screenshots = Provider.Database.ReadList<DMScreenshot>("select * from DMScreenshot where DMItemId = {0} and IsDeleted <> 1 order by OrderNo, InsertDate ", id).ToEntityInfo<DMScreenshotInfo>();
-            screenshots.ForEach(x => x.RelativePath = host + x.RelativePath);
+            screenshots.ForEach(x => x.RelativePath = getApiFullPath() + x.RelativePath);
             return screenshots;
         }
         public List<DMScreenshotInfo> SaveDMScreenShot(ReqDMScreenshot req)
@@ -1467,7 +1467,7 @@ namespace DealerSafe2.API
                 Image image = Image.FromStream(streamBitmap);
 
                 //generate img path
-                string imgPath = "Medya\\" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+                string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
                 screenshots[i].RelativePath = "/" + imgPath.Replace("\\", "/");
 
                 var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
@@ -1483,12 +1483,12 @@ namespace DealerSafe2.API
                 //scaledImage.Save(imgPath, ImageFormat.Jpeg); // 100%, no quality loss
                 screenshots[i].Insert();
             }
-            var query = HttpContext.Current.Request.Url.PathAndQuery;
-            var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
-            var host = absUri.Substring(0, absUri.IndexOf(query));
+            //var query = HttpContext.Current.Request.Url.PathAndQuery;
+            //var absUri = HttpContext.Current.Request.Url.AbsoluteUri;
+            //var host = absUri.Substring(0, absUri.IndexOf(query));
             screenshots.ForEach(x =>
             {
-                x.RelativePath = host + x.RelativePath;
+                x.RelativePath = getApiFullPath() + x.RelativePath;
             });
             return screenshots.ToEntityInfo<DMScreenshotInfo>();
         }
@@ -1500,6 +1500,10 @@ namespace DealerSafe2.API
             if (mod4 > 0) sbText.Append(new string('=', 4 - mod4));
 
             return sbText.ToString();
+        }
+
+        private string getApiFullPath() {
+            return "http://api.kar-zarar.com";
         }
 
         #endregion
