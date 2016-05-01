@@ -12,10 +12,10 @@
     if(number == -5) return "Worst";
 };
 
-// if(location.href.indexOf('domainmarketing.com')>-1)
-//     document.domain = "domainmarketing.com";
-// else
-//     document.domain = "kar-zarar.com";
+if(~location.href.indexOf('domainmarketing.com'))
+    document.domain = "domainmarketing.com";
+else if(~location.href.indexOf('kar-zarar.com'))
+    document.domain = "kar-zarar.com";
 
 var ajaxLog = {};
 function callAPIMethod(method, data, successCallback, failCallback) {
@@ -674,8 +674,8 @@ app.directive('inputDate', function ($compile, $filter) {
         replace: true,
         scope: {
             model: "=",
-            popup1: "@",
-            dateoptions: "="
+            dateoptions: "=",
+            maxYearOffset: "=?"
         },
         template: function (elm, attr) {
             var html = '<div>' +
@@ -695,10 +695,14 @@ app.directive('inputDate', function ($compile, $filter) {
         link: {
             pre: function(scope, element, attrs, controller, transcludeFn)
             {
-                scope.dateFormat = "dd-MM-yyyy";
+                // defaults
+                if(!scope.model) scope.model = new Date();
+                if(!scope.maxYearOffset) scope.maxYearOffset = 4;
+                
+                scope.dateFormat = "yyyy-MM-dd";
                 var d = new Date();
                 scope.datepickerOptions = {
-                    maxDate: new Date(d.getFullYear() + 4, d.getMonth(), d.getDate()),
+                    maxDate: new Date(d.getFullYear() + scope.maxYearOffset, d.getMonth(), d.getDate()),
                     minDate: new Date(1900, 1, 1),
                     startingDay: 1,
                     showWeeks: false,

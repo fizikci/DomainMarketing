@@ -577,7 +577,7 @@ namespace DealerSafe2.API
             Image image = Image.FromStream(streamBitmap);
 
             //generate img path
-            string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+            string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + "/" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
             var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
 
             // remove the old avatar
@@ -587,7 +587,7 @@ namespace DealerSafe2.API
             }
             catch { }
 
-            Provider.CurrentMember.Avatar = "/" + imgPath.Replace("\\", "/");
+            Provider.CurrentMember.Avatar = imgPath.Replace("\\", "/");
 
             // resize if too big
             if (image.Height > 768)
@@ -1338,11 +1338,12 @@ namespace DealerSafe2.API
                 var attrType = prop.cas.Where(p => p.AttributeType.Name == "ColumnDetailAttribute").FirstOrDefault();
                 var attrValue = prop.cas.Select(p => p.NamedArguments)
                     .Where(p => p.Select(na => na.MemberName == "Length").FirstOrDefault())
-                    .FirstOrDefault().FirstOrDefault();
-                if(attrType != null && attrValue != null){
+                    .FirstOrDefault();
+                if(attrType != null && attrValue != null && attrValue.Count > 0)
+				{
                     var val = item.GetMemberValue<string>(prop.Name);
-                    if (val != null && val.Length > attrValue.TypedValue.Value.ToInt()) {
-                        item.SetMemberValue(prop.Name, val.Substring(0, attrValue.TypedValue.Value.ToInt()));
+                    if (val != null && val.Length > attrValue.First().TypedValue.Value.ToInt()) {
+                        item.SetMemberValue(prop.Name, val.Substring(0, attrValue.First().TypedValue.Value.ToInt()));
                     }
                 }
             }
@@ -1400,7 +1401,7 @@ namespace DealerSafe2.API
             screenshot.Delete();
 
             var fullPath = AppDomain.CurrentDomain.BaseDirectory + screenshot.RelativePath.Substring(1).Replace("/", "\\");
-            File.Delete(fullPath);
+			try{ File.Delete(fullPath); } catch { }
 
             return true;
         }
@@ -1451,7 +1452,7 @@ namespace DealerSafe2.API
                 screenshots.Add(new DMScreenshot()
                 {
                     DMItemId = req.DMItemId,
-                    Name = req.ScreenShots[i].filename
+                    Name = req.ScreenShots[i].filename.Replace(" ", "")
                 });
             }
 
@@ -1467,8 +1468,8 @@ namespace DealerSafe2.API
                 Image image = Image.FromStream(streamBitmap);
 
                 //generate img path
-                string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
-                screenshots[i].RelativePath = "/" + imgPath.Replace("\\", "/");
+                string imgPath = ConfigurationManager.AppSettings["userFilesDir"].ToString() + "/" + fileName.Substring(0, fileName.LastIndexOf('.')) + "_" + (DateTime.Now.Millisecond % 1000) + fileName.Substring(fileName.LastIndexOf('.'));
+                screenshots[i].RelativePath =  imgPath.Replace("\\", "/");
 
                 var fullPath = AppDomain.CurrentDomain.BaseDirectory + imgPath;
                 image.Save(fullPath, ImageFormat.Jpeg);
@@ -1503,7 +1504,7 @@ namespace DealerSafe2.API
         }
 
         private string getApiFullPath() {
-            return "http://api.kar-zarar.com";
+            return ConfigurationManager.AppSettings["apiAddress"].ToString();
         }
 
         #endregion
